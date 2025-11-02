@@ -3,12 +3,24 @@ from state_provider.state_provider_class import state_provider
 from datetime import datetime
 import pandas as pd
 
+
+def _sync_selected_time_range(start_dt: datetime, end_dt: datetime) -> None:
+    if not start_dt or not end_dt:
+        return
+
+    normalized = (start_dt.date(), end_dt.date())
+    st.session_state["date_range_input"] = normalized
+    st.session_state["export_date_range_input"] = normalized
+    state_provider.set_selected_time_range(start_dt, end_dt)
+
 def render_ecmo_time_ranges():
     ecmo_time_ranges = state_provider.get_device_time_ranges("ecmo")
 
     # Cleanup required to remove invalid entries, e.g. "ECMO-Durchtrittsstelle"
     clean_ecmo_time_ranges = []
     for device, start, end in ecmo_time_ranges:
+        if not isinstance(device, str):
+            continue
         if "ecmo " in device.lower() and device.lower().startswith("ecmo"):
             clean_ecmo_time_ranges.append((device, start, end))
 
@@ -17,7 +29,8 @@ def render_ecmo_time_ranges():
         return
 
     for device, start, end in clean_ecmo_time_ranges:
-        st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
+        if isinstance(start, datetime) and isinstance(end, datetime):
+            st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
 
 def render_impella_time_ranges():
     impella_time_ranges = state_provider.get_device_time_ranges("impella")
@@ -25,6 +38,8 @@ def render_impella_time_ranges():
     # Cleanup
     clean_impella_time_ranges = []
     for device, start, end in impella_time_ranges:
+        if not isinstance(device, str):
+            continue
         if "impella " in device.lower() and device.lower().startswith("impella"):
             clean_impella_time_ranges.append((device, start, end))
 
@@ -33,7 +48,8 @@ def render_impella_time_ranges():
         return
 
     for device, start, end in clean_impella_time_ranges:
-        st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
+        if isinstance(start, datetime) and isinstance(end, datetime):
+            st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
 
 def render_crrt_time_ranges():
     crrt_time_ranges = state_provider.get_device_time_ranges("crrt")
@@ -43,13 +59,13 @@ def render_crrt_time_ranges():
         return
 
     for device, start, end in crrt_time_ranges:
-        st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
+        if isinstance(start, datetime) and isinstance(end, datetime):
+            st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
 
 def render_set_selected_time_range_to_mcs_button():
     mcs_time_ranges = []
     mcs_time_ranges.extend(data for data in state_provider.get_device_time_ranges("impella"))
     mcs_time_ranges.extend(data for data in state_provider.get_device_time_ranges("ecmo"))
-    print(mcs_time_ranges)
 
     if not len(mcs_time_ranges):
         return
@@ -62,7 +78,7 @@ def render_set_selected_time_range_to_mcs_button():
         return
 
     def set_mcs_range():
-        state_provider.set_selected_time_range(mcs_start_date, mcs_end_date)
+        _sync_selected_time_range(mcs_start_date, mcs_end_date)
 
     st.button("Set Selected Time Range to MCS", on_click=set_mcs_range, help="Set the selected time range to the cumulative time span of MCS devices.")
 
@@ -80,19 +96,37 @@ def render_homepage():
                 Please upload a file.""")
         return
     st.subheader("Time Range")
-    start = state.time_range[0].strftime("%d.%m.%Y")
-    end = state.time_range[1].strftime("%d.%m.%Y")
-    selected_start = state.selected_time_range[0].strftime("%d.%m.%Y")
-    selected_end = state.selected_time_range[1].strftime("%d.%m.%Y")
-    st.write(f"Available Time Range of Patient Record: **{start} - {end}**")
+    time_range = state_provider.get_time_range()
+    selected_range = state_provider.get_selected_time_range()
+
+    if time_range:
+        start = time_range[0].strftime("%d.%m.%Y")
+        end = time_range[1].strftime("%d.%m.%Y")
+        st.write(f"Available Time Range of Patient Record: **{start} - {end}**")
+    else:
+        st.write("Available Time Range of Patient Record: **n/a**")
+
+    if selected_range:
+        selected_start = selected_range[0].strftime("%d.%m.%Y")
+        selected_end = selected_range[1].strftime("%d.%m.%Y")
+        st.write(f"Selected Time Range: **{selected_start} - {selected_end}**")
+    else:
+        st.write("Selected Time Range: **n/a**")
+
+    vitals_count = len(parsed.vitals) if isinstance(parsed.vitals, pd.DataFrame) else 0
+    lab_count = len(parsed.lab) if isinstance(parsed.lab, pd.DataFrame) else 0
+    ecmo_count = len(parsed.ecmo) if isinstance(parsed.ecmo, pd.DataFrame) else 0
+    impella_count = len(parsed.impella) if isinstance(parsed.impella, pd.DataFrame) else 0
+    respiratory_count = len(parsed.respiratory) if isinstance(parsed.respiratory, pd.DataFrame) else 0
+    medication_count = len(parsed.medication) if isinstance(parsed.medication, pd.DataFrame) else 0
+
     st.markdown(f""" Containing in Total:
-- **{len(state.parsed_data.vitals)}** Vitals  
-- **{len(state.parsed_data.lab)}** Lab Results  
-- **{len(state.parsed_data.ecmo) + len(state.parsed_data.impella)}** MCS Recordings  
-- **{len(state.parsed_data.respiratory)}** Respiratory Values  
-- **{len(state.parsed_data.medication)}** Medication entries
+- **{vitals_count}** Vitals  
+- **{lab_count}** Lab Results  
+- **{ecmo_count + impella_count}** MCS Recordings  
+- **{respiratory_count}** Respiratory Values  
+- **{medication_count}** Medication entries
     """)
-    st.write(f"Selected Time Range: **{selected_start} - {selected_end}**")
 
     st.subheader("MCS Time Range")
     render_ecmo_time_ranges()

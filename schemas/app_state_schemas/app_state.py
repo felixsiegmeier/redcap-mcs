@@ -15,6 +15,7 @@ class Views(Enum):
     LAB = "lab"
     LAB_FORM = "lab_form"
     VITALS_FORM = "vitals_form"
+    EXPORT_BUILDER = "export_builder"
 
 class ParsedData(BaseModel):
     # Allow arbitrary types such as pandas.DataFrame (pydantic v2)
@@ -46,8 +47,9 @@ class AppState(BaseModel):
     selected_time_range: Optional[tuple[datetime, datetime]] = time_range
     ecls_implant_time : Optional[time] = None
     impella_implant_time: Optional[time] = None
+    value_strategy: str = "median"
+    nearest_time: Optional[time] = None
     vitals_ui: UiState = UiState()
     lab_ui: UiState = UiState()
     lab_form: list[LabModel] | None = []
     vitals_form: list[VitalsModel] | None = []
-    

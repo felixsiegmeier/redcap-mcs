@@ -379,6 +379,14 @@ class StateProvider:
         state = self.get_state()
         return state.record_id
 
+    def get_value_strategy(self) -> str:
+        state = self.get_state()
+        return state.value_strategy
+
+    def get_nearest_time(self) -> time | None:
+        state = self.get_state()
+        return state.nearest_time
+
     def get_time_range(self) -> Optional[Tuple]:
         state = self.get_state()
         return state.time_range
@@ -446,6 +454,10 @@ class StateProvider:
         state = self.get_state()
         state.selected_time_range = (start_date, end_date)
         self.save_state(state)
+
+    def get_selected_time_range(self) -> Optional[Tuple[datetime, datetime]]:
+        state = self.get_state()
+        return state.selected_time_range
 
     def get_vitals_value(self, date: datetime, parameter: str, value_strategy: str = "median") -> Optional[float]:
         """Deprecated: Use query_data('vitals', {'timestamp': date, 'parameter': parameter, 'value_strategy': value_strategy}) instead."""
