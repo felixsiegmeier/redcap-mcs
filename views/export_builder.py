@@ -1,26 +1,34 @@
 import streamlit as st
 from state_provider.state_provider_class import state_provider
-from datetime import date, datetime, time
+from datetime import date, time, timedelta
+import datetime as dt
+from services.value_aggregation.lab_aggregator import LabAggregator
 
 class ExportBuilder:
 
     @staticmethod
     def _to_datetime(value):
-        if isinstance(value, datetime):
+        if isinstance(value, dt.datetime):
             return value
         if isinstance(value, date):
-            return datetime.combine(value, datetime.min.time())
+            return dt.datetime.combine(value, dt.datetime.min.time())
         return None
 
     @staticmethod
     def _dates_from_range(candidate, fallback):
         if isinstance(candidate, (list, tuple)) and len(candidate) == 2:
             start, end = candidate
-            start_date = start.date() if isinstance(start, datetime) else start if isinstance(start, date) else None
-            end_date = end.date() if isinstance(end, datetime) else end if isinstance(end, date) else None
+            start_date = start.date() if isinstance(start, dt.datetime) else start if isinstance(start, date) else None
+            end_date = end.date() if isinstance(end, dt.datetime) else end if isinstance(end, date) else None
             if start_date and end_date:
                 return (start_date, end_date)
         return fallback
+
+    def _has_ecmo_data(self):
+        return not state_provider.query_data("ecmo").empty
+
+    def _has_impella_data(self):
+        return not state_provider.query_data("impella").empty
 
     def _update_record_id(self):
         new_id = st.session_state["export_record_id_input"]
@@ -30,7 +38,7 @@ class ExportBuilder:
     def _sync_export_date_range(self):
         raw_value = st.session_state.get("export_date_range_input")
         print(f"exporter raw_value: {raw_value}")
-        if isinstance(raw_value, (date, datetime)):
+        if isinstance(raw_value, (date, dt.datetime)):
             values = (raw_value, raw_value)
         elif isinstance(raw_value, (list, tuple)) and len(raw_value) == 2:
             values = tuple(raw_value)
@@ -69,6 +77,55 @@ class ExportBuilder:
             on_change=self._sync_export_date_range,
             help="Select the date range for exploration, visualization and export via RedCap CSV-File.",
         )
+    
+    def _build_data(self):
+        dates = []
+        selected = state_provider.get_selected_time_range()
+        # selected is expected to be a (start, end) tuple; handle datetimes and dates
+        if isinstance(selected, (list, tuple)) and len(selected) == 2:
+            start, end = selected
+            if isinstance(start, dt.datetime):
+                start = start.date()
+            if isinstance(end, dt.datetime):
+                end = end.date()
+            # ensure valid date range and build inclusive list of dates
+            if isinstance(start, dt.date) and isinstance(end, dt.date) and start <= end:
+                current = start
+                while current <= end:
+                    dates.append(current)
+                    current = current + timedelta(days=1)
+        
+        data = []
+        for date in dates:
+            if self._has_ecmo_data() and state_provider.get_nearest_ecls_time():
+                ecls_lab_builder = LabAggregator(
+                    state_provider,
+                    date=date,
+                    record_id=state_provider.get_record_id(),
+                    redcap_event_name="ecls_arm_2",
+                    redcap_repeat_instrument="labor",
+                    redcap_repeat_instance=1,
+                    value_strategy=state_provider.get_value_strategy(),
+                    nearest_time=state_provider.get_nearest_ecls_time()
+                )
+                entry = ecls_lab_builder.create_lab_entry()
+                data.append(entry)
+            
+            if self._has_impella_data() and state_provider.get_nearest_impella_time():
+                impella_lab_builder = LabAggregator(
+                    state_provider,
+                    date=date,
+                    record_id=state_provider.get_record_id(),
+                    redcap_event_name="impella_arm_2",
+                    redcap_repeat_instrument="labor",
+                    redcap_repeat_instance=1,
+                    value_strategy=state_provider.get_value_strategy(),
+                    nearest_time=state_provider.get_nearest_impella_time()
+                )
+                entry = impella_lab_builder.create_lab_entry()
+                data.append(entry)
+
+        state_provider.update_state(lab_form=data)
 
     def _render_record_id_input(self):
         st.text_input("Record ID", value=state_provider.get_record_id(), key="export_record_id_input", on_change=self._update_record_id, help="Enter the RedCap record ID for CSV export")
@@ -81,9 +138,31 @@ class ExportBuilder:
 
     def _render_nearest_time_picker(self):
         if state_provider.get_value_strategy() == "nearest":
-            nearest_time = state_provider.get_nearest_time() or datetime.now().time()
-            selected_time = st.time_input("Select Nearest Time", value=nearest_time, help="Select the time to find the nearest value to.")
-            state_provider.update_state(nearest_time=selected_time)
+            if self._has_ecmo_data():
+                nearest_ecls_time = state_provider.get_nearest_ecls_time() or time(0,0)
+                selected_ecls_time = st.time_input(
+                    "Select Nearest ECLS Time",
+                    value=nearest_ecls_time,
+                    help=("Select the time to find the nearest values for.\n"
+                          "Automatically set to the earliest time from ECLS data in the dataset if available,\n"
+                          "otherwise set to midnight.\n"
+                          "Adjust manually to the implantation time if needed."))
+                state_provider.update_state(nearest_ecls_time=selected_ecls_time)
+            
+            if self._has_impella_data():
+                nearest_impella_time = state_provider.get_nearest_impella_time() or time(0,0)
+                selected_impella_time = st.time_input(
+                    "Select Nearest Impella Time",
+                    value=nearest_impella_time,
+                    help=("Select the time to find the nearest values for.\n"
+                          "Automatically set to the earliest time from Impella data in the dataset if available,\n"
+                          "otherwise set to midnight.\n"
+                          "Adjust manually to the implantation time if needed."))
+                state_provider.update_state(nearest_impella_time=selected_impella_time)
+    
+    def _render_build_data_button(self):
+        if state_provider.get_record_id():
+            st.button("Build Data", on_click=self._build_data)
 
     def export_builder(self):
         st.title("Export Builder")
@@ -92,6 +171,7 @@ class ExportBuilder:
         self._render_time_range_picker()
         self._render_value_strategy_picker()
         self._render_nearest_time_picker()
+        self._render_build_data_button()
 
 def export_builder():
     builder = ExportBuilder()

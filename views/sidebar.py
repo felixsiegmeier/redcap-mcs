@@ -48,7 +48,7 @@ class Sidebar:
         state_provider.set_selected_time_range(start_dt, end_dt)
 
     def _render_record_id_input(self):
-        st.text_input("Record ID", value=state_provider.get_record_id(), key="record_id_input", on_change=self._update_record_id, help="Enter the RedCap record ID for CSV export")
+        st.text_input("Record ID", key="record_id_input", on_change=self._update_record_id, help="Enter the RedCap record ID for CSV export")
 
     def _render_time_range_picker(self):
         default_range = (date.today(), date.today())

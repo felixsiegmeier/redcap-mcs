@@ -86,12 +86,12 @@ class StateProvider:
         ecmo_ranges = self.get_device_time_ranges('ecmo')
         if ecmo_ranges:
             earliest_start = min(range.start for range in ecmo_ranges)
-            state.ecls_implant_time = earliest_start.time()
+            state.nearest_ecls_time = earliest_start.time()
         
         impella_ranges = self.get_device_time_ranges('impella')
         if impella_ranges:
             earliest_start = min(range.start for range in impella_ranges)
-            state.impella_implant_time = earliest_start.time()
+            state.nearest_impella_time = earliest_start.time()
         
         state.time_range = time_range_dt
         state.selected_time_range = time_range_dt
@@ -383,9 +383,13 @@ class StateProvider:
         state = self.get_state()
         return state.value_strategy
 
-    def get_nearest_time(self) -> time | None:
+    def get_nearest_ecls_time(self) -> time | None:
         state = self.get_state()
-        return state.nearest_time
+        return state.nearest_ecls_time
+
+    def get_nearest_impella_time(self) -> time | None:
+        state = self.get_state()
+        return state.nearest_impella_time
 
     def get_time_range(self) -> Optional[Tuple]:
         state = self.get_state()
@@ -500,23 +504,5 @@ class StateProvider:
     def get_respiration_type(self, date: datetime) -> Optional[str]:
         pass
         # Hier weiter machen => evtl. anhand Vorhandensein Tubus, Beatmungseinstellungen (vorhandensein), HFNC-Vorhandensein
-
-    def get_impella_implant_time(self) -> time | None:
-        state = self.get_state()
-        return state.impella_implant_time
-
-    def set_impella_implant_time(self, time: time) -> None:
-        state = self.get_state()
-        state.impella_implant_time = time
-        self.save_state(state)
-
-    def get_ecls_implant_time(self) -> time | None:
-        state = self.get_state()
-        return state.ecls_implant_time
-
-    def set_ecls_implant_time(self, time: time) -> None:
-        state = self.get_state()
-        state.ecls_implant_time = time
-        self.save_state(state)
 
 state_provider = StateProvider()

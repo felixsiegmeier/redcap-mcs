@@ -45,10 +45,9 @@ class AppState(BaseModel):
     selected_view: Views = Views.STARTPAGE
     time_range: Optional[tuple[datetime, datetime]] = None
     selected_time_range: Optional[tuple[datetime, datetime]] = time_range
-    ecls_implant_time : Optional[time] = None
-    impella_implant_time: Optional[time] = None
     value_strategy: str = "median"
-    nearest_time: Optional[time] = None
+    nearest_ecls_time: Optional[time] = None
+    nearest_impella_time: Optional[time] = None
     vitals_ui: UiState = UiState()
     lab_ui: UiState = UiState()
     lab_form: list[LabModel] | None = []
