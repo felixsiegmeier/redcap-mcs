@@ -1,5 +1,5 @@
 from state_provider.state_provider_class import state_provider
-from views.sidebar import render_sidebar
+from views.sidebar import Sidebar
 from views.startpage import render_startpage
 from views.homepage import render_homepage
 from views.vitals_data import render_vitals_data
@@ -12,37 +12,28 @@ import streamlit as st
 
 def run_app():
 
+    if not state_provider.get_selected_view() == Views.STARTPAGE:
+        Sidebar().render_sidebar()
+
     if state_provider.get_selected_view() == Views.STARTPAGE:
         render_startpage()
         with st.sidebar:
             st.header("Please upload a file")
 
+    elif state_provider.get_selected_view() == Views.HOMEPAGE:
+        render_homepage()
+
+    elif state_provider.get_selected_view() == Views.VITALS:
+        render_vitals_data()
+
+    elif state_provider.get_selected_view() == Views.LAB:
+        render_lab_data()
+
+    elif state_provider.get_selected_view() == Views.LAB_FORM:
+        lab_form()
+
     elif state_provider.get_selected_view() == Views.EXPORT_BUILDER:
-        # Synchronize session_state for sidebar date picker with state_provider
-        time_range = state_provider.get_selected_time_range()
-        if isinstance(time_range, tuple) and len(time_range) == 2 and all(isinstance(d, datetime) for d in time_range):
-            st.session_state["date_range_input"] = (time_range[0].date(), time_range[1].date())
         export_builder()
-        render_sidebar()
-
-    else:
-        # Synchronize session_state for sidebar date picker with state_provider
-        time_range = state_provider.get_selected_time_range()
-        if isinstance(time_range, tuple) and len(time_range) == 2 and all(isinstance(d, datetime) for d in time_range):
-            st.session_state["date_range_input"] = (time_range[0].date(), time_range[1].date())
-        render_sidebar()
-
-        if state_provider.get_selected_view() == Views.HOMEPAGE:
-            render_homepage()
-
-        elif state_provider.get_selected_view() == Views.VITALS:
-            render_vitals_data()
-
-        elif state_provider.get_selected_view() == Views.LAB:
-            render_lab_data()
-
-        elif state_provider.get_selected_view() == Views.LAB_FORM:
-            lab_form()
 
 if __name__ == "__main__":
     run_app()

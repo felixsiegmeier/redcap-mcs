@@ -3,16 +3,6 @@ from state_provider.state_provider_class import state_provider
 from datetime import datetime
 import pandas as pd
 
-
-def _sync_selected_time_range(start_dt: datetime, end_dt: datetime) -> None:
-    if not start_dt or not end_dt:
-        return
-
-    normalized = (start_dt.date(), end_dt.date())
-    st.session_state["date_range_input"] = normalized
-    st.session_state["export_date_range_input"] = normalized
-    state_provider.set_selected_time_range(start_dt, end_dt)
-
 def render_ecmo_time_ranges():
     ecmo_time_ranges = state_provider.get_device_time_ranges("ecmo")
 
@@ -78,7 +68,12 @@ def render_set_selected_time_range_to_mcs_button():
         return
 
     def set_mcs_range():
-        _sync_selected_time_range(mcs_start_date, mcs_end_date)
+        if not mcs_start_date or not mcs_end_date:
+            return
+
+        normalized = (mcs_start_date.date(), mcs_end_date.date())
+        st.session_state["date_range_input"] = normalized
+        st.session_state["export_date_range_input"] = normalized
 
     st.button("Set Selected Time Range to MCS", on_click=set_mcs_range, help="Set the selected time range to the cumulative time span of MCS devices.")
 

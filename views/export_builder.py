@@ -29,16 +29,19 @@ class ExportBuilder:
 
     def _sync_export_date_range(self):
         raw_value = st.session_state.get("export_date_range_input")
+        print(f"exporter raw_value: {raw_value}")
         if isinstance(raw_value, (date, datetime)):
             values = (raw_value, raw_value)
         elif isinstance(raw_value, (list, tuple)) and len(raw_value) == 2:
             values = tuple(raw_value)
         else:
+            print("returning because exporter raw_value is not valid")
             return
 
         start_dt = self._to_datetime(values[0])
         end_dt = self._to_datetime(values[1])
         if not start_dt or not end_dt:
+            print("export returning")
             return
 
         normalized = (start_dt.date(), end_dt.date())
@@ -61,7 +64,7 @@ class ExportBuilder:
 
         st.date_input(
             "Select a date range",
-            value=current_value,
+            #value=current_value,
             key="export_date_range_input",
             on_change=self._sync_export_date_range,
             help="Select the date range for exploration, visualization and export via RedCap CSV-File.",
