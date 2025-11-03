@@ -3,6 +3,8 @@ from state_provider.state_provider_class import state_provider
 from datetime import date, time, timedelta
 import datetime as dt
 from services.value_aggregation.lab_aggregator import LabAggregator
+import pandas as pd
+import io
 
 class ExportBuilder:
 
@@ -24,16 +26,25 @@ class ExportBuilder:
                 return (start_date, end_date)
         return fallback
 
-    def _has_ecmo_data(self):
-        return not state_provider.query_data("ecmo").empty
+    def _has_ecmo_data(self, date=None):
+        if date is None:
+            df = state_provider.query_data("ecmo")
+        else:
+            df = state_provider.query_data("ecmo", {"timestamp": date})
+        return df is not None and not df.empty
 
-    def _has_impella_data(self):
-        return not state_provider.query_data("impella").empty
+    def _has_impella_data(self, date=None):
+        if date is None:
+            df = state_provider.query_data("impella")
+        else:
+            df = state_provider.query_data("impella", {"timestamp": date})
+        return df is not None and not df.empty
 
     def _update_record_id(self):
         new_id = st.session_state["export_record_id_input"]
         st.session_state["record_id_input"] = new_id
         state_provider.update_state(record_id=new_id)
+        st.session_state["changes_made"] = True
 
     def _sync_export_date_range(self):
         raw_value = st.session_state.get("export_date_range_input")
@@ -56,6 +67,7 @@ class ExportBuilder:
         st.session_state["export_date_range_input"] = normalized
         st.session_state["date_range_input"] = normalized
         state_provider.set_selected_time_range(start_dt, end_dt)
+        st.session_state["changes_made"] = True
 
     def _render_time_range_picker(self):
         default_range = (date.today(), date.today())
@@ -96,36 +108,54 @@ class ExportBuilder:
                     current = current + timedelta(days=1)
         
         data = []
+        ecmo_instance = 1
+        impella_instance = 1
+        print(len(dates))
         for date in dates:
-            if self._has_ecmo_data() and state_provider.get_nearest_ecls_time():
+            if self._has_ecmo_data(date) and state_provider.get_nearest_ecls_time():
                 ecls_lab_builder = LabAggregator(
                     state_provider,
                     date=date,
                     record_id=state_provider.get_record_id(),
                     redcap_event_name="ecls_arm_2",
                     redcap_repeat_instrument="labor",
-                    redcap_repeat_instance=1,
+                    redcap_repeat_instance=ecmo_instance,
                     value_strategy=state_provider.get_value_strategy(),
                     nearest_time=state_provider.get_nearest_ecls_time()
                 )
                 entry = ecls_lab_builder.create_lab_entry()
                 data.append(entry)
+                ecmo_instance += 1
             
-            if self._has_impella_data() and state_provider.get_nearest_impella_time():
+            if self._has_impella_data(date) and state_provider.get_nearest_impella_time():
                 impella_lab_builder = LabAggregator(
                     state_provider,
                     date=date,
                     record_id=state_provider.get_record_id(),
                     redcap_event_name="impella_arm_2",
                     redcap_repeat_instrument="labor",
-                    redcap_repeat_instance=1,
+                    redcap_repeat_instance=impella_instance,
                     value_strategy=state_provider.get_value_strategy(),
                     nearest_time=state_provider.get_nearest_impella_time()
                 )
                 entry = impella_lab_builder.create_lab_entry()
                 data.append(entry)
+                impella_instance += 1
 
         state_provider.update_state(lab_form=data)
+        st.session_state["data_built"] = True
+        st.session_state["changes_made"] = False
+
+    def _export_csv(self):
+        state = state_provider.get_state()
+        if not state.lab_form:
+            return ""
+        # Convert list of LabModel to list of dicts
+        data = [entry.model_dump() for entry in state.lab_form]
+        df = pd.DataFrame(data)
+        # Convert to CSV string
+        csv = df.to_csv(index=False)
+        return csv
 
     def _render_record_id_input(self):
         st.text_input("Record ID", value=state_provider.get_record_id(), key="export_record_id_input", on_change=self._update_record_id, help="Enter the RedCap record ID for CSV export")
@@ -135,6 +165,7 @@ class ExportBuilder:
         options = ["median", "mean", "first", "last", "nearest"]
         selected_option = st.selectbox("Select Value Strategy", options, index=options.index(value_strategy) if value_strategy in options else 0)
         state_provider.update_state(value_strategy=selected_option)
+        st.session_state["changes_made"] = True
 
     def _render_nearest_time_picker(self):
         if state_provider.get_value_strategy() == "nearest":
@@ -148,6 +179,7 @@ class ExportBuilder:
                           "otherwise set to midnight.\n"
                           "Adjust manually to the implantation time if needed."))
                 state_provider.update_state(nearest_ecls_time=selected_ecls_time)
+                st.session_state["changes_made"] = True
             
             if self._has_impella_data():
                 nearest_impella_time = state_provider.get_nearest_impella_time() or time(0,0)
@@ -159,10 +191,26 @@ class ExportBuilder:
                           "otherwise set to midnight.\n"
                           "Adjust manually to the implantation time if needed."))
                 state_provider.update_state(nearest_impella_time=selected_impella_time)
+                st.session_state["changes_made"] = True
     
     def _render_build_data_button(self):
+        if st.session_state.get("data_built", False):
+            st.success("Data has been successfully built. Check the corresponding tabs to review and edit the data. CSV export is available here afterwards.")
+            csv_data = self._export_csv()
+            st.download_button(
+                label="Download CSV",
+                data=csv_data,
+                file_name="lab_data.csv",
+                mime="text/csv"
+            )
+        
+        if st.session_state.get("changes_made", False) and not st.session_state.get("data_built", False):
+            st.info("Settings have been changed. Please build data to apply changes.")
+        
         if state_provider.get_record_id():
             st.button("Build Data", on_click=self._build_data)
+        else:
+            st.warning("Record ID is required to build data.")
 
     def export_builder(self):
         st.title("Export Builder")

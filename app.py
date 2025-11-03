@@ -12,6 +12,9 @@ import streamlit as st
 
 def run_app():
 
+    if state_provider.get_selected_view() == Views.LAB_FORM:
+        st.set_page_config(layout="wide")
+
     if not state_provider.get_selected_view() == Views.STARTPAGE:
         Sidebar().render_sidebar()
 

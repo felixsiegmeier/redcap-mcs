@@ -45,7 +45,7 @@ class AppState(BaseModel):
     selected_view: Views = Views.STARTPAGE
     time_range: Optional[tuple[datetime, datetime]] = None
     selected_time_range: Optional[tuple[datetime, datetime]] = time_range
-    value_strategy: str = "median"
+    value_strategy: str = "nearest"
     nearest_ecls_time: Optional[time] = None
     nearest_impella_time: Optional[time] = None
     vitals_ui: UiState = UiState()

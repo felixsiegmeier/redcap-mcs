@@ -123,6 +123,12 @@ class LabAggregator:
             if value is not None:
                 payload[field] = value
 
+        # Berechne post_* und hemolysis basierend auf vorhandenen Werten
+        payload["post_pct"] = 1.0 if values.get("pct") is not None else 0.0
+        payload["post_crp"] = 1.0 if values.get("crp") is not None else 0.0
+        payload["post_act"] = 1.0 if values.get("act") is not None else 0.0
+        payload["hemolysis"] = 1.0 if (values.get("fhb") is not None or values.get("haptoglobin") is not None or values.get("bili") is not None) else 0.0
+
         return LabModel.model_validate(payload)
 
 

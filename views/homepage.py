@@ -74,6 +74,7 @@ def render_set_selected_time_range_to_mcs_button():
         normalized = (mcs_start_date.date(), mcs_end_date.date())
         st.session_state["date_range_input"] = normalized
         st.session_state["export_date_range_input"] = normalized
+        state_provider.set_selected_time_range(mcs_start_date, mcs_end_date)
 
     st.button("Set Selected Time Range to MCS", on_click=set_mcs_range, help="Set the selected time range to the cumulative time span of MCS devices.")
 
