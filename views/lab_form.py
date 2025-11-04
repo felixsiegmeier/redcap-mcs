@@ -8,9 +8,8 @@ Die lab_form Liste wird nach Armen (ECLS/Impella) gruppiert und chronologisch so
 
 import streamlit as st
 from typing import Dict, Any, Callable, List
-from datetime import date
+from datetime import date, time
 import pandas as pd
-from state_provider.state_provider import get_state, save_state
 from state_provider.state_provider_class import state_provider
 from schemas.db_schemas.lab import LabModel, WithdrawalSite
 from collections import defaultdict
@@ -18,6 +17,7 @@ from collections import defaultdict
 # Mapping von LabModel-Feldern zu schönen Labels und Einheiten
 FIELD_LABELS: Dict[str, str] = {
     "redcap_repeat_instance": "Day since implantation",
+    "time_assess_labor": "Assessment time (labor)",
     "ecmella_2": "ECMELLA",
     "art_site": "Arterial site",
     "pc02": "PCO2 (mmHg)",
@@ -54,7 +54,7 @@ FIELD_LABELS: Dict[str, str] = {
     "pct": "PCT (ng/mL)",
     "hemolysis": "Hämolyse",
     "fhb": "Freies Hämoglobin (mg/dL)",
-    "haptoglobin": "Haptoglobin (g/L)",
+    "hapto": "Haptoglobin (g/L)",
     "bili": "Bilirubin (mg/dL)",
     "crea": "Kreatinin (mg/dL)",
     "cc": "Kreatinin-Clearance (mL/min/1.73m²)",
@@ -116,7 +116,7 @@ FIELD_TO_PARAM: Dict[str, tuple[str, str]] = {
     "crp": ("Klinische Chemie", "CRP"),
     "post_pct": ("Klinische Chemie", "PROCALCITONIN"),
     "hemolysis": ("Klinische Chemie", "HAEMOLYSIS"),
-    "haptoglobin": ("Klinische Chemie", "HAPTOGLOBIN"),
+    "hapto": ("Klinische Chemie", "HAPTOGLOBIN"),
     "post_act": ("Gerinnung", "ACT"),
     "act": ("Gerinnung", "ACT"),
 }
@@ -127,7 +127,6 @@ def get_help_text(field: str, lab_entry: LabModel) -> str:
     if field not in FIELD_TO_PARAM:
         return ""
     category, parameter = FIELD_TO_PARAM[field]
-    state = get_state()
     df = state_provider.query_data("lab", {"timestamp": lab_entry.assess_date_labor, "category": category, "parameter": parameter})
     if df.empty:
         return "No additional values available"
@@ -143,32 +142,12 @@ def update_field(index: int, field: str) -> Callable[[], None]:
     """Callback-Funktion zum Aktualisieren eines Feldes in lab_form."""
     def inner() -> None:
         value = st.session_state[f"lab_{index}_{field}"]
-        state = get_state()
-        if state.lab_form is None:
-            return
         if field == "art_site":
             selected_label = st.session_state[f"lab_{index}_{field}"]
             value = next(key for key, val in WITHDRAWAL_SITE_LABELS.items() if val == selected_label)
         elif field == "ecmella_2":
             value = 1.0 if value else 0.0
-        setattr(state.lab_form[index], field, value)
-        
-        # Dynamische Berechnung der abhängigen Felder
-        if field == "pct":
-            setattr(state.lab_form[index], "post_pct", 1.0 if value is not None else 0.0)
-        elif field == "crp":
-            setattr(state.lab_form[index], "post_crp", 1.0 if value is not None else 0.0)
-        elif field == "act":
-            setattr(state.lab_form[index], "post_act", 1.0 if value is not None else 0.0)
-        elif field in ["fhb", "haptoglobin", "bili"]:
-            # Prüfe, ob mindestens einer der Hämolyseparameter einen Wert hat
-            fhb_val = getattr(state.lab_form[index], "fhb", None)
-            hapt_val = getattr(state.lab_form[index], "haptoglobin", None)
-            bili_val = getattr(state.lab_form[index], "bili", None)
-            hemolysis_val = 1.0 if (fhb_val is not None) or (hapt_val is not None) or (bili_val is not None) else 0.0
-            setattr(state.lab_form[index], "hemolysis", hemolysis_val)
-        
-        save_state(state)
+        state_provider.update_lab_form_field(index, field, value)
     return inner
 
 
@@ -191,6 +170,10 @@ def render_field(field: str, value: Any, index: int, lab_entry: LabModel) -> Non
         if key not in st.session_state:
             st.session_state[key] = current_label
         st.selectbox(label, options=options, key=key, on_change=update_field(index, field))
+    elif field == "time_assess_labor":
+        if key not in st.session_state:
+            st.session_state[key] = value if value is not None else time.min
+        st.time_input(label, value=st.session_state[key], key=key, on_change=update_field(index, field))
     else:
         # Float-Felder
         help_text = get_help_text(field, lab_entry)
@@ -203,14 +186,14 @@ def lab_form() -> None:
     """Hauptfunktion für die Lab Form View."""
     st.title("Lab Form")
 
-    state = get_state()
-    if not state.lab_form:
+    lab_form_data = state_provider.get_lab_form()
+    if not lab_form_data:
         st.info("No lab data available. Please create data in the Export Builder.")
         return
 
     # Gruppierung nach Arm
     arms: Dict[str, List[tuple[int, LabModel]]] = defaultdict(list)
-    for i, entry in enumerate(state.lab_form):
+    for i, entry in enumerate(lab_form_data):
         arm = entry.redcap_event_name or "unknown"
         arms[arm].append((i, entry))
 
@@ -225,7 +208,7 @@ def lab_form() -> None:
                 with st.expander(f"Date: {date_str}", expanded=False):
                     # Alle relevanten Felder rendern, außer den automatisch berechneten
                     fields_to_render = [f for f in LabModel.model_fields.keys() if f not in {
-                        "record_id", "redcap_event_name", "redcap_repeat_instrument",
+                        "record_id", "redcap_event_name", "redcap_repeat_instrument", "date_assess_labor",
                         "na_post_2", "assess_time_point_labor", "assess_date_labor", "labor_complete",
                         "post_pct", "post_crp", "post_act", "hemolysis"
                     }]

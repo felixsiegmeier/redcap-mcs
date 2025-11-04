@@ -2,7 +2,7 @@ import streamlit as st
 from schemas.app_state_schemas.app_state import AppState, ParsedData, Views
 from datetime import datetime, date, timedelta, time
 import pandas as pd
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Union, List
 # from schemas.db_schemas.vitals import VentilationType  # not yet defined in db schema
 import logging
 from dataclasses import dataclass
@@ -10,7 +10,8 @@ from dataclasses import dataclass
 # Import der neuen DataParser Klasse
 from services.data_parser import DataParser
 from schemas.parse_schemas.vitals import VitalsModel
-from schemas.parse_schemas.lab import LabModel
+from schemas.parse_schemas.lab import LabModel as ParseLabModel
+from schemas.db_schemas.lab import LabModel
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ class StateProvider:
         # Parse alle Datentypen mit dem DataParser
         vitals = parser._parse_table_data("Vitaldaten", VitalsModel)
         respiratory = parser.parse_respiratory_data()
-        lab = parser._parse_table_data("Labor", LabModel, skip_first=True, clean_lab=True)
+        lab = parser._parse_table_data("Labor", ParseLabModel, skip_first=True, clean_lab=True)
         ecmo = parser.parse_from_all_patient_data('ECMO')
         impella = parser.parse_from_all_patient_data('IMPELLA')
         crrt = parser.parse_from_all_patient_data('HÄMOFILTER')
@@ -504,5 +505,35 @@ class StateProvider:
     def get_respiration_type(self, date: datetime) -> Optional[str]:
         pass
         # Hier weiter machen => evtl. anhand Vorhandensein Tubus, Beatmungseinstellungen (vorhandensein), HFNC-Vorhandensein
+
+    def get_lab_form(self) -> Optional[List[LabModel]]:
+        """Gibt die lab_form Liste zurück."""
+        state = self.get_state()
+        return state.lab_form
+
+    def update_lab_form_field(self, index: int, field: str, value: Any) -> None:
+        """Aktualisiert ein Feld in lab_form und berechnet abhängige Felder."""
+        state = self.get_state()
+        if state.lab_form is None or index >= len(state.lab_form):
+            return
+        
+        setattr(state.lab_form[index], field, value)
+        
+        # Dynamische Berechnung der abhängigen Felder
+        if field == "pct":
+            setattr(state.lab_form[index], "post_pct", 1.0 if value is not None else 0.0)
+        elif field == "crp":
+            setattr(state.lab_form[index], "post_crp", 1.0 if value is not None else 0.0)
+        elif field == "act":
+            setattr(state.lab_form[index], "post_act", 1.0 if value is not None else 0.0)
+        elif field in ["fhb", "haptoglobin", "bili"]:
+            # Prüfe, ob mindestens einer der Hämolyseparameter einen Wert hat
+            fhb_val = getattr(state.lab_form[index], "fhb", None)
+            hapt_val = getattr(state.lab_form[index], "haptoglobin", None)
+            bili_val = getattr(state.lab_form[index], "bili", None)
+            hemolysis_val = 1.0 if (fhb_val is not None) or (hapt_val is not None) or (bili_val is not None) else 0.0
+            setattr(state.lab_form[index], "hemolysis", hemolysis_val)
+        
+        self.save_state(state)
 
 state_provider = StateProvider()

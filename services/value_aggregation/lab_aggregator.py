@@ -112,10 +112,12 @@ class LabAggregator:
             "redcap_event_name": self.redcap_event_name,
             "redcap_repeat_instrument": self.redcap_repeat_instrument,
             "redcap_repeat_instance": self.redcap_repeat_instance,
+            "assess_time_point_labor": self.redcap_repeat_instance,
             "assess_date_labor": self.date,
-            "assess_time_point_labor": self.assess_time_point_labor,
+            "date_assess_labor": self.date,
+            "time_assess_labor": self.nearest_time,
             "art_site": WithdrawalSite.UNKNOWN,
-            "na_post_2": 1.0,
+            "na_post_2": 1,
             "ecmella_2": 1 if (_has_value(impella_df) and _has_value(ecmo_df)) else 0,
         }
 
@@ -124,10 +126,10 @@ class LabAggregator:
                 payload[field] = value
 
         # Berechne post_* und hemolysis basierend auf vorhandenen Werten
-        payload["post_pct"] = 1.0 if values.get("pct") is not None else 0.0
-        payload["post_crp"] = 1.0 if values.get("crp") is not None else 0.0
-        payload["post_act"] = 1.0 if values.get("act") is not None else 0.0
-        payload["hemolysis"] = 1.0 if (values.get("fhb") is not None or values.get("haptoglobin") is not None or values.get("bili") is not None) else 0.0
+        payload["post_pct"] = 1 if values.get("pct") is not None else 0
+        payload["post_crp"] = 1 if values.get("crp") is not None else 0
+        payload["post_act"] = 1 if values.get("act") is not None else 0
+        payload["hemolysis"] = 1 if (values.get("fhb") is not None or values.get("haptoglobin") is not None or values.get("bili") is not None) else 0
 
         return LabModel.model_validate(payload)
 

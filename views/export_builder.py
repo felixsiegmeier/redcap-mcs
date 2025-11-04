@@ -153,9 +153,41 @@ class ExportBuilder:
         # Convert list of LabModel to list of dicts
         data = [entry.model_dump() for entry in state.lab_form]
         df = pd.DataFrame(data)
-        # Convert to CSV string
-        csv = df.to_csv(index=False)
+        
+        # Format the DataFrame according to specifications
+        df = self._format_dataframe_for_export(df)
+        
+        # Convert to CSV string with comma delimiter
+        csv = df.to_csv(index=False, sep=',', na_rep='')
         return csv
+
+    def _format_dataframe_for_export(self, df):
+        # Create a copy to avoid modifying the original
+        formatted_df = df.copy()
+        
+        for col in formatted_df.columns:
+            formatted_df[col] = formatted_df[col].apply(self._format_value)
+        
+        return formatted_df
+    
+    def _format_value(self, value):
+        if pd.isna(value):
+            return ""
+        elif isinstance(value, float):
+            # Try to convert to int if possible
+            if value.is_integer():
+                return int(value)
+            else:
+                # Replace dot with comma (Pandas will quote if comma is present)
+                return str(value).replace(".", ",")
+        elif isinstance(value, date):
+            # Format as d/m/yyyy
+            return value.strftime("%d/%m/%Y")
+        elif isinstance(value, time):
+            # Format as h:m
+            return value.strftime("%H:%M")
+        else:
+            return value
 
     def _render_record_id_input(self):
         st.text_input("Record ID", value=state_provider.get_record_id(), key="export_record_id_input", on_change=self._update_record_id, help="Enter the RedCap record ID for CSV export")

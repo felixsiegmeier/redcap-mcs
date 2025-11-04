@@ -18,13 +18,15 @@ class LabModel(BaseModel):
     record_id: str = Field(..., alias="record_id")
     redcap_event_name: Optional[str] = Field(None, alias="redcap_event_name")
     redcap_repeat_instrument: Optional[str] = Field("labor", alias="redcap_repeat_instrument")
-    redcap_repeat_instance: Optional[float] = Field(None, alias="redcap_repeat_instance")
-    na_post_2: Optional[float] = Field(0, alias="na_post_2")
-    ecmella_2: Optional[float] = Field(0, alias="ecmella_2")
+    redcap_repeat_instance: Optional[int] = Field(None, alias="redcap_repeat_instance")
+    na_post_2: Optional[int] = Field(0, alias="na_post_2")
+    ecmella_2: Optional[int] = Field(0, alias="ecmella_2")
 
     # Zeitpunkt/Erhebungsmetadaten
-    assess_time_point_labor: Optional[float] = Field(None, alias="assess_time_point_labor")
+    assess_time_point_labor: Optional[int] = Field(None, alias="assess_time_point_labor")
     assess_date_labor: Optional[date] = Field(None, alias="assess_date_labor")
+    date_assess_labor: Optional[date] = Field(None, alias="date_assess_labor")
+    time_assess_labor: Optional[time] = Field(None, alias="time_assess_labor")
 
     art_site: WithdrawalSite = Field(WithdrawalSite.UNKNOWN, alias="art_site")
 
@@ -49,7 +51,7 @@ class LabModel(BaseModel):
     ptt: Optional[float] = Field(None)
     quick: Optional[float] = Field(None)
     inr: Optional[float] = Field(None)
-    post_act: Optional[float] = Field(None, alias="post_act")
+    post_act: Optional[int] = Field(None, alias="post_act")
     act: Optional[float] = Field(None, alias="act")
 
     # Organsystem-Labore
@@ -61,19 +63,19 @@ class LabModel(BaseModel):
     ldh: Optional[float] = Field(None)
     lipase: Optional[float] = Field(None)
     albumin: Optional[float] = Field(None, alias="albumin")
-    post_crp: Optional[float] = Field(None, alias="post_crp")
+    post_crp: Optional[int] = Field(None, alias="post_crp")
     crp: Optional[float] = Field(None, alias="crp")
-    post_pct: Optional[float] = Field(None, alias="post_pct")
+    post_pct: Optional[int] = Field(None, alias="post_pct")
     pct: Optional[float] = Field(None)
-    hemolysis: Optional[float] = Field(None, alias="hemolysis")
+    hemolysis: Optional[int] = Field(None, alias="hemolysis")
     fhb: Optional[float] = Field(None)
-    haptoglobin: Optional[float] = Field(None, alias="hapto")
+    hapto: Optional[float] = Field(None, alias="hapto")
     bili: Optional[float] = Field(None)
     crea: Optional[float] = Field(None)
     cc: Optional[float] = Field(None)
     urea: Optional[float] = Field(None)
 
-    labor_complete: Optional[int] = Field(None, alias="labor_complete")
+    labor_complete: Optional[int] = Field(0, alias="labor_complete")
 
     class Config:
         populate_by_name = True
