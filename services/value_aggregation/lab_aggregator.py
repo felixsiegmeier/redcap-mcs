@@ -3,7 +3,7 @@ from typing import Optional, Dict, Tuple
 from datetime import datetime, date, time
 
 from schemas.db_schemas.lab import LabModel, WithdrawalSite
-from state_provider.state_provider_class import StateProvider, state_provider
+from state_provider.state_provider import StateProvider, state_provider
 
 class LabAggregator:
     """Aggregiert Laborwerte zu einem LabModel mittels StateProvider.query_data.

@@ -1,4 +1,4 @@
-from state_provider.state_provider_class import state_provider
+from state_provider.state_provider import state_provider
 from views.sidebar import Sidebar
 from views.startpage import render_startpage
 from views.homepage import render_homepage
@@ -11,9 +11,6 @@ from datetime import datetime
 import streamlit as st
 
 def run_app():
-
-    if state_provider.get_selected_view() == Views.LAB_FORM:
-        st.set_page_config(layout="wide")
 
     if not state_provider.get_selected_view() == Views.STARTPAGE:
         Sidebar().render_sidebar()

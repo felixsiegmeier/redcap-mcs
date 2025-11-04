@@ -28,8 +28,8 @@ from schemas.parse_schemas.fluidbalance import FluidBalanceModel
 logger = logging.getLogger(__name__)
 
 
-class DataParser:
-    """Einfache Klasse für alle Parsing-Operationen."""
+class DataParserBase:
+    """Basisklasse mit allen Parsing-Operationen."""
     
     def __init__(self, file: Union[str, TextIOBase], delimiter: str = ";"):
         """Initialisiert den DataParser."""
@@ -239,80 +239,125 @@ class DataParser:
 
         return pd.DataFrame([item.__dict__ for item in data_list])
 
-    def _parse_aditional_respiratory_data(self, data_class) -> pd.DataFrame:
-        hfnc_blocks = self._get_from_all_patient_data_by_string("High-Flow Nasen CPAP")
-        o2_data = self._get_from_all_patient_data_by_string("O2 Gabe")
-        return pd.DataFrame()
-    
-    def parse_nirs_logic(self) -> pd.DataFrame:
-        """Parst NIRS-Daten anhand der generischen all_patient_data-Struktur."""
-        all_patient_data = self.parse_all_patient_data()
-        if not all_patient_data:
-            return pd.DataFrame()
+    def get_blocks(self) -> Dict[str, Dict[str, str]]:
+        """Gibt alle Datenblöcke zurück."""
+        return self._split_blocks()
 
-        candidate_headers = [
-            header for header in all_patient_data.keys()
-            if any(token in header.upper() for token in ("NIRS", "PSI", "ICP"))
-        ]
+    @staticmethod
+    def get_date_range_from_df(df: pd.DataFrame) -> Tuple[Optional[date], Optional[date]]:
+        """Ermittelt Datumsbereich aus DataFrame."""
+        try:
+            ts = pd.to_datetime(df['timestamp'], errors='coerce').dropna()
+            return (ts.min().date(), ts.max().date()) if not ts.empty else (None, None)
+        except:
+            return (datetime(2010, 1, 1).date(), datetime.now().date())
 
-        frames: List[pd.DataFrame] = []
-        for header in candidate_headers:
-            sub_blocks = all_patient_data.get(header, {})
-            for sub_header, df in sub_blocks.items():
-                if df is None or df.empty:
-                    continue
-                normalized = df.copy()
-                normalized["source_header"] = header
-                normalized["source_category"] = sub_header
-                normalized["category"] = "nirs"
-                frames.append(normalized)
 
-        if not frames:
-            return pd.DataFrame()
-
-        result = pd.concat(frames, ignore_index=True)
-        if "timestamp" in result.columns:
-            result["timestamp"] = pd.to_datetime(result["timestamp"], errors="coerce")
-            result = result.dropna(subset=["timestamp"])
-
-        return result.reset_index(drop=True)
-    
+class MedicationParserMixin(DataParserBase):
     def parse_medication_logic(self, config: Optional[Dict[str, Any]] = None) -> pd.DataFrame:
         """Parst Medikamentendaten."""
         blocks = self._split_blocks()
         med_text = blocks.get("Medikamentengaben", {}).get("Medikamentengaben", "")
-        
-        # Bereinige Text
+
         clean_text = self._clean_medication_text(med_text)
         lines = [line.split(self.delimiter) for line in clean_text.splitlines()]
-        
+
         data_list = []
         buffer = []
         current_header = None
-        
+
         for line in lines:
-            # Header = keine Timestamps
             if not self._is_timestamp_row(line):
-                # Verarbeite vorherigen Block
                 if buffer and current_header:
                     cols = self._get_medication_columns(current_header)
                     if cols:
                         data_list.extend(self._process_medication_block(buffer, cols, current_header))
-                # Neuer Header
                 current_header = line
                 buffer = []
             else:
                 if current_header:
                     buffer.append(line)
-        
-        # Letzter Block
+
         if buffer and current_header:
             cols = self._get_medication_columns(current_header)
             if cols:
                 data_list.extend(self._process_medication_block(buffer, cols, current_header))
-        
+
         return pd.DataFrame([item.__dict__ for item in data_list])
-    
+
+    def _clean_medication_text(self, text: str) -> str:
+        """Bereinigt Medikamenten-Text."""
+        return re.sub(
+            r'"(.*?)"',
+            lambda m: m.group(0).replace("\n", " ").replace("\r", "").replace('"', ""),
+            text,
+            flags=re.DOTALL,
+        )
+
+    def _extract_from_cell(self, cell_content: str, pattern: str, converter=None) -> List:
+        """Extrahiert Werte aus Zelle mit Pattern."""
+        matches = re.findall(pattern, cell_content)
+        if converter:
+            return [converter(match) for match in matches if converter(match) is not None]
+        return matches
+
+    def _get_medication_columns(self, header) -> Optional[Dict[str, int]]:
+        """Findet Spalten-Indices für Medikamente."""
+        category = next((entry for entry in header if isinstance(entry, str) and entry.strip()), "")
+        try:
+            return {
+                'medication': header.index(category),
+                'concentration': header.index("Konzentration"),
+                'application': header.index("App.- form"),
+                'start': header.index("Start/Änderung"),
+                'stop': header.index("Stopp"),
+                'rate': header.index("Rate(mL/h)")
+            }
+        except ValueError:
+            return None
+
+    def _process_medication_block(self, lines, cols, header) -> List[MedicationModel]:
+        """Verarbeitet Medikamenten-Block."""
+        result = []
+        category = next((entry for entry in header if isinstance(entry, str) and entry.strip()), "")
+
+        for line in lines:
+            if len(line) <= max(cols.values()):
+                continue
+
+            start_times = self._extract_from_cell(
+                line[cols['start']],
+                r"\d{2}\.\d{2}\.\d{2,4}\s*\d{2}:\d{2}",
+                self._parse_timestamp,
+            )
+            stop_times = self._extract_from_cell(
+                line[cols['stop']],
+                r"\d{2}\.\d{2}\.\d{2,4}\s*\d{2}:\d{2}",
+                self._parse_timestamp,
+            )
+            rates = self._extract_from_cell(
+                line[cols['rate']],
+                r"\d+(?:[.,]\d+)?",
+                lambda x: float(x.replace(",", ".")),
+            )
+
+            for i, start in enumerate(start_times):
+                result.append(
+                    MedicationModel(
+                        medication=line[cols['medication']],
+                        category=category,
+                        concentration=line[cols['concentration']],
+                        application=line[cols['application']],
+                        start=start,
+                        stop=stop_times[i] if i < len(stop_times) else None,
+                        rate=rates[i] if i < len(rates) else None,
+                    )
+                )
+
+        return result
+
+
+class FluidBalanceParserMixin(DataParserBase):
     def parse_fluidbalance_logic(self) -> pd.DataFrame:
         """Parst Flüssigkeitsbilanz-Daten auf Basis der Bilanz-Blöcke."""
         blocks = self._split_blocks()
@@ -360,13 +405,15 @@ class DataParser:
 
                 time_label = time_columns[col_idx]
                 timestamp = self._time_range_to_timestamp(time_label)
-                entries.append(FluidBalanceModel(
-                    timestamp=timestamp,
-                    value=value,
-                    category=current_category or "unknown",
-                    parameter=parameter,
-                    time_range=time_label
-                ))
+                entries.append(
+                    FluidBalanceModel(
+                        timestamp=timestamp,
+                        value=value,
+                        category=current_category or "unknown",
+                        parameter=parameter,
+                        time_range=time_label,
+                    )
+                )
 
         if not entries:
             return pd.DataFrame()
@@ -377,8 +424,10 @@ class DataParser:
         """Ermittelt einen repräsentativen Timestamp aus einem Zeitbereichs-Label."""
         cleaned = label.strip().strip('"')
         cleaned = cleaned.replace("\n", " ")
-        # Beispiel: "10.09.2025 11:00 - 15.09.2025 07:59 117 h"
-        match = re.search(r"(\d{2}\.\d{2}\.\d{4}\s*\d{2}:\d{2})\s*-\s*(\d{2}\.\d{2}\.\d{4}\s*\d{2}:\d{2})", cleaned)
+        match = re.search(
+            r"(\d{2}\.\d{2}\.\d{4}\s*\d{2}:\d{2})\s*-\s*(\d{2}\.\d{2}\.\d{4}\s*\d{2}:\d{2})",
+            cleaned,
+        )
         if match:
             start = self._parse_timestamp(match.group(1))
             end = self._parse_timestamp(match.group(2))
@@ -387,13 +436,10 @@ class DataParser:
             return start or end
 
         return self._parse_timestamp(cleaned)
-    
+
+
+class AllPatientDataMixin(DataParserBase):
     def _extract_all_patient_data_headers(self, data_str: str) -> set:
-        """Input ist der String-Block 'ALLE Patientendaten'.
-        
-        Liefert ein Set mit allen Überschriften, die als dritte Spalte in Zeilen
-        mit zwei führenden leeren Feldern erscheinen.
-        """
         lines = data_str.splitlines()
         headers_set = set()
         for line in lines:
@@ -403,26 +449,16 @@ class DataParser:
         return headers_set
 
     def _get_from_all_patient_data_by_string(self, query: str) -> Dict[str, Dict[str, List[str]]]:
-        """Suche in den "ALLE Patientendaten"-Blöcken nach Headern, die `query` enthalten.
-        
-        Originalimplementierung aus get_from_all_patient_data_by_string.py
-        """
-        # Extrahiere den String aus der Datenstruktur
         patient_data = self._split_blocks().get("ALLE Patientendaten", {})
         if isinstance(patient_data, dict):
-            # Falls es ein Dict ist, nehme den ersten Wert (String)
             data_str = next(iter(patient_data.values()), "")
         else:
             data_str = patient_data
 
-        # Alle bekannten Header extrahieren
         headers = self._extract_all_patient_data_headers(data_str)
-
-        # Nur die Header behalten, die den Suchbegriff enthalten (case-insensitiv)
         matching_headers = [header for header in headers if query.lower() in header.lower()]
 
         lines = data_str.splitlines()
-        # Ergebnis-Dict vorbereiten: jeder gefundene Header bekommt ein leeres Dict
         result: Dict[str, Dict[str, List[str]]] = {header: {} for header in matching_headers}
 
         current_header: Optional[str] = None
@@ -433,68 +469,55 @@ class DataParser:
 
         for line in lines:
             parts = line.split(self.delimiter)
-            # Wir erwarten mindestens 3 Felder; sonst ist die Zeile uninteressant
             if len(parts) < 3:
                 continue
 
             key = parts[2]
 
             if key in headers:
-                # Header-Zeile gefunden -> vorherigen Buffer in das aktuelle Sub-Header-Objekt
                 if current_header is not None and current_sub_header is not None and buffer:
                     result[current_header].setdefault(current_sub_header, []).extend(buffer)
                     buffer = []
 
-                # Wenn der Header zu unseren gesuchten Headern gehört, (re)starten wir ein Sub-Header
                 if key in matching_headers:
-                    # Derselbe Header tritt erneut auf: prüfen, ob sich die konkrete Zeile unterscheidet
                     if key == current_header:
                         if current_sub_header_line is None:
                             current_sub_header_line = line
                         elif line != current_sub_header_line:
-                            # Neuer Abschnitt desselben Headers -> Zähler erhöhen
                             current_sub_header_counter += 1
                             current_sub_header_line = line
                     else:
-                        # Neuer Header -> Zähler zurücksetzen
                         current_sub_header_counter = 1
 
                     current_header = key
                     current_sub_header = f"{current_header} {current_sub_header_counter}"
-                    # Initialisiere die Liste für das Sub-Header (sicherer Zugriff)
                     result[current_header].setdefault(current_sub_header, [])
                 else:
-                    # Gefundener Header ist nicht in unseren Suchergebnissen -> Sammeln stoppen
                     current_header = None
                     current_sub_header = None
                     current_sub_header_line = None
                     current_sub_header_counter = 1
             else:
-                # Keine Header-Zeile: wenn wir in einem relevanten Header sind, sammeln
                 if current_header is not None:
                     buffer.append(line)
 
-        # Restlichen Buffer in das letzte Sub-Header schreiben
         if current_header is not None and current_sub_header is not None and buffer:
             result[current_header].setdefault(current_sub_header, []).extend(buffer)
         return result
-    
+
     def _get_device_values(self, parts) -> Tuple[Optional[str], Optional[str]]:
-        """Extrahiert Parameter und Wert aus Device-Zeile."""
         non_empty = [entry for entry in parts if isinstance(entry, str) and entry.strip()]
         if len(non_empty) >= 2:
             return non_empty[0], non_empty[1]
         return None, None
-    
+
     def _find_timestamp(self, parts) -> Optional[datetime]:
-        """Findet Timestamp in parts."""
         for token in parts:
             if isinstance(token, str) and re.search(r"\d{2}\.\d{2}\.\d{2,4}\s*\d{2}:\d{2}", token):
                 return self._parse_timestamp(token)
         return None
-    
+
     def _parse_device_data(self, search_term: str, data_class, nested=False):
-        """Parst Device-Daten (ECMO, Impella, CRRT)."""
         device_blocks = self._get_from_all_patient_data_by_string(search_term)
         data_list = []
 
@@ -502,109 +525,52 @@ class DataParser:
             timestamp = None
             for line in lines:
                 parts = line.split(self.delimiter)
-                
+
                 if self._is_timestamp_row(parts):
                     timestamp = self._find_timestamp(parts)
                     continue
-                    
+
                 if not timestamp:
                     continue
-                    
+
                 parameter, value_str = self._get_device_values(parts)
                 if not parameter or not value_str:
                     continue
-                    
+
                 try:
                     value = float(value_str.replace(",", "."))
                 except ValueError:
                     value = value_str
-                    
-                data_list.append(data_class(
-                    timestamp=timestamp,
-                    value=value,
-                    category=category,
-                    parameter=parameter
-                ))
+
+                data_list.append(
+                    data_class(
+                        timestamp=timestamp,
+                        value=value,
+                        category=category,
+                        parameter=parameter,
+                    )
+                )
 
         if nested:
-            # Impella/CRRT structure
             for key, device_dict in device_blocks.items():
                 for device_key, lines in device_dict.items():
                     process_lines(lines, device_key)
         else:
-            # ECMO structure
             for key, lines in device_blocks.get(search_term, {}).items():
                 process_lines(lines, key)
 
         print(f"Parsed {len(data_list)} entries for {search_term}")
         return pd.DataFrame([item.__dict__ for item in data_list])
-     
-    def _clean_medication_text(self, text: str) -> str:
-        """Bereinigt Medikamenten-Text."""
-        return re.sub(r'"(.*?)"', lambda m: m.group(0).replace("\n", " ").replace("\r", "").replace('"', ""), 
-                     text, flags=re.DOTALL)
-    
-    def _extract_from_cell(self, cell_content: str, pattern: str, converter=None) -> List:
-        """Extrahiert Werte aus Zelle mit Pattern."""
-        matches = re.findall(pattern, cell_content)
-        if converter:
-            return [converter(match) for match in matches if converter(match) is not None]
-        return matches
-    
-    def _get_medication_columns(self, header) -> Optional[Dict[str, int]]:
-        """Findet Spalten-Indices für Medikamente."""
-        category = next((entry for entry in header if isinstance(entry, str) and entry.strip()), "")
-        try:
-            return {
-                'medication': header.index(category),
-                'concentration': header.index("Konzentration"),
-                'application': header.index("App.- form"),
-                'start': header.index("Start/Änderung"),
-                'stop': header.index("Stopp"),
-                'rate': header.index("Rate(mL/h)")
-            }
-        except ValueError:
-            return None
 
-    def _process_medication_block(self, lines, cols, header) -> List[MedicationModel]:
-        """Verarbeitet Medikamenten-Block."""
-        result = []
-        category = next((entry for entry in header if isinstance(entry, str) and entry.strip()), "")
-        
-        for line in lines:
-            if len(line) <= max(cols.values()):
-                continue
-                
-            # Extrahiere Timestamps und Raten
-            start_times = self._extract_from_cell(line[cols['start']], r"\d{2}\.\d{2}\.\d{2,4}\s*\d{2}:\d{2}", self._parse_timestamp)
-            stop_times = self._extract_from_cell(line[cols['stop']], r"\d{2}\.\d{2}\.\d{2,4}\s*\d{2}:\d{2}", self._parse_timestamp) 
-            rates = self._extract_from_cell(line[cols['rate']], r"\d+(?:[.,]\d+)?", lambda x: float(x.replace(",", ".")))
-            
-            # Erstelle Einträge
-            for i, start in enumerate(start_times):
-                result.append(MedicationModel(
-                    medication=line[cols['medication']],
-                    category=category,
-                    concentration=line[cols['concentration']],
-                    application=line[cols['application']],
-                    start=start,
-                    stop=stop_times[i] if i < len(stop_times) else None,
-                    rate=rates[i] if i < len(rates) else None
-                ))
-        
-        return result
-    
     def parse_from_all_patient_data(self, keyword: str) -> pd.DataFrame:
-        """Parst Daten aus all_patient_data basierend auf Keyword."""
         all_data = self.parse_all_patient_data()
         matching_headers = [h for h in all_data.keys() if keyword.upper() in h.upper()]
         dfs = []
         for h in matching_headers:
             dfs.extend(list(all_data[h].values()))
         return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
-    
+
     def parse_all_patient_data(self) -> Dict[str, Dict[str, pd.DataFrame]]:
-        """Parst alle 'ALLE Patientendaten' in DataFrames gruppiert nach Headern und Sub-Headern."""
         patient_data = self._split_blocks().get("ALLE Patientendaten", {})
         if isinstance(patient_data, dict):
             data_str = next(iter(patient_data.values()), "")
@@ -615,64 +581,100 @@ class DataParser:
         result = {}
 
         for header in headers:
-            # Sammle Blöcke pro Sub-Header
             blocks = self._get_from_all_patient_data_by_string(header)
             result[header] = {}
-            
+
             for sub_header, lines in blocks.get(header, {}).items():
-                # Parse die Zeilen für diesen Sub-Header
                 data_list = []
                 timestamp = None
                 for line in lines:
                     parts = line.split(self.delimiter)
-                    
+
                     if self._is_timestamp_row(parts):
                         timestamp = self._find_timestamp(parts)
                         continue
-                        
+
                     if not timestamp:
                         continue
-                        
+
                     parameter, value_str = self._get_device_values(parts)
                     if not parameter or not value_str:
                         continue
-                        
+
                     try:
                         value = float(value_str.replace(",", "."))
                     except ValueError:
                         value = value_str
-                        
-                    data_list.append({
-                        'timestamp': timestamp,
-                        'value': value,
-                        'category': sub_header,
-                        'parameter': parameter,
-                        'source_header': header
-                    })
-                
+
+                    data_list.append(
+                        {
+                            'timestamp': timestamp,
+                            'value': value,
+                            'category': sub_header,
+                            'parameter': parameter,
+                            'source_header': header,
+                        }
+                    )
+
                 if data_list:
                     result[header][sub_header] = pd.DataFrame(data_list)
-        
+
         return result
 
-    def get_blocks(self) -> Dict[str, Dict[str, str]]:
-        """Gibt alle Datenblöcke zurück."""
-        return self._split_blocks()
+
+class DeviceParserMixin(AllPatientDataMixin):
+    def parse_nirs_logic(self) -> pd.DataFrame:
+        """Parst NIRS-Daten anhand der generischen all_patient_data-Struktur."""
+        all_patient_data = self.parse_all_patient_data()
+        if not all_patient_data:
+            return pd.DataFrame()
+
+        candidate_headers = [
+            header
+            for header in all_patient_data.keys()
+            if any(token in header.upper() for token in ("NIRS", "PSI", "ICP"))
+        ]
+        frames: List[pd.DataFrame] = []
+        for header in candidate_headers:
+            sub_blocks = all_patient_data.get(header, {})
+            for sub_header, df in sub_blocks.items():
+                if df is None or df.empty:
+                    continue
+                normalized = df.copy()
+                normalized["source_header"] = header
+                normalized["source_category"] = sub_header
+                normalized["category"] = "nirs"
+                frames.append(normalized)
+
+        if not frames:
+            return pd.DataFrame()
+
+        result = pd.concat(frames, ignore_index=True)
+        if "timestamp" in result.columns:
+            result["timestamp"] = pd.to_datetime(result["timestamp"], errors="coerce")
+            result = result.dropna(subset=["timestamp"])
+
+        return result.reset_index(drop=True)
+
+
+class RespiratoryParserMixin(AllPatientDataMixin):
+    def _parse_aditional_respiratory_data(self, data_class) -> pd.DataFrame:
+        hfnc_blocks = self._get_from_all_patient_data_by_string("High-Flow Nasen CPAP")
+        o2_data = self._get_from_all_patient_data_by_string("O2 Gabe")
+        return pd.DataFrame()
 
     def parse_respiratory_data(self) -> pd.DataFrame:
-        """
-        Parst Respiratordaten.
-        Kombiniert dabei verschiedene Quellen.
-        """
         table_data = self._parse_table_data("Respiratordaten", RespiratoryModel)
         mode_data = self._parse_aditional_respiratory_data(RespiratoryModel)
         return pd.concat([table_data, mode_data], axis=0)
-    
-    @staticmethod
-    def get_date_range_from_df(df: pd.DataFrame) -> Tuple[Optional[date], Optional[date]]:
-        """Ermittelt Datumsbereich aus DataFrame."""
-        try:
-            ts = pd.to_datetime(df['timestamp'], errors='coerce').dropna()
-            return (ts.min().date(), ts.max().date()) if not ts.empty else (None, None)
-        except:
-            return (datetime(2010, 1, 1).date(), datetime.now().date())
+
+
+class DataParser(
+    MedicationParserMixin,
+    FluidBalanceParserMixin,
+    DeviceParserMixin,
+    RespiratoryParserMixin,
+):
+    """Abwärtskompatible Fassade für die bisherigen Parser-Aufrufe."""
+
+    pass

@@ -1,5 +1,5 @@
 import streamlit as st
-from state_provider.state_provider_class import state_provider
+from state_provider.state_provider import state_provider
 from datetime import datetime
 import pandas as pd
 

@@ -1,30 +1,14 @@
 import streamlit as st
-from state_provider.state_provider_class import state_provider
 from datetime import date, time, timedelta
 import datetime as dt
-from services.value_aggregation.lab_aggregator import LabAggregator
-import pandas as pd
 import io
+import pandas as pd
+
+from services.utils import coerce_to_datetime, normalize_date_range
+from services.value_aggregation.lab_aggregator import LabAggregator
+from state_provider.state_provider import state_provider
 
 class ExportBuilder:
-
-    @staticmethod
-    def _to_datetime(value):
-        if isinstance(value, dt.datetime):
-            return value
-        if isinstance(value, date):
-            return dt.datetime.combine(value, dt.datetime.min.time())
-        return None
-
-    @staticmethod
-    def _dates_from_range(candidate, fallback):
-        if isinstance(candidate, (list, tuple)) and len(candidate) == 2:
-            start, end = candidate
-            start_date = start.date() if isinstance(start, dt.datetime) else start if isinstance(start, date) else None
-            end_date = end.date() if isinstance(end, dt.datetime) else end if isinstance(end, date) else None
-            if start_date and end_date:
-                return (start_date, end_date)
-        return fallback
 
     def _has_ecmo_data(self, date=None):
         if date is None:
@@ -57,8 +41,8 @@ class ExportBuilder:
             print("returning because exporter raw_value is not valid")
             return
 
-        start_dt = self._to_datetime(values[0])
-        end_dt = self._to_datetime(values[1])
+        start_dt = coerce_to_datetime(values[0])
+        end_dt = coerce_to_datetime(values[1])
         if not start_dt or not end_dt:
             print("export returning")
             return
@@ -72,9 +56,9 @@ class ExportBuilder:
     def _render_time_range_picker(self):
         default_range = (date.today(), date.today())
         selected_range = state_provider.get_selected_time_range()
-        initial_range = self._dates_from_range(selected_range, default_range)
+        initial_range = normalize_date_range(selected_range, default_range)
 
-        current_value = self._dates_from_range(
+        current_value = normalize_date_range(
             st.session_state.get("export_date_range_input"),
             initial_range,
         )
@@ -107,6 +91,10 @@ class ExportBuilder:
                     dates.append(current)
                     current = current + timedelta(days=1)
         
+        record_id = state_provider.get_record_id()
+        if not record_id:
+            return
+
         data = []
         ecmo_instance = 1
         impella_instance = 1
@@ -116,7 +104,7 @@ class ExportBuilder:
                 ecls_lab_builder = LabAggregator(
                     state_provider,
                     date=date,
-                    record_id=state_provider.get_record_id(),
+                    record_id=record_id,
                     redcap_event_name="ecls_arm_2",
                     redcap_repeat_instrument="labor",
                     redcap_repeat_instance=ecmo_instance,
@@ -131,7 +119,7 @@ class ExportBuilder:
                 impella_lab_builder = LabAggregator(
                     state_provider,
                     date=date,
-                    record_id=state_provider.get_record_id(),
+                    record_id=record_id,
                     redcap_event_name="impella_arm_2",
                     redcap_repeat_instrument="labor",
                     redcap_repeat_instance=impella_instance,

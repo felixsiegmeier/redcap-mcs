@@ -10,7 +10,7 @@ import streamlit as st
 from typing import Dict, Any, Callable, List
 from datetime import date, time
 import pandas as pd
-from state_provider.state_provider_class import state_provider
+from state_provider.state_provider import state_provider
 from schemas.db_schemas.lab import LabModel, WithdrawalSite
 from collections import defaultdict
 

@@ -1,27 +1,11 @@
 import streamlit as st
-from schemas.app_state_schemas.app_state import Views
-from state_provider.state_provider_class import state_provider
 from datetime import date, datetime
 
+from schemas.app_state_schemas.app_state import Views
+from services.utils import coerce_to_datetime, normalize_date_range
+from state_provider.state_provider import state_provider
+
 class Sidebar:
-
-    @staticmethod
-    def _to_datetime(value):
-        if isinstance(value, datetime):
-            return value
-        if isinstance(value, date):
-            return datetime.combine(value, datetime.min.time())
-        return None
-
-    @staticmethod
-    def _dates_from_range(candidate, fallback):
-        if isinstance(candidate, (list, tuple)) and len(candidate) == 2:
-            start, end = candidate
-            start_date = start.date() if isinstance(start, datetime) else start if isinstance(start, date) else None
-            end_date = end.date() if isinstance(end, datetime) else end if isinstance(end, date) else None
-            if start_date and end_date:
-                return (start_date, end_date)
-        return fallback
 
     def _update_record_id(self):
         new_id = st.session_state["record_id_input"]
@@ -37,8 +21,8 @@ class Sidebar:
         else:
             return
 
-        start_dt = self._to_datetime(values[0])
-        end_dt = self._to_datetime(values[1])
+        start_dt = coerce_to_datetime(values[0])
+        end_dt = coerce_to_datetime(values[1])
         if not start_dt or not end_dt:
             return
 
@@ -53,8 +37,8 @@ class Sidebar:
     def _render_time_range_picker(self):
         default_range = (date.today(), date.today())
         selected_range = state_provider.get_selected_time_range()
-        initial_range = self._dates_from_range(selected_range, default_range)
-        current_value = self._dates_from_range(
+        initial_range = normalize_date_range(selected_range, default_range)
+        current_value = normalize_date_range(
             st.session_state.get("date_range_input"),
             initial_range,
         )
