@@ -69,10 +69,24 @@ class Sidebar:
         def go_to_lab():
             state_provider.update_state(selected_view=Views.LAB)
 
+        def go_to_respiratory():
+            state_provider.update_state(selected_view=Views.RESPIRATORY)
+
+        def go_to_impella():
+            state_provider.update_state(selected_view=Views.IMPELLA)
+
+        def go_to_ecmo():
+            state_provider.update_state(selected_view=Views.ECMO)
+
         with st.expander(label="Explore Data"):
             st.button("Vitals", key="vitals_button", on_click=go_to_vitals, width="stretch")
+            st.button("Respiratory", key="respiratory_button", on_click=go_to_respiratory, width="stretch")
             st.button("Lab", key="lab_button", on_click=go_to_lab, width="stretch")
-        
+            if state_provider.query_data("impella") is not None:
+                st.button("Impella", key="impella_button", on_click=go_to_impella, width="stretch")
+            if state_provider.query_data("ecmo") is not None:
+                st.button("ECMO", key="ecmo_button", on_click=go_to_ecmo, width="stretch")
+
     def _render_forms_expander(self):
         def go_to_export_builder():
             state_provider.update_state(selected_view=Views.EXPORT_BUILDER)

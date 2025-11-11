@@ -13,6 +13,9 @@ class Views(Enum):
     STARTPAGE = "startpage"
     VITALS = "vitals"
     LAB = "lab"
+    IMPELLA = "impella"
+    ECMO = "ecmo"
+    RESPIRATORY = "respiratory"
     LAB_FORM = "lab_form"
     VITALS_FORM = "vitals_form"
     EXPORT_BUILDER = "export_builder"
@@ -50,5 +53,8 @@ class AppState(BaseModel):
     nearest_impella_time: Optional[time] = None
     vitals_ui: UiState = UiState()
     lab_ui: UiState = UiState()
+    impella_ui: UiState = UiState()
+    ecmo_ui: UiState = UiState()
+    respiratory_ui: UiState = UiState()
     lab_form: list[LabModel] | None = []
     vitals_form: list[VitalsModel] | None = []

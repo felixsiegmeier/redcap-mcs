@@ -4,6 +4,9 @@ from views.startpage import render_startpage
 from views.homepage import render_homepage
 from views.vitals_data import render_vitals_data
 from views.lab_data import render_lab_data
+from views.impella_data import render_impella_data
+from views.ecmo_data import render_ecmo_data
+from views.respiratory_data import render_respiratory_data
 from views.lab_form import  lab_form
 from views.export_builder import export_builder
 from schemas.app_state_schemas.app_state import Views
@@ -28,6 +31,15 @@ def run_app():
 
     elif state_provider.get_selected_view() == Views.LAB:
         render_lab_data()
+
+    elif state_provider.get_selected_view() == Views.IMPELLA:
+        render_impella_data()
+
+    elif state_provider.get_selected_view() == Views.ECMO:
+        render_ecmo_data()
+
+    elif state_provider.get_selected_view() == Views.RESPIRATORY:
+        render_respiratory_data()
 
     elif state_provider.get_selected_view() == Views.LAB_FORM:
         lab_form()
