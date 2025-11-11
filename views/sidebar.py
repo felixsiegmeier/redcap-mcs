@@ -82,9 +82,9 @@ class Sidebar:
             st.button("Vitals", key="vitals_button", on_click=go_to_vitals, width="stretch")
             st.button("Respiratory", key="respiratory_button", on_click=go_to_respiratory, width="stretch")
             st.button("Lab", key="lab_button", on_click=go_to_lab, width="stretch")
-            if state_provider.query_data("impella") is not None:
+            if not state_provider.query_data("impella").empty:
                 st.button("Impella", key="impella_button", on_click=go_to_impella, width="stretch")
-            if state_provider.query_data("ecmo") is not None:
+            if not state_provider.query_data("ecmo").empty:
                 st.button("ECMO", key="ecmo_button", on_click=go_to_ecmo, width="stretch")
 
     def _render_forms_expander(self):
