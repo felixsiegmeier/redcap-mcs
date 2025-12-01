@@ -1,12 +1,11 @@
 # Clean M-Life
 
-Streamlit-Anwendung zur Analyse, Aggregation und Visualisierung medizinischer Patientendaten.
+Anwendung zur Analyse, Aggregation und Visualisierung medizinischer Patientendaten.
 
 ## Schnellstart
 - Repository klonen: `git clone <repo-url>`
 - Abhängigkeiten installieren (über `uv` oder klassisch):
   - `uv sync` **oder** `pip install -r requirements.txt`
-- Anwendung starten: `uv run streamlit run app.py` (alternativ `streamlit run app.py`)
 
 ## Architekturüberblick
 ```
@@ -36,7 +35,7 @@ Streamlit-Anwendung zur Analyse, Aggregation und Visualisierung medizinischer Pa
 - Rückgaben fließen als DataFrames in den Applikationszustand.
 
 ### 3. State Management
-- `state_provider/state_provider.py` kapselt den Zugriff auf den Streamlit-Session-State.
+- `state_provider/state_provider.py` kapselt den Zugriff auf den App-State.
 - Delegation:
   - `QueryManager` (lesende Operationen, Filter, Aggregationen, Zeitbereichs-Abfragen).
   - `DataManager` (Mutationen, Parsing, Formular-Updates).
@@ -68,7 +67,7 @@ Streamlit-Anwendung zur Analyse, Aggregation und Visualisierung medizinischer Pa
 
 ## Entwicklung & Tests
 - Lokale Imports prüfen: `uv run python -c "import app; print('OK')"`
-- Streamlit Hot-Reload aktivieren: `uv run streamlit run app.py`
+
 - Bestehende Tests unter `tests/` starten: `uv run pytest`
 
 ## Lizenz

@@ -1,4 +1,3 @@
-import streamlit as st
 from datetime import datetime, time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -16,18 +15,16 @@ class StateProvider:
     """Central access point for application state, delegating to query and data managers."""
 
     def __init__(self, data_parser: type[DataParser] | None = None) -> None:
-        self._state_key = "app_state"
+        self._state = AppState()
         parser_cls = data_parser or DataParser
         self.query_manager = QueryManager(self)
         self.data_manager = DataManager(self, data_parser_cls=parser_cls)
 
     def get_state(self) -> AppState:
-        if self._state_key not in st.session_state:
-            st.session_state[self._state_key] = AppState()
-        return st.session_state[self._state_key]
+        return self._state
 
     def save_state(self, state: AppState) -> None:
-        st.session_state[self._state_key] = state
+        self._state = state
 
     def update_state(self, **kwargs) -> None:
         self.data_manager.update_state(**kwargs)

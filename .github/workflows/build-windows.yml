@@ -30,19 +30,16 @@ jobs:
         run: |
           pyinstaller --clean --name clean_mlife_app \
             --add-data "services;services" \
-            --add-data "views;views" \
             --add-data "ui;ui" \
             --add-data "tools;tools" \
             --add-data "med_examp.txt;." \
             --add-data "requirements.txt;." \
-            --add-data "app.py;." \
             --add-data "app_core.py;." \
             --add-data "main.py;." \
             --add-data "logging_config.py;." \
             --add-data "session_state_dump.json;." \
             --add-data "pyproject.toml;." \
             --add-data "uv.lock;." \
-            --collect-all streamlit \
             app_launcher.py
 
       - name: List dist
