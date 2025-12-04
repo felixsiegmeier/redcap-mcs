@@ -1,4 +1,4 @@
-from schemas.parse_schemas.base import BaseDataModel
+from mlife_core.schemas.parse_schemas.base import BaseDataModel
 from typing import Optional
 
 

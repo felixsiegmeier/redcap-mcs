@@ -7,7 +7,7 @@ from datetime import datetime
 import pandas as pd
 
 from .base import DataParserBase
-from schemas.parse_schemas.fluidbalance import FluidBalanceModel
+from mlife_core.schemas.parse_schemas.fluidbalance import FluidBalanceModel
 
 class FluidBalanceParserMixin(DataParserBase):
     def parse_fluidbalance_logic(self) -> pd.DataFrame:

@@ -1,6 +1,6 @@
 import flet as ft
 import os
-from services.pipeline import run_parsing_pipeline
+from mlife_core.services.pipeline import run_parsing_pipeline
 from ui.app_state import AppState
 from ui.tabs.overview import OverviewTab
 from ui.tabs.quick_export import QuickExportTab

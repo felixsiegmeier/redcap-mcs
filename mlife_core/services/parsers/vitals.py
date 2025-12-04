@@ -2,7 +2,7 @@ from __future__ import annotations
 import pandas as pd
 
 from .standard_table import StandardTableParser
-from schemas.parse_schemas.vitals import VitalsModel
+from mlife_core.schemas.parse_schemas.vitals import VitalsModel
 
 class VitalsParserMixin(StandardTableParser):
     """

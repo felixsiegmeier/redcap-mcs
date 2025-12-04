@@ -1,5 +1,5 @@
 import pandas as pd
-from services.parsers import DataParser
+from mlife_core.services.parsers import DataParser
 
 def run_parsing_pipeline(input_file: str) -> pd.DataFrame:
     """

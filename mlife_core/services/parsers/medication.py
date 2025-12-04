@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 
 from .base import DataParserBase
-from schemas.parse_schemas.medication import MedicationModel
+from mlife_core.schemas.parse_schemas.medication import MedicationModel
 
 class MedicationParserMixin(DataParserBase):
     """

@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-from services.pipeline import run_parsing_pipeline
+from mlife_core.services.pipeline import run_parsing_pipeline
 
 def main():
     parser = argparse.ArgumentParser(description="Parse mLife CSV data into a consolidated format.")

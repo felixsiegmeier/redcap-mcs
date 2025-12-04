@@ -1,4 +1,4 @@
-from schemas.parse_schemas.base import BaseDataModel
+from mlife_core.schemas.parse_schemas.base import BaseDataModel
 from pydantic import Field
 from typing import Optional
 from datetime import datetime

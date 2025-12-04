@@ -2,7 +2,7 @@ from __future__ import annotations
 import pandas as pd
 
 from .standard_table import StandardTableParser
-from schemas.parse_schemas.respiratory import RespiratoryModel
+from mlife_core.schemas.parse_schemas.respiratory import RespiratoryModel
 
 class RespiratoryParserMixin(StandardTableParser):
     """

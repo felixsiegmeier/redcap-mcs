@@ -1,6 +1,6 @@
 import flet as ft
 from ui.app_state import AppState
-from utils.export import STANDARD_CATEGORIES, save_dataframe
+from mlife_core.utils.export import STANDARD_CATEGORIES, save_dataframe
 
 class CustomExportTab(ft.Container):
     def __init__(self, page: ft.Page, app_state: AppState):
