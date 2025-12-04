@@ -1,0 +1,52 @@
+--- Source Types ---
+source_type
+Respiratory                         9619
+Lab                                 7490
+Vitals                              3378
+Medication                          1446
+FluidBalance                          28
+                                    ... 
+Redondrainage   II rechts              1
+Beatmungsprotokoll manuell             1
+Anästhesiepflege                       1
+Patientencheck.                        1
+Flüssigkeitshaushalt, Bilanzziel       1
+Name: count, Length: 192, dtype: int64
+
+--- Categories per Source Type ---
+source_type
+ACT                                            1
+Abdomen                                        4
+Aktivitäten Beatmung                          10
+Allergien                                      1
+Anamnese                                       1
+                                              ..
+peripherer Venenzugang   Ellenbeuge links      2
+peripherer Venenzugang   Handrücken links      1
+regelmäßige Besuche                            1
+sonstige Wunden   Perianal                     2
+weitere TeilnehmerInnen                        1
+Name: category, Length: 192, dtype: int64
+
+--- Null Values ---
+timestamp            0
+source_type          0
+category             0
+parameter            0
+value                0
+source_header    21961
+time_range       22376
+application      20958
+stop             21449
+concentration    20958
+rate             21440
+dtype: int64
+
+--- Sample of 'Arzt Verlauf' ---
+                timestamp                                              value
+69    2025-09-10 16:41:00  Zeit 146ms. QRS-Dauer 98ms. QT/QTc 334/449ms. ...
+70    2025-09-10 16:41:00  Die aktuelle stationäre Vorstellung von Herr U...
+1680  2025-09-14 07:33:00  P: AG bds, GAT suff\nA: SG zuletzt heute, DG u...
+5088  2025-09-16 01:34:00  - fHb 03:00 24 --> POCT: 7 ""not hemolysis\n3....
+8767  2025-09-18 10:59:00  5. Tag nach Reanimation mit pECMO Anlage bei z...
+Average length of 'Arzt Verlauf' value: 2107.7

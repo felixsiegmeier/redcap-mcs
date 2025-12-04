@@ -1,13 +1,4 @@
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
+from schemas.parse_schemas.base import BaseDataModel
 
-
-class LabModel(BaseModel):
-    timestamp: datetime = Field(..., description="Timestamp of the measurement")
-    category: Optional[str] = Field(None, description="Subcategory of the measurement")
-    parameter: Optional[str] = Field(None, description="Parameter name")
-    value: Optional[float | str] = Field(None, description="Value of the measurement")
-
-    class Config:
-        from_attributes = True
+class LabModel(BaseDataModel):
+    pass

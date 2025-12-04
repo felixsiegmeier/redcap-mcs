@@ -1,3 +1,4 @@
 
-# Falls du pandas/other libs brauchst, füge sie hinzu
-# pandas
+pandas
+pydantic
+flet

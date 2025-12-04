@@ -1,0 +1,188 @@
+Visite durch CA/Vertreter:in
+Leistennaht   links 
+Maßnahmen Mobilisation
+Arztnotizen
+Anordnung nach ärztl. Rücksprache
+Intensivmedizin
+Durchführung Spontanatemversuch
+Patientenwille
+Ereignis
+Zugänge
+Visite durchgeführt von
+Anamnese
+Magen
+Prognose Erkrankung
+Haare
+Fasziotomie   US links med. 
+Temperatur 1 (Lokalisation)
+Transfusionsindikation
+Compartement Kontrolle   Arm rechts
+Dekubitusrisiko
+Atmung /Tubuslage/-größe)
+Grösse/Gewicht
+HK/PTCA/PostHK
+NRS (Numerische Rating Skala)
+Pflege
+Patientencheck
+PPR Einstufung
+Operation/Datum/Operateur
+Arterieller Zugang   A. brachialis rechts 
+Patientenhilfsmittel
+Magen-/Duodenalsonde   nasal rechts 
+Bedside Test
+Labor
+Intensive Care Delirium Screening
+SBT durchführbar
+MAC-Katheter   V. jugularis interna rechts 
+PSI/NIRS/ICP
+PPR Zusatzitems E
+peripherer Venenzugang   Handrücken links 
+HK Befund
+Mobilisation und spezielle Physiotherapie (Ärztl. Anordnung)
+Pflegenotizen
+Darm
+Nase
+StuhldrainageSystem
+Indikation Hb<9g/dl und Hinweise auf anäm. Hypoxie
+Anästhesiepflege
+Arterieller Zugang   A. femoralis rechts 
+Chronischer Schmerzpatient
+Körperlicher Zustand
+Ernährungsstatus - Vorscreening
+bekannte Risiken
+Mund- und Rachenraum
+Visite
+Mobilisation,Bewegungstherapie SAP
+Status
+regelmäßige Besuche
+Dekubitus   Hinterkopf mitte
+ZVK   V. jugularis interna rechts (2) 
+Multiprofessionelle Visite Magnet
+Beatmungsprotokoll manuell
+Lippen
+Axillarisnaht   rechts 
+sonstige Wunden   Perianal 
+Berufsgruppe
+Shaldon Katheter   V. jugularis interna links 
+Erfassung der Beatmungszeit
+Sprache
+High-Flow Nasen CPAP
+Augen
+Hautinspektion
+Arterieller Zugang   A. radialis rechts 
+Atemmechanik/Hämodynamik/Sedierung
+Ernährung
+Herzrhythmus
+Abdomen
+Kontrolle
+Augenschutz
+Kontaktperson
+peripherer Venenzugang   Ellenbeuge links 
+Atmungstherapie
+O2 Gabe
+Vitalparameter (manuell)
+Compartement Kontrolle   femoralis links links
+Soziales Umfeld
+Zielplanung
+Redondrainage   II rechts
+Bereitstellung
+Start Anästhesieüberwachung
+Dekubitus   Ferse rechts 
+Diabetes
+Behavioral Pain Scale (BPS)
+Zahnstatus
+Tubus/Beatmung
+Richmond-Agitation-Sedation
+Hämofilter   V. jugularis interna links 
+Gesaess
+Magen-/Duodenalsonde   nasal links 
+Blutgas man.
+Kardiotechnik (Notizen)
+Lagerung des Patienten im OP
+Redondrainage   I links
+Beatmungsentwöhnungspotential
+Weaning-Patient
+Nagelpflege
+GCS (Jugendliche und Erwachsene)
+Patientencheck.
+Flüssigkeitshaushalt, Bilanzziel
+Motorik
+Meilensteine
+ECMO
+Impella   A. axilliaris rechts 
+Sturzrisikoskala nach Huhn
+Inhalationsarten
+Mikrobiologie
+Atemtherapie
+Readiness to wean
+Allergien
+Arzt Verlauf
+Urin
+Patient schläft im Nachtdienst
+Check Intensivstation
+Reanimation
+TEE
+Patientenverfügung
+NIV-Beatmungsprotokoll manuell
+Anästhesieübergabe
+Ergebnis Spontanatmungsversuch
+Bewußtsein
+Therapieplanung Folgewoche/Ziele/Sonstiges
+Versorgungsstatus/Pflegebedarf
+Mobilität
+NIV-Anordnung
+Prophylaxen
+weitere TeilnehmerInnen
+Bronchoskopie
+Endotracheales Absaugen
+Hilfsmittel
+Weaninganordnung
+Gerätecheck
+Behandlungsergebnisse/akt. Situation
+Atmungstherapie (AT)-Behandlungsbericht
+ZVK   V. jugularis interna rechts 
+NeuroScore CVK/Pat. sediert
+Anleitung von Patienten und Angehörigen
+Maßnahmen Bewegungstherapie
+NeuroScore CVK/Pat. wach
+Aktivitäten Beatmung
+Atemtherapie SAP
+Stuhlgang
+fachärztliche Behandlungsleitung (WDA1I, WD4I)
+Mobilität und Bewegung
+Operationsdauer
+Verbal Rate Skala
+Körperpflege
+Dialyse   V. jugularis li 
+extrakorporales Calcium
+Hygiene
+NIV-Maskenbeatmung
+ACT
+Dekubitus   Nase unten
+Weaning
+Pleuradrainage   rechts 
+Diagnosen
+Pupillen
+Kostform
+Besonderheiten
+Compliance
+Urinkatheter
+Maßnahmen Positionierung
+Dekubitus   Jochbein rechts rechts
+Körper
+Sonstiges SAP
+Covid-Impfung Status
+Wärmemanagement
+Regenerationspotential
+Compartement Kontrolle   femoralis rechts 
+Stopp der Anästhesieüberwachung
+RESP-Status
+Atemmechanik
+Genitalien
+Ausscheiden
+Einschätzung
+Ziel: Richmond-Agitation-Sedation
+Bronchialtoilette
+fachärztliche Behandlungsleitung
+Hämofilter Heizung Temperatur
+Hautveränderungen   Fuss rechts 

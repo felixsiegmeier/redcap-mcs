@@ -1,74 +1,71 @@
-# Clean M-Life
+# mLife Data Parser
 
-Anwendung zur Analyse, Aggregation und Visualisierung medizinischer Patientendaten.
+Ein Tool zur Konsolidierung und Transformation von medizinischen Patientendaten (CSV) in ein einheitliches "Long Format" (Tidy Data).
 
-## Schnellstart
-- Repository klonen: `git clone <repo-url>`
-- Abhängigkeiten installieren (über `uv` oder klassisch):
-  - `uv sync` **oder** `pip install -r requirements.txt`
+## Features
 
-## Architekturüberblick
+- **Parsing**: Liest komplexe, heterogene CSV-Exportdateien (mLife).
+- **Konsolidierung**: Führt Vitaldaten, Labordaten, Beatmung, Medikamente, Bilanzierung und Gerätedaten (ECMO, Impella, CRRT, NIRS) zusammen.
+- **Formatierung**: Gibt eine bereinigte CSV-Datei im Long Format aus (`timestamp`, `source_type`, `category`, `parameter`, `value`).
+- **Validierung**: Nutzt Pydantic-Modelle zur Sicherstellung der Datenintegrität.
+
+## Installation
+
+1. Repository klonen.
+2. Abhängigkeiten installieren:
+   ```bash
+   pip install -r requirements.txt
+   # oder mit uv
+   uv sync
+   ```
+
+## Nutzung
+
+### Kommandozeile (CLI)
+
+```bash
+python cli.py <input_file> [-o output.csv]
 ```
-[CSV Upload]
-    ↓
-[Parser (services/data_parser.py)]
-    ↓
-[State Management (state_provider)]
-    ↓
-[Aggregation (services/value_aggregation)]
-    ↓
-[Views (views/…)]
+
+Beispiel:
+```bash
+python cli.py data/gesamte_akte.csv -o mein_export.csv
 ```
 
-### 1. Datenquelle & Upload
-- CSV-Dateien liegen typischerweise im Ordner `data/`.
-- Der Upload erfolgt über die Startseite (`views/startpage.py`).
-- Dateien werden an `StateProvider.parse_data_to_state()` weitergegeben.
+### Grafische Oberfläche (GUI)
 
-### 2. Parsing & Transformation
-- Implementiert in `services/data_parser.py`.
-- Die Klasse `DataParser` kombiniert spezialisierte Mixins (`MedicationParserMixin`, `DeviceParserMixin` etc.) auf Basis der gemeinsamen `DataParserBase`.
-- Kernschritte:
-  - `_clean_csv()` und `_split_blocks()` bereiten Rohdaten vor.
-  - Tabellarische Werte werden via `_parse_table_data()` in `pandas.DataFrame` überführt.
-  - Spezifische Parser (`parse_medication_logic`, `parse_fluidbalance_logic`, `parse_respiratory_data`, `parse_nirs_logic`, …) nutzen Pydantic-Modelle aus `schemas/parse_schemas/` zur Validierung.
-- Rückgaben fließen als DataFrames in den Applikationszustand.
+Startet eine minimale Benutzeroberfläche zur Dateiauswahl:
 
-### 3. State Management
-- `state_provider/state_provider.py` kapselt den Zugriff auf den App-State.
-- Delegation:
-  - `QueryManager` (lesende Operationen, Filter, Aggregationen, Zeitbereichs-Abfragen).
-  - `DataManager` (Mutationen, Parsing, Formular-Updates).
-- `AppState` (`schemas/app_state_schemas/app_state.py`) speichert Parsed Data, UI-Status, Metadaten und Zeitbereiche.
+```bash
+python main.py
+```
 
-### 4. Aggregation & Value Services
-- Spezialisierte Aggregatoren liegen in `services/value_aggregation/` (z.B. `lab_aggregator.py`).
-- Aufrufende Komponenten geben Parameter wie Datum, Kategorie, Aggregationsstrategie (median, mean, first, last, nearest) an.
-- Aggregatoren beziehen Daten ausschließlich über den `state_provider`.
+## Projektstruktur
 
-### 5. Views & UI
-- UI-Komponenten befinden sich im Verzeichnis `views/`.
-- Beispiele:
-  - `homepage.py` zeigt eine Übersicht.
-  - `vitals_data.py`, `lab_data.py` visualisieren Messwerte.
-  - `export_builder.py`, `lab_form.py` erzeugen strukturierte Formulare.
-- `views/sidebar.py` steuert Navigation, Record-ID und Datumsbereich.
-- Views interagieren ausschließlich über den `state_provider`, um Datenkohärenz sicherzustellen.
+```
+.
+├── cli.py                  # CLI Einstiegspunkt
+├── main.py                 # GUI Einstiegspunkt (Flet)
+├── services/
+│   ├── data_parser.py      # Kern-Parsing-Logik & Mixins
+│   └── pipeline.py         # Orchestrierung des Parsing-Prozesses
+└── schemas/
+    └── parse_schemas/      # Pydantic Datenmodelle
+        ├── base.py         # Basisklasse (BaseDataModel)
+        ├── vitals.py
+        ├── lab.py
+        ├── medication.py
+        └── ...
+```
 
-## Utility-Funktionen
-- Gemeinsame Hilfsfunktionen rund um Datumskonvertierungen wurden in `services/utils.py` konsolidiert (`coerce_to_datetime`, `normalize_date_range`, `expand_date_range_to_bounds`).
-- Diese Utilities werden u.a. von Sidebar, Export Builder und DataManager verwendet, um Verdopplung zu vermeiden.
+## Datenmodell
 
-## Erweiterungspunkte
-- **Neue Parser**: Methoden im passenden Mixin ergänzen und in `DataManager.parse_data_to_state()` verdrahten.
-- **Neue Aggregationen**: Im Ordner `services/value_aggregation/` platzieren; Zugriff über `state_provider.query_manager` sicherstellen.
-- **Weitere Views**: Neue Datei in `views/` anlegen und in `app.py` registrieren.
-- **Schemas**: Neue Datenmodelle unter `schemas/` hinzufügen bzw. erweitern.
+Alle Daten werden auf ein gemeinsames Schema gemappt:
 
-## Entwicklung & Tests
-- Lokale Imports prüfen: `uv run python -c "import app; print('OK')"`
+- `timestamp`: Zeitpunkt der Messung/Handlung
+- `source_type`: Herkunft (z.B. "Vitals", "Lab", "Medication")
+- `category`: Unterkategorie (z.B. "Blutgase", "Katecholamine")
+- `parameter`: Name des Parameters (z.B. "pH", "Norepinephrin")
+- `value`: Numerischer Wert oder Textwert
 
-- Bestehende Tests unter `tests/` starten: `uv run pytest`
-
-## Lizenz
-- (Hier Lizenzinformationen ergänzen, falls erforderlich.)
+Zusätzliche Felder (z.B. für Medikamente: `rate`, `concentration`) sind im Modell vorhanden und werden bei Bedarf mit ausgegeben.

@@ -1,0 +1,49 @@
+timestamp;value;category;parameter;source_header;source_category
+2025-09-13 17:10:00;37.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 17:10:00;61.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 17:10:00;63.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 21:24:00;42.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 21:24:00;50.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 21:24:00;52.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 23:55:00;30.0;nirs;PSI;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 23:55:00;42.0;nirs;NIRS li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 23:55:00;41.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-13 23:55:00;48.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 05:48:00;39.0;nirs;NIRS li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 05:48:00;49.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 05:48:00;46.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 16:17:00;25.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 16:17:00;33.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 16:17:00;40.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 19:51:00;26.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 19:51:00;37.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 19:51:00;41.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 21:28:00;25.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 21:28:00;45.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 21:28:00;45.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 23:25:00;28.0;nirs;NIRS li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 23:25:00;43.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-14 23:25:00;48.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-15 05:03:00;30.0;nirs;NIRS li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-15 05:03:00;46.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-15 05:03:00;56.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-15 15:14:00;37.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-15 15:14:00;55.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-15 15:14:00;58.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 02:24:00;35.0;nirs;PSI;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 02:24:00;46.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 02:24:00;81.0;nirs;Arm re (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 02:24:00;54.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 02:24:00;50.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 23:56:00;79.0;nirs;PSI;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 23:56:00;68.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 23:56:00;73.0;nirs;Arm re (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 23:56:00;63.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-16 23:56:00;64.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-17 06:38:00;66.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-17 06:38:00;76.0;nirs;Arm re (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-17 06:38:00;68.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-17 06:38:00;67.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-18 07:11:00;57.0;nirs;Bein li (per.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-18 07:11:00;58.0;nirs;NIRS re (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
+2025-09-18 07:11:00;68.0;nirs;NIRS li (cerebr.Sätt.) in %;PSI/NIRS/ICP;PSI/NIRS/ICP 1
