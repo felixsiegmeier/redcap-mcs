@@ -12,6 +12,17 @@ class CustomExportTab(ft.Container):
         self.save_custom_picker = ft.FilePicker(on_result=self.save_custom_csv)
         self.page.overlay.append(self.save_custom_picker)
 
+        # Status-Banner (immer sichtbar, Farbe je nach Anonymisierungsstatus)
+        self.anonymize_warning = ft.Container(
+            content=ft.Row([
+                ft.Icon(ft.Icons.WARNING, color=ft.Colors.WHITE, size=16),
+                ft.Text("Achtung: Die Daten wurden noch nicht anonymisiert!", color=ft.Colors.WHITE, size=13)
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8),
+            bgcolor=ft.Colors.ORANGE,
+            padding=ft.padding.symmetric(horizontal=15, vertical=8),
+            border_radius=6
+        )
+
         # UI Components
         self.standard_checkboxes_col = ft.Column()
         self.other_sources_col = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
@@ -27,30 +38,48 @@ class CustomExportTab(ft.Container):
             ft.ElevatedButton("Export Excel", icon=ft.Icons.TABLE_VIEW, bgcolor=ft.Colors.GREEN_100, color=ft.Colors.GREEN_900, on_click=lambda _: self.export_custom_click("xlsx"))
         ])
 
-        self.content = ft.Row([
-            # Linke Spalte: Standard Kategorien
-            ft.Container(
-                content=ft.Column([
-                    self.standard_checkboxes_col,
-                    ft.Divider(),
-                    ft.Text("Exportieren", size=16, weight=ft.FontWeight.BOLD),
-                    self.export_custom_row
-                ]),
-                width=300,
-                padding=10,
-                bgcolor=ft.Colors.GREY_50,
-                border_radius=5,
-                alignment=ft.alignment.top_left
-            ),
-            # Rechte Spalte: Übrige Quellen
-            ft.Container(
-                content=self.other_sources_col,
-                expand=True,
-                padding=10,
-                border=ft.border.all(1, ft.Colors.GREY_300),
-                border_radius=5
-            )
+        self.content = ft.Column([
+            self.anonymize_warning,
+            ft.Row([
+                # Linke Spalte: Standard Kategorien
+                ft.Container(
+                    content=ft.Column([
+                        self.standard_checkboxes_col,
+                        ft.Divider(),
+                        ft.Text("Exportieren", size=14, weight=ft.FontWeight.BOLD),
+                        self.export_custom_row
+                    ]),
+                    width=300,
+                    padding=10,
+                    bgcolor=ft.Colors.GREY_50,
+                    border_radius=5,
+                    alignment=ft.alignment.top_left
+                ),
+                # Rechte Spalte: Übrige Quellen
+                ft.Container(
+                    content=self.other_sources_col,
+                    expand=True,
+                    padding=10,
+                    border=ft.border.all(1, ft.Colors.GREY_300),
+                    border_radius=5
+                )
+            ], expand=True)
         ], expand=True)
+
+    def update_warning(self):
+        if self.app_state.is_anonymized:
+            self.anonymize_warning.content = ft.Row([
+                ft.Icon(ft.Icons.CHECK_CIRCLE, color=ft.Colors.WHITE, size=16),
+                ft.Text("Daten wurden anonymisiert", color=ft.Colors.WHITE, size=13)
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8)
+            self.anonymize_warning.bgcolor = ft.Colors.GREEN
+        else:
+            self.anonymize_warning.content = ft.Row([
+                ft.Icon(ft.Icons.WARNING, color=ft.Colors.WHITE, size=16),
+                ft.Text("Achtung: Die Daten wurden noch nicht anonymisiert!", color=ft.Colors.WHITE, size=13)
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8)
+            self.anonymize_warning.bgcolor = ft.Colors.ORANGE
+        self.anonymize_warning.update()
 
     def update_filter_options(self):
         df = self.app_state.df
@@ -58,7 +87,7 @@ class CustomExportTab(ft.Container):
         
         # 1. Standard Kategorien Checkboxen bauen
         self.standard_checkboxes_col.controls.clear()
-        self.standard_checkboxes_col.controls.append(ft.Text("Standard Kategorien", size=16, weight=ft.FontWeight.BOLD))
+        self.standard_checkboxes_col.controls.append(ft.Text("Standard Kategorien", size=18, weight=ft.FontWeight.BOLD))
         
         for label in STANDARD_CATEGORIES.keys():
             chk = ft.Checkbox(
@@ -80,7 +109,7 @@ class CustomExportTab(ft.Container):
         other_sources = sorted(list(all_sources - covered_sources))
         
         self.other_sources_col.controls.clear()
-        self.other_sources_col.controls.append(ft.Text("Übrige Patientendaten", size=16, weight=ft.FontWeight.BOLD))
+        self.other_sources_col.controls.append(ft.Text("Übrige Patientendaten", size=18, weight=ft.FontWeight.BOLD))
         
         if not other_sources:
             self.other_sources_col.controls.append(ft.Text("Keine weiteren Datenquellen gefunden.", italic=True, color=ft.Colors.GREY))

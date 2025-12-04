@@ -40,22 +40,56 @@ Startet eine minimale Benutzeroberfläche zur Dateiauswahl:
 python main.py
 ```
 
+### Programmatische Nutzung
+
+```python
+from mlife_core.services.pipeline import run_parsing_pipeline
+
+df = run_parsing_pipeline("data/gesamte_akte.csv")
+print(df.head())
+```
+
+Für detaillierte Beispiele siehe `testbook.ipynb`.
+
 ## Projektstruktur
 
 ```
 .
-├── cli.py                  # CLI Einstiegspunkt
-├── main.py                 # GUI Einstiegspunkt (Flet)
-├── services/
-│   ├── data_parser.py      # Kern-Parsing-Logik & Mixins
-│   └── pipeline.py         # Orchestrierung des Parsing-Prozesses
-└── schemas/
-    └── parse_schemas/      # Pydantic Datenmodelle
-        ├── base.py         # Basisklasse (BaseDataModel)
-        ├── vitals.py
-        ├── lab.py
-        ├── medication.py
-        └── ...
+├── cli.py                      # CLI Einstiegspunkt
+├── main.py                     # GUI Einstiegspunkt (Flet)
+├── testbook.ipynb              # Beispiel-Notebook zur Anwendung
+├── mlife_core/                 # Kern-Bibliothek
+│   ├── services/
+│   │   ├── pipeline.py         # Orchestrierung des Parsing-Prozesses
+│   │   └── parsers/            # Parser-Module (Mixins)
+│   │       ├── base.py         # Basisklasse für alle Parser
+│   │       ├── vitals.py       # Vitaldaten-Parser
+│   │       ├── lab.py          # Labor-Parser
+│   │       ├── medication.py   # Medikamenten-Parser
+│   │       ├── respiratory.py  # Beatmungs-Parser
+│   │       ├── fluid_balance.py# Bilanz-Parser
+│   │       ├── all_patient_data.py # Geräte, Scores, etc.
+│   │       └── patient_info.py # Patienteninfo-Parser
+│   ├── schemas/
+│   │   └── parse_schemas/      # Pydantic Datenmodelle
+│   │       ├── base.py         # Basisklasse (BaseDataModel)
+│   │       ├── vitals.py
+│   │       ├── lab.py
+│   │       ├── medication.py
+│   │       └── ...
+│   └── utils/
+│       ├── export.py           # Export-Hilfsfunktionen
+│       └── formatters.py       # Formatierungs-Utilities
+├── ui/                         # Flet GUI-Komponenten
+│   ├── app_state.py            # Anwendungsstatus
+│   └── tabs/                   # Tab-Komponenten
+│       ├── overview.py
+│       ├── quick_export.py
+│       └── custom_export.py
+├── deidentifier_engine/        # Anonymisierung (in Entwicklung)
+│   ├── anonymizer.py
+│   └── nlp_engine.py
+└── data/                       # Beispieldaten
 ```
 
 ## Datenmodell

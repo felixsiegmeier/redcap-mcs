@@ -12,6 +12,25 @@ class PatientInfoParserMixin(DataParserBase):
     (Alter, Größe, Gewicht, BMI, BSA)
     """
 
+    def extract_patient_name(self) -> Optional[str]:
+        """
+        Versucht den Patientennamen aus den ersten Zeilen zu extrahieren.
+        Erwartet Format in Zeile 3, Spalte 2 (Index 1).
+        """
+        try:
+            lines = self.raw_file.splitlines()[:20]
+            for line in lines:
+                parts = line.split(self.delimiter)
+                # Heuristik: Name steht oft in der 2. Spalte (Index 1), 1. Spalte ist leer
+                # Format: "Nachname, Vorname"
+                if len(parts) > 2 and not parts[0].strip() and parts[1].strip():
+                    potential_name = parts[1].strip()
+                    if "," in potential_name and not any(char.isdigit() for char in potential_name):
+                        return potential_name
+        except Exception:
+            pass
+        return None
+
     def parse_patient_info(self) -> pd.DataFrame:
         """
         Extrahiert einmalig die Patientenstammdaten aus dem Header-Bereich.

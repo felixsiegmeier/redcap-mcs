@@ -13,6 +13,17 @@ class QuickExportTab(ft.Container):
         self.subset_file_picker = ft.FilePicker(on_result=self.save_subset_result)
         self.page.overlay.extend([self.save_all_picker, self.subset_file_picker])
 
+        # Status-Banner (immer sichtbar, Farbe je nach Anonymisierungsstatus)
+        self.anonymize_warning = ft.Container(
+            content=ft.Row([
+                ft.Icon(ft.Icons.WARNING, color=ft.Colors.WHITE, size=16),
+                ft.Text("Achtung: Die Daten wurden noch nicht anonymisiert!", color=ft.Colors.WHITE, size=13)
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8),
+            bgcolor=ft.Colors.ORANGE,
+            padding=ft.padding.symmetric(horizontal=15, vertical=8),
+            border_radius=6
+        )
+
         # UI Components
         self.export_all_row = ft.Row([
             ft.ElevatedButton(
@@ -42,12 +53,28 @@ class QuickExportTab(ft.Container):
         self.build_grid()
 
         self.content = ft.Column([
-            ft.Text("Schnell-Export Optionen", size=20, weight=ft.FontWeight.BOLD),
+            self.anonymize_warning,
+            ft.Text("Schnell-Export Optionen", size=18, weight=ft.FontWeight.BOLD),
             self.export_all_row,
             ft.Divider(),
-            ft.Text("Spezifische Datensätze exportieren:", size=16),
+            ft.Text("Spezifische Datensätze exportieren:", size=14),
             self.quick_export_grid
         ], expand=True)
+
+    def update_warning(self):
+        if self.app_state.is_anonymized:
+            self.anonymize_warning.content = ft.Row([
+                ft.Icon(ft.Icons.CHECK_CIRCLE, color=ft.Colors.WHITE, size=16),
+                ft.Text("Daten wurden anonymisiert", color=ft.Colors.WHITE, size=13)
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8)
+            self.anonymize_warning.bgcolor = ft.Colors.GREEN
+        else:
+            self.anonymize_warning.content = ft.Row([
+                ft.Icon(ft.Icons.WARNING, color=ft.Colors.WHITE, size=16),
+                ft.Text("Achtung: Die Daten wurden noch nicht anonymisiert!", color=ft.Colors.WHITE, size=13)
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8)
+            self.anonymize_warning.bgcolor = ft.Colors.ORANGE
+        self.anonymize_warning.update()
 
     def build_grid(self):
         export_options = [
