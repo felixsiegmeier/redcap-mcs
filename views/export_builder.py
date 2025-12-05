@@ -8,6 +8,54 @@ from services.utils import coerce_to_datetime, normalize_date_range
 from services.value_aggregation.lab_aggregator import LabAggregator
 from state_provider.state_provider import state_provider
 
+# REDCap validation types from ECLSDatenbanktest_DataDictionary.csv
+# Maps field names to their validation type (determines decimal formatting)
+REDCAP_VALIDATION_TYPES = {
+    # 1 decimal place, comma separator
+    "pc02": "number_1dp_comma_decimal",
+    "p02": "number_1dp_comma_decimal",
+    "hco3": "number_1dp_comma_decimal",
+    "be": "number_1dp_comma_decimal",
+    "sa02": "number_1dp_comma_decimal",
+    "k": "number_1dp_comma_decimal",
+    "sv02": "number_1dp_comma_decimal",
+    "wbc": "number_1dp_comma_decimal",
+    "hb": "number_1dp_comma_decimal",
+    "hct": "number_1dp_comma_decimal",
+    "ptt": "number_1dp_comma_decimal",
+    "inr": "number_1dp_comma_decimal",
+    "lipase": "number_1dp_comma_decimal",
+    "albumin": "number_1dp_comma_decimal",
+    "crp": "number_1dp_comma_decimal",
+    "fhb": "number_1dp_comma_decimal",
+    "hapto": "number_1dp_comma_decimal",
+    "crea": "number_1dp_comma_decimal",
+    "urea": "number_1dp_comma_decimal",
+    
+    # 2 decimal places, comma separator
+    "ph": "number_2dp_comma_decimal",
+    "pct": "number_2dp_comma_decimal",
+    "bili": "number_2dp_comma_decimal",
+    "cc": "number_2dp_comma_decimal",
+    
+    # Integer (no decimal places)
+    "na": "number",
+    "gluc": "number",
+    "lactate": "number",
+    "plt": "number",
+    "quick": "number",
+    "act": "number",
+    "ck": "number",
+    "ckmb": "number",
+    "got": "number",
+    "ldh": "number",
+    
+    # Fields without explicit validation (treat as generic)
+    "alat": "number",
+    "ggt": "number",
+}
+
+
 class ExportBuilder:
 
     def _has_ecmo_data(self, date=None):
@@ -154,20 +202,35 @@ class ExportBuilder:
         formatted_df = df.copy()
         
         for col in formatted_df.columns:
-            formatted_df[col] = formatted_df[col].apply(self._format_value)
+            validation_type = REDCAP_VALIDATION_TYPES.get(col)
+            formatted_df[col] = formatted_df[col].apply(
+                lambda value: self._format_value(value, validation_type)
+            )
         
         return formatted_df
     
-    def _format_value(self, value):
+    def _format_value(self, value, validation_type=None):
         if pd.isna(value):
             return ""
         elif isinstance(value, float):
-            # Try to convert to int if possible
-            if value.is_integer():
-                return int(value)
+            # Format according to REDCap validation type
+            if validation_type == "number_1dp_comma_decimal":
+                # Exactly 1 decimal place with comma
+                return f"{value:.1f}".replace(".", ",")
+            elif validation_type == "number_2dp_comma_decimal":
+                # Exactly 2 decimal places with comma
+                return f"{value:.2f}".replace(".", ",")
+            elif validation_type == "number" or validation_type == "integer":
+                # Integer - no decimal places
+                return int(round(value))
             else:
-                # Replace dot with comma (Pandas will quote if comma is present)
-                return str(value).replace(".", ",")
+                # Generic number: use comma separator, keep original precision
+                if value.is_integer():
+                    return int(value)
+                else:
+                    return str(value).replace(".", ",")
+        elif isinstance(value, int):
+            return value
         elif isinstance(value, date):
             # Format as d/m/yyyy
             return value.strftime("%d/%m/%Y")
