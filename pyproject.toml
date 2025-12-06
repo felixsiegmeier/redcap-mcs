@@ -1,7 +1,7 @@
 [project]
 name = "redcap-mcs"
 version = "0.1.0"
-description = "Add your description here"
+description = "Streamlit-Anwendung zur Analyse, Aggregation und Visualisierung medizinischer Patientendaten"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
