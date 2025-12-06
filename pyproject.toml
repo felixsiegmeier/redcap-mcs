@@ -1,5 +1,5 @@
 [project]
-name = "mlife-parser"
+name = "redcap-mcs"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
