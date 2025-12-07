@@ -15,16 +15,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import pandas as pd
 from datetime import datetime, date
 
-# Import nur der Schema-Definitionen
-from schemas.parse_schemas.vitals import VitalsModel
-from schemas.parse_schemas.lab import LabModel
-from schemas.parse_schemas.respiratory import RespiratoryModel
-from schemas.parse_schemas.ecmo import EcmoModel
-from schemas.parse_schemas.impella import ImpellaModel
-from schemas.parse_schemas.crrt import CrrtModel
-from schemas.parse_schemas.medication import MedicationModel
-from schemas.parse_schemas.fluidbalance import FluidBalanceModel
-
 logger = logging.getLogger(__name__)
 
 

@@ -6,7 +6,6 @@ from pandas import DataFrame
 
 from schemas.app_state_schemas.app_state import AppState, Views
 from schemas.db_schemas.lab import LabModel
-from services.data_parser import DataParser
 
 from .data_manager import DataManager
 from .query_manager import DeviceTimeRange, QueryManager
@@ -15,11 +14,10 @@ from .query_manager import DeviceTimeRange, QueryManager
 class StateProvider:
     """Central access point for application state, delegating to query and data managers."""
 
-    def __init__(self, data_parser: type[DataParser] | None = None) -> None:
+    def __init__(self) -> None:
         self._state_key = "app_state"
-        parser_cls = data_parser or DataParser
         self.query_manager = QueryManager(self)
-        self.data_manager = DataManager(self, data_parser_cls=parser_cls)
+        self.data_manager = DataManager(self)
 
     def get_state(self) -> AppState:
         if self._state_key not in st.session_state:
@@ -32,8 +30,8 @@ class StateProvider:
     def update_state(self, **kwargs) -> None:
         self.data_manager.update_state(**kwargs)
 
-    def parse_data_to_state(self, file: str, delimiter: str = ";") -> AppState:
-        return self.data_manager.parse_data_to_state(file, delimiter)
+    def parse_data_to_state(self, df: DataFrame) -> AppState:
+        return self.data_manager.parse_data_to_state(df)
 
     def reset_state(self) -> None:
         self.data_manager.reset_state()
