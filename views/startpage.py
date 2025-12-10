@@ -21,17 +21,14 @@ def render_startpage():
     st.title("🏥 MCS Data Parser")
     
     st.write("Laden Sie Ihre CSV-Datei hoch, um die Daten zu analysieren und für RedCap zu exportieren.")
-    
-    st.markdown("""
-    ### Erwartetes Datenformat
-    
-    Die CSV-Datei sollte folgende Spalten enthalten:
-    - `timestamp` - Zeitstempel der Messung
-    - `source_type` - Datenquelle (z.B. Lab, Vitals, ECMO, etc.)
-    - `category` - Kategorie innerhalb der Quelle
-    - `parameter` - Name des Parameters
-    - `value` - Messwert
-    """)
+
+    st.info("Die CSV-Datei wird mit dem mlife-parser erzeugt.")
+    st.markdown(
+        "<a href='https://github.com/felixsiegmeier/mlife-parser/releases' target='_blank'>"
+        "<button style='background-color:#0099ff;color:white;padding:8px 16px;border:none;border-radius:4px;font-size:16px;cursor:pointer;'>"
+        "🔗 Zum aktuellen Release des Parsers"
+        "</button></a>", unsafe_allow_html=True
+    )
     
     st.divider()
     
@@ -39,7 +36,6 @@ def render_startpage():
     uploaded_file = st.file_uploader(
         "CSV-Datei auswählen",
         type=["csv"],
-        help="Wählen Sie eine CSV-Datei mit Patientendaten"
     )
     
     if uploaded_file is not None:
