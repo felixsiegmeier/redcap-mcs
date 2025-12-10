@@ -130,13 +130,14 @@ class QueryManager:
         if df.empty:
             return df
 
+        nearest_time = None
         if isinstance(strategy, dict) and "nearest" in strategy:
             nearest_time = strategy["nearest"]
+        elif strategy == "nearest" and "nearest_time" in filters:
+            nearest_time = filters["nearest_time"]
+
+        if nearest_time:
             if isinstance(nearest_time, time) and "timestamp" in df.columns:
-                # Find nearest row to time for each parameter/category combination?
-                # Or just one nearest row overall?
-                # Assuming we want nearest for each parameter if multiple exist.
-                
                 # Helper to find nearest in a group
                 def get_nearest(group):
                     times = group["timestamp"].dt.time
@@ -147,11 +148,7 @@ class QueryManager:
                         s = t.hour * 3600 + t.minute * 60 + t.second
                         return abs(s - target_seconds)
                     
-                    # This is slow but correct
-                    min_diff = min(times.apply(time_diff))
-                    # Filter rows with min_diff
-                    # This is a bit complex for a lambda, let's simplify:
-                    # Just sort by diff and take head(1)
+                    group = group.copy()
                     group["_diff"] = times.apply(time_diff)
                     return group.sort_values("_diff").head(1).drop(columns=["_diff"])
 
@@ -159,16 +156,15 @@ class QueryManager:
                 if "parameter" in df.columns:
                     return df.groupby("parameter", group_keys=False).apply(get_nearest)
                 else:
-                    return get_nearest(df.copy())
+                    return get_nearest(df)
 
         elif strategy == "median":
              # Only for numeric values
              if "value" in df.columns:
+                df = df.copy()
                 df["value_numeric"] = pd.to_numeric(df["value"], errors="coerce")
                 if "parameter" in df.columns:
                     # Return median per parameter
-                    # We need to preserve other columns? Usually aggregation loses detail.
-                    # Let's return a DF with parameter and value.
                     res = df.groupby("parameter")["value_numeric"].median().reset_index()
                     res.rename(columns={"value_numeric": "value"}, inplace=True)
                     return res

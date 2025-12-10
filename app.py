@@ -1,52 +1,59 @@
-from state_provider.state_provider import state_provider
-from views.sidebar import Sidebar
-from views.startpage import render_startpage
-from views.homepage import render_homepage
-from views.vitals_data import render_vitals_data
-from views.lab_data import render_lab_data
-from views.impella_data import render_impella_data
-from views.ecmo_data import render_ecmo_data
-from views.respiratory_data import render_respiratory_data
-from views.lab_form import  lab_form
-from views.export_builder import export_builder
-from schemas.app_state_schemas.app_state import Views
-from datetime import datetime
+"""
+MCS Data Parser - Hauptanwendung
+
+Streamlit-basierte Anwendung zur Aufbereitung von MCS-Gerätedaten
+(ECMO, Impella) für den REDCap-Import.
+
+Architektur:
+- state.py: Zentraler Zustandsmanager
+- views/: Streamlit-Seiten (Homepage, Explorer, Export Builder, etc.)
+- services/: Geschäftslogik (Aggregatoren)
+- schemas/: Pydantic-Models für REDCap-Instrumente
+"""
+
 import streamlit as st
 
+from state import get_state, Views
+from views.sidebar import render_sidebar
+from views.startpage import render_startpage
+from views.homepage import render_homepage
+from views.data_explorer import render_data_explorer
+from views.daily_form import render_daily_form
+from views.export_builder import render_export_builder
+
+
 def run_app():
-
-    if not state_provider.get_selected_view() == Views.STARTPAGE:
-        Sidebar().render_sidebar()
-
-    if state_provider.get_selected_view() == Views.STARTPAGE:
-        render_startpage()
+    """Haupteinstiegspunkt der Anwendung."""
+    
+    state = get_state()
+    
+    # Sidebar rendern (außer auf Startpage)
+    if state.selected_view != Views.STARTPAGE:
+        render_sidebar()
+    else:
         with st.sidebar:
-            st.header("Please upload a file")
+            st.header("Bitte Datei hochladen")
+    
+    # View-Routing
+    match state.selected_view:
+        case Views.STARTPAGE:
+            render_startpage()
+        
+        case Views.HOMEPAGE:
+            render_homepage()
+        
+        case Views.EXPLORER:
+            render_data_explorer()
+        
+        case Views.DAILY_FORM:
+            render_daily_form()
+        
+        case Views.EXPORT:
+            render_export_builder()
+        
+        case _:
+            st.error(f"Unbekannte View: {state.selected_view}")
 
-    elif state_provider.get_selected_view() == Views.HOMEPAGE:
-        render_homepage()
-
-    elif state_provider.get_selected_view() == Views.VITALS:
-        render_vitals_data()
-
-    elif state_provider.get_selected_view() == Views.LAB:
-        render_lab_data()
-
-    elif state_provider.get_selected_view() == Views.IMPELLA:
-        render_impella_data()
-
-    elif state_provider.get_selected_view() == Views.ECMO:
-        render_ecmo_data()
-
-    elif state_provider.get_selected_view() == Views.RESPIRATORY:
-        render_respiratory_data()
-
-    elif state_provider.get_selected_view() == Views.LAB_FORM:
-        lab_form()
-
-    elif state_provider.get_selected_view() == Views.EXPORT_BUILDER:
-        export_builder()
 
 if __name__ == "__main__":
     run_app()
-    

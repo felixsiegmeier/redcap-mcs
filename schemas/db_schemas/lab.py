@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, ClassVar
 from datetime import datetime, date, time
 from enum import IntEnum
+
+from .base import TimedExportModel
 
 
 class WithdrawalSite(IntEnum):
@@ -14,15 +16,26 @@ class WithdrawalSite(IntEnum):
     UNKNOWN = 7
 
 
-class LabModel(BaseModel):
-    record_id: str = Field(..., alias="record_id")
-    redcap_event_name: Optional[str] = Field(None, alias="redcap_event_name")
+class LabModel(TimedExportModel):
+    """
+    REDCap Labor-Instrument (labor).
+    
+    Erfasst täglich Laborwerte: Blutgase, Hämatologie, Gerinnung, 
+    Organfunktion, Infektionsmarker, etc.
+    """
+    
+    # Instrument-Metadaten
+    INSTRUMENT_NAME: ClassVar[str] = "labor"
+    INSTRUMENT_LABEL: ClassVar[str] = "Labor"
+    
+    # REDCap-Felder überschreiben mit korrektem Default
     redcap_repeat_instrument: Optional[str] = Field("labor", alias="redcap_repeat_instrument")
-    redcap_repeat_instance: Optional[int] = Field(None, alias="redcap_repeat_instance")
-    na_post_2: Optional[int] = Field(0, alias="na_post_2")
+    
+    # Labor-spezifische Kontroll-Felder
+    na_post_2: Optional[int] = Field(1, alias="na_post_2")
     ecmella_2: Optional[int] = Field(0, alias="ecmella_2")
 
-    # Zeitpunkt/Erhebungsmetadaten
+    # Zeitpunkt/Erhebungsmetadaten (Labor-spezifische Aliase)
     assess_time_point_labor: Optional[int] = Field(None, alias="assess_time_point_labor")
     assess_date_labor: Optional[date] = Field(None, alias="assess_date_labor")
     date_assess_labor: Optional[date] = Field(None, alias="date_assess_labor")
@@ -76,8 +89,5 @@ class LabModel(BaseModel):
     urea: Optional[float] = Field(None)
 
     labor_complete: Optional[int] = Field(0, alias="labor_complete")
-
-    class Config:
-        populate_by_name = True
-        from_attributes = True
-        use_enum_values = True
+    
+    # Config wird von TimedExportModel geerbt

@@ -1,10 +1,10 @@
-# Lazy imports to avoid circular dependencies
-def render_startpage():
-    from .startpage import render_startpage as _render_startpage
-    return _render_startpage()
+# Views package
+# Imports sind direkt in app.py
 
-def render_homepage():
-    from .homepage import render_homepage as _render_homepage
-    return _render_homepage()
-
-__all__ = ["render_startpage", "render_homepage"]
+__all__ = [
+    "render_startpage",
+    "render_homepage", 
+    "render_data_explorer",
+    "render_sidebar",
+    "render_export_builder",
+]

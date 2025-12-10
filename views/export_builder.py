@@ -1,17 +1,31 @@
+"""
+Export Builder - REDCap-Export für mehrere Instrumente.
+
+Erstellt tägliche Export-Datensätze für:
+- Labor (labor)
+- Hämodynamik/Beatmung/Medikation (hemodynamics_ventilation_medication)
+- ECMO/Pump (pump) - nur für ecls_arm_2
+- Impella Assessment (impellaassessment_and_complications) - nur für impella_arm_2
+
+Die Formatierung entspricht den REDCap-Validierungstypen:
+- Datumsformat: DD/MM/YYYY
+- Zeitformat: HH:MM
+- Dezimalzeichen: Komma (für number_Xdp_comma_decimal)
+"""
+
 import streamlit as st
-from datetime import date, time, timedelta
-import datetime as dt
-import io
 import pandas as pd
+from datetime import date, datetime, time, timedelta
+from typing import Optional, List, Dict, Any
 
-from services.utils import coerce_to_datetime, normalize_date_range
-from services.value_aggregation.lab_aggregator import LabAggregator
-from state_provider.state_provider import state_provider
+from state import get_state, update_state, save_state, get_data, has_data
+from services.lab_aggregator import LabAggregator
+from services.aggregators import HemodynamicsAggregator, PumpAggregator, ImpellaAggregator
 
-# REDCap validation types from ECLSDatenbanktest_DataDictionary.csv
-# Maps field names to their validation type (determines decimal formatting)
+
+# REDCap Validierungstypen für Formatierung (aus DataDictionary)
 REDCAP_VALIDATION_TYPES = {
-    # 1 decimal place, comma separator
+    # Labor
     "pc02": "number_1dp_comma_decimal",
     "p02": "number_1dp_comma_decimal",
     "hco3": "number_1dp_comma_decimal",
@@ -31,14 +45,10 @@ REDCAP_VALIDATION_TYPES = {
     "hapto": "number_1dp_comma_decimal",
     "crea": "number_1dp_comma_decimal",
     "urea": "number_1dp_comma_decimal",
-    
-    # 2 decimal places, comma separator
     "ph": "number_2dp_comma_decimal",
     "pct": "number_2dp_comma_decimal",
     "bili": "number_2dp_comma_decimal",
     "cc": "number_2dp_comma_decimal",
-    
-    # Integer (no decimal places)
     "na": "number",
     "gluc": "number",
     "lactate": "number",
@@ -49,261 +59,541 @@ REDCAP_VALIDATION_TYPES = {
     "ckmb": "number",
     "got": "number",
     "ldh": "number",
-    
-    # Fields without explicit validation (treat as generic)
     "alat": "number",
     "ggt": "number",
+    
+    # Impella (aus DataDictionary)
+    "imp_level": "number",
+    "imp_flow": "number_1dp_comma_decimal",
+    "imp_purge_pressure": "number",
+    "imp_purge_flow": "number_1dp_comma_decimal",
+    "imp_rpm": "number_2dp_comma_decimal",
+    
+    # Hemodynamics - Vitals
+    "hr": "number",
+    "sys_bp": "number",
+    "dia_bp": "number",
+    "mean_bp": "number",
+    "cvp": "number",
+    "sp02": "number",
+    "nirs_left_c": "number",
+    "nirs_right_c": "number",
+    "nirs_left_f": "number",
+    "nirs_right_f": "number",
+    
+    # Hemodynamics - PAC/Swan-Ganz
+    "pcwp": "number",
+    "sys_pap": "number",
+    "dia_pap": "number",
+    "mean_pap": "number",
+    "ci": "number_1dp_comma_decimal",
+    
+    # Hemodynamics - Vasoaktiva
+    "dobutamine": "number_2dp_comma_decimal",
+    "epinephrine": "number_2dp_comma_decimal",
+    "norepinephrine": "number_2dp_comma_decimal",
+    "vasopressin": "number_2dp_comma_decimal",
+    "milrinone": "number_2dp_comma_decimal",
+    
+    # Hemodynamics - Beatmung
+    "o2": "number",
+    "fi02": "number",
+    "hfv_rate": "number",
+    "conv_vent_rate": "number",
+    "vent_map": "number",
+    "vent_pip": "number",
+    "vent_peep": "number",
+    
+    # Hemodynamics - Neurologie
+    "gcs": "number",
+    
+    # Hemodynamics - Transfusion
+    "thromb_t": "number",
+    "ery_t": "number",
+    "ffp_t": "number",
+    "ppsb_t": "number",
+    "fib_t": "number",
+    "at3_t": "number",
+    "fxiii_t": "number",
+    
+    # Hemodynamics - Bilanz
+    "urine": "number",
+    "output_renal_repl": "number",
+    "fluid_balance_numb": "number",
+    
+    # ECMO/Pump
+    "ecls_rpm": "number",
+    "ecls_pf": "number_1dp_comma_decimal",
+    "ecls_gf": "number_1dp_comma_decimal",
+    "ecls_fi02": "number",
+}
+
+# Verfügbare Instrumente mit Labels
+AVAILABLE_INSTRUMENTS = {
+    "labor": {
+        "label": "🧪 Labor",
+        "events": ["ecls_arm_2", "impella_arm_2"],
+        "aggregator": "LabAggregator",
+    },
+    "hemodynamics_ventilation_medication": {
+        "label": "💓 Hämodynamik / Beatmung",
+        "events": ["ecls_arm_2", "impella_arm_2"],
+        "aggregator": "HemodynamicsAggregator",
+    },
+    "pump": {
+        "label": "🔄 ECMO / Pump",
+        "events": ["ecls_arm_2"],
+        "aggregator": "PumpAggregator",
+    },
+    "impellaassessment_and_complications": {
+        "label": "❤️ Impella Assessment",
+        "events": ["impella_arm_2"],
+        "aggregator": "ImpellaAggregator",
+    },
 }
 
 
-class ExportBuilder:
-
-    def _has_ecmo_data(self, date=None):
-        if date is None:
-            df = state_provider.query_data("ecmo")
-        else:
-            df = state_provider.query_data("ecmo", {"timestamp": date})
-        return df is not None and not df.empty
-
-    def _has_impella_data(self, date=None):
-        if date is None:
-            df = state_provider.query_data("impella")
-        else:
-            df = state_provider.query_data("impella", {"timestamp": date})
-        return df is not None and not df.empty
-
-    def _update_record_id(self):
-        new_id = st.session_state["export_record_id_input"]
-        st.session_state["record_id_input"] = new_id
-        state_provider.update_state(record_id=new_id)
-        st.session_state["changes_made"] = True
-
-    def _sync_export_date_range(self):
-        raw_value = st.session_state.get("export_date_range_input")
-        print(f"exporter raw_value: {raw_value}")
-        if isinstance(raw_value, (date, dt.datetime)):
-            values = (raw_value, raw_value)
-        elif isinstance(raw_value, (list, tuple)) and len(raw_value) == 2:
-            values = tuple(raw_value)
-        else:
-            print("returning because exporter raw_value is not valid")
-            return
-
-        start_dt = coerce_to_datetime(values[0])
-        end_dt = coerce_to_datetime(values[1])
-        if not start_dt or not end_dt:
-            print("export returning")
-            return
-
-        normalized = (start_dt.date(), end_dt.date())
-        st.session_state["export_date_range_input"] = normalized
-        st.session_state["date_range_input"] = normalized
-        state_provider.set_selected_time_range(start_dt, end_dt)
-        st.session_state["changes_made"] = True
-
-    def _render_time_range_picker(self):
-        default_range = (date.today(), date.today())
-        selected_range = state_provider.get_selected_time_range()
-        initial_range = normalize_date_range(selected_range, default_range)
-
-        current_value = normalize_date_range(
-            st.session_state.get("export_date_range_input"),
-            initial_range,
-        )
-
-        st.session_state.setdefault("export_date_range_input", current_value)
-        st.session_state.setdefault("date_range_input", current_value)
-
-        st.date_input(
-            "Select a date range",
-            #value=current_value,
-            key="export_date_range_input",
-            on_change=self._sync_export_date_range,
-            help="Select the date range for exploration, visualization and export via RedCap CSV-File.",
-        )
+def render_export_builder():
+    """Hauptfunktion für den Export Builder."""
     
-    def _build_data(self):
-        dates = []
-        selected = state_provider.get_selected_time_range()
-        # selected is expected to be a (start, end) tuple; handle datetimes and dates
-        if isinstance(selected, (list, tuple)) and len(selected) == 2:
-            start, end = selected
-            if isinstance(start, dt.datetime):
-                start = start.date()
-            if isinstance(end, dt.datetime):
-                end = end.date()
-            # ensure valid date range and build inclusive list of dates
-            if isinstance(start, dt.date) and isinstance(end, dt.date) and start <= end:
-                current = start
-                while current <= end:
-                    dates.append(current)
-                    current = current + timedelta(days=1)
-        
-        record_id = state_provider.get_record_id()
-        if not record_id:
-            return
+    st.header("🔨 Export Builder")
+    st.write("Erstelle Export-Daten für REDCap. Wähle Instrumente und Events aus.")
+    
+    if not has_data():
+        st.warning("Keine Daten geladen.")
+        return
+    
+    state = get_state()
+    
+    # Instrument-Auswahl
+    _render_instrument_selection()
+    
+    st.divider()
+    
+    # Einstellungen
+    _render_settings()
+    
+    st.divider()
+    
+    # Build & Export
+    _render_build_section()
 
-        data = []
-        ecmo_instance = 1
-        impella_instance = 1
-        print(len(dates))
-        for date in dates:
-            if self._has_ecmo_data(date) and state_provider.get_nearest_ecls_time():
-                ecls_lab_builder = LabAggregator(
-                    state_provider,
-                    date=date,
-                    record_id=record_id,
-                    redcap_event_name="ecls_arm_2",
-                    redcap_repeat_instrument="labor",
-                    redcap_repeat_instance=ecmo_instance,
-                    value_strategy=state_provider.get_value_strategy(),
-                    nearest_time=state_provider.get_nearest_ecls_time()
+
+def _render_instrument_selection():
+    """Rendert die Instrument-Auswahl mit Checkboxen."""
+    
+    st.subheader("📦 Instrumente auswählen")
+    
+    # Session State für Auswahl initialisieren
+    if "export_instruments" not in st.session_state:
+        st.session_state.export_instruments = {}
+    
+    # Prüfe welche Datenquellen verfügbar sind
+    has_ecmo = not get_data("ecmo").empty
+    has_impella = not get_data("impella").empty
+    
+    # Instrument-Checkboxen in Spalten
+    cols = st.columns(2)
+    
+    for i, (instr_key, instr_info) in enumerate(AVAILABLE_INSTRUMENTS.items()):
+        with cols[i % 2]:
+            # Event-spezifische Checkboxen
+            for event in instr_info["events"]:
+                # Prüfe ob Event-Daten vorhanden sind
+                if event == "ecls_arm_2" and not has_ecmo:
+                    continue
+                if event == "impella_arm_2" and not has_impella:
+                    continue
+                
+                event_label = "ECLS" if event == "ecls_arm_2" else "Impella"
+                key = f"{instr_key}_{event}"
+                
+                # Default: Labor + verfügbare Events aktiviert
+                default = (instr_key == "labor")
+                
+                checked = st.checkbox(
+                    f"{instr_info['label']} ({event_label})",
+                    value=st.session_state.export_instruments.get(key, default),
+                    key=f"cb_{key}"
                 )
-                entry = ecls_lab_builder.create_lab_entry()
-                data.append(entry)
-                ecmo_instance += 1
-            
-            if self._has_impella_data(date) and state_provider.get_nearest_impella_time():
-                impella_lab_builder = LabAggregator(
-                    state_provider,
-                    date=date,
-                    record_id=record_id,
-                    redcap_event_name="impella_arm_2",
-                    redcap_repeat_instrument="labor",
-                    redcap_repeat_instance=impella_instance,
-                    value_strategy=state_provider.get_value_strategy(),
-                    nearest_time=state_provider.get_nearest_impella_time()
-                )
-                entry = impella_lab_builder.create_lab_entry()
-                data.append(entry)
-                impella_instance += 1
+                st.session_state.export_instruments[key] = checked
 
-        state_provider.update_state(lab_form=data)
-        st.session_state["data_built"] = True
-        st.session_state["changes_made"] = False
 
-    def _export_csv(self):
-        state = state_provider.get_state()
-        if not state.lab_form:
-            return ""
-        # Convert list of LabModel to list of dicts
-        data = [entry.model_dump() for entry in state.lab_form]
-        df = pd.DataFrame(data)
-        
-        # Format the DataFrame according to specifications
-        df = self._format_dataframe_for_export(df)
-        
-        # Convert to CSV string with comma delimiter
-        csv = df.to_csv(index=False, sep=',', na_rep='')
-        return csv
-
-    def _format_dataframe_for_export(self, df):
-        # Create a copy to avoid modifying the original
-        formatted_df = df.copy()
-        
-        for col in formatted_df.columns:
-            validation_type = REDCAP_VALIDATION_TYPES.get(col)
-            formatted_df[col] = formatted_df[col].apply(
-                lambda value: self._format_value(value, validation_type)
-            )
-        
-        return formatted_df
+def _render_settings():
+    """Rendert die Einstellungs-Sektion."""
     
-    def _format_value(self, value, validation_type=None):
-        if pd.isna(value):
-            return ""
-        elif isinstance(value, float):
-            # Format according to REDCap validation type
-            if validation_type == "number_1dp_comma_decimal":
-                # Exactly 1 decimal place with comma
-                return f"{value:.1f}".replace(".", ",")
-            elif validation_type == "number_2dp_comma_decimal":
-                # Exactly 2 decimal places with comma
-                return f"{value:.2f}".replace(".", ",")
-            elif validation_type == "number" or validation_type == "integer":
-                # Integer - no decimal places
-                return int(round(value))
-            else:
-                # Generic number: use comma separator, keep original precision
-                if value.is_integer():
-                    return int(value)
-                else:
-                    return str(value).replace(".", ",")
-        elif isinstance(value, int):
-            return value
-        elif isinstance(value, date):
-            # Format as d/m/yyyy
-            return value.strftime("%d/%m/%Y")
-        elif isinstance(value, time):
-            # Format as h:m
-            return value.strftime("%H:%M")
+    state = get_state()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Record ID anzeigen (wird in Sidebar bearbeitet)
+        if state.record_id:
+            st.info(f"🏷️ Record ID: **{state.record_id}**")
         else:
-            return value
-
-    def _render_record_id_input(self):
-        st.text_input("Record ID", value=state_provider.get_record_id(), key="export_record_id_input", on_change=self._update_record_id, help="Enter the RedCap record ID for CSV export")
-
-    def _render_value_strategy_picker(self):
-        value_strategy = state_provider.get_value_strategy()
-        options = ["median", "mean", "first", "last", "nearest"]
-        selected_option = st.selectbox("Select Value Strategy", options, index=options.index(value_strategy) if value_strategy in options else 0)
-        state_provider.update_state(value_strategy=selected_option)
-        st.session_state["changes_made"] = True
-
-    def _render_nearest_time_picker(self):
-        if state_provider.get_value_strategy() == "nearest":
-            if self._has_ecmo_data():
-                nearest_ecls_time = state_provider.get_nearest_ecls_time() or time(0,0)
-                selected_ecls_time = st.time_input(
-                    "Select Nearest ECLS Time",
-                    value=nearest_ecls_time,
-                    help=("Select the time to find the nearest values for.\n"
-                          "Automatically set to the earliest time from ECLS data in the dataset if available,\n"
-                          "otherwise set to midnight.\n"
-                          "Adjust manually to the implantation time if needed."))
-                state_provider.update_state(nearest_ecls_time=selected_ecls_time)
-                st.session_state["changes_made"] = True
-            
-            if self._has_impella_data():
-                nearest_impella_time = state_provider.get_nearest_impella_time() or time(0,0)
-                selected_impella_time = st.time_input(
-                    "Select Nearest Impella Time",
-                    value=nearest_impella_time,
-                    help=("Select the time to find the nearest values for.\n"
-                          "Automatically set to the earliest time from Impella data in the dataset if available,\n"
-                          "otherwise set to midnight.\n"
-                          "Adjust manually to the implantation time if needed."))
-                state_provider.update_state(nearest_impella_time=selected_impella_time)
-                st.session_state["changes_made"] = True
+            st.warning("⚠️ Keine Record ID gesetzt (Sidebar)")
+        
+        # Value Strategy
+        strategies = ["nearest", "median", "mean", "first", "last"]
+        current_strategy = state.value_strategy if state.value_strategy in strategies else "nearest"
+        strategy_idx = strategies.index(current_strategy)
+        
+        selected_strategy = st.selectbox(
+            "Wert-Strategie",
+            strategies,
+            index=strategy_idx,
+            help="Wie sollen mehrere Werte am selben Tag aggregiert werden?"
+        )
+        if selected_strategy != state.value_strategy:
+            update_state(value_strategy=selected_strategy)
     
-    def _render_build_data_button(self):
-        if st.session_state.get("data_built", False):
-            st.success("Data has been successfully built. Check the corresponding tabs to review and edit the data. CSV export is available here afterwards.")
-            csv_data = self._export_csv()
+    with col2:
+        # Zeitbereich-Auswahl
+        _render_time_range_selector()
+        
+        # Nearest Time Picker (nur bei "nearest" Strategie)
+        if state.value_strategy == "nearest":
+            _render_nearest_time_pickers()
+
+
+def _render_time_range_selector():
+    """Rendert die Zeitraum-Auswahl im Export Builder."""
+    from state import get_device_time_range
+    
+    state = get_state()
+    
+    # Aktuellen Zeitraum anzeigen
+    if state.selected_time_range:
+        start, end = state.selected_time_range
+        start_str = start.strftime("%d.%m.%Y") if isinstance(start, datetime) else str(start)
+        end_str = end.strftime("%d.%m.%Y") if isinstance(end, datetime) else str(end)
+        st.info(f"📅 Zeitraum: **{start_str}** bis **{end_str}**")
+    else:
+        st.warning("⚠️ Kein Zeitraum ausgewählt")
+    
+    # MCS-Zeitraum Button
+    ecmo_range = get_device_time_range("ecmo")
+    impella_range = get_device_time_range("impella")
+    
+    if ecmo_range or impella_range:
+        ranges = [r for r in [ecmo_range, impella_range] if r]
+        mcs_start = min(r[0] for r in ranges)
+        mcs_end = max(r[1] for r in ranges)
+        
+        # Konvertiere pd.Timestamp zu datetime
+        if hasattr(mcs_start, 'to_pydatetime'):
+            mcs_start = mcs_start.to_pydatetime()
+        if hasattr(mcs_end, 'to_pydatetime'):
+            mcs_end = mcs_end.to_pydatetime()
+        
+        if st.button("🎯 Auf MCS-Zeitraum setzen", key="builder_mcs_range"):
+            update_state(selected_time_range=(mcs_start, mcs_end))
+            st.rerun()
+
+
+def _render_nearest_time_pickers():
+    """Rendert die Time-Picker für die nearest-Strategie."""
+    
+    state = get_state()
+    
+    # ECMO
+    ecmo_df = get_data("ecmo")
+    if not ecmo_df.empty:
+        default_time = state.nearest_ecls_time or time(0, 0)
+        selected_time = st.time_input(
+            "ECLS Referenzzeit",
+            value=default_time,
+            help="Zeit für 'nearest'-Suche bei ECLS-Daten"
+        )
+        if selected_time != state.nearest_ecls_time:
+            update_state(nearest_ecls_time=selected_time)
+    
+    # Impella
+    impella_df = get_data("impella")
+    if not impella_df.empty:
+        default_time = state.nearest_impella_time or time(0, 0)
+        selected_time = st.time_input(
+            "Impella Referenzzeit",
+            value=default_time,
+            help="Zeit für 'nearest'-Suche bei Impella-Daten"
+        )
+        if selected_time != state.nearest_impella_time:
+            update_state(nearest_impella_time=selected_time)
+
+
+def _render_build_section():
+    """Rendert den Build & Download Bereich."""
+    
+    state = get_state()
+    
+    # Validierung
+    if not state.record_id:
+        st.warning("⚠️ Bitte Record ID eingeben.")
+        return
+    
+    if not state.selected_time_range:
+        st.warning("⚠️ Kein Zeitraum ausgewählt.")
+        return
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("🔨 Daten erstellen", use_container_width=True, type="primary"):
+            _build_multi_instrument_data()
+    
+    # Download wenn Daten vorhanden
+    all_forms = _get_all_export_forms()
+    if all_forms:
+        with col2:
+            csv_data = _export_multi_csv(all_forms)
             st.download_button(
-                label="Download CSV",
+                "📥 CSV herunterladen",
                 data=csv_data,
-                file_name="lab_data.csv",
-                mime="text/csv"
+                file_name="redcap_export.csv",
+                mime="text/csv",
+                use_container_width=True
             )
         
-        if st.session_state.get("changes_made", False) and not st.session_state.get("data_built", False):
-            st.info("Settings have been changed. Please build data to apply changes.")
+        st.success(f"✅ {len(all_forms)} Einträge erstellt.")
         
-        if state_provider.get_record_id():
-            st.button("Build Data", on_click=self._build_data)
+        # Zusammenfassung nach Instrument
+        instrument_counts = {}
+        for form in all_forms:
+            instr = getattr(form, 'redcap_repeat_instrument', 'unknown')
+            instrument_counts[instr] = instrument_counts.get(instr, 0) + 1
+        
+        summary = ", ".join([f"{k}: {v}" for k, v in instrument_counts.items()])
+        st.info(f"📊 {summary}")
+        
+        # Vorschau
+        with st.expander("📋 Vorschau"):
+            preview_data = [entry.model_dump() for entry in all_forms]
+            st.dataframe(pd.DataFrame(preview_data), hide_index=True)
+
+
+def _get_all_export_forms() -> List[Any]:
+    """Holt alle Export-Formulare aus dem State."""
+    state = get_state()
+    all_forms = []
+    for forms in state.export_forms.values():
+        if forms:
+            all_forms.extend(forms)
+    return all_forms
+
+
+def _build_multi_instrument_data():
+    """Erstellt Export-Daten für alle ausgewählten Instrumente."""
+    
+    state = get_state()
+    selected = st.session_state.get("export_instruments", {})
+    
+    # Datumsliste erstellen
+    dates = _get_date_range()
+    if not dates:
+        st.error("Keine Tage im ausgewählten Zeitraum.")
+        return
+    
+    # Export-Forms zurücksetzen
+    new_export_forms: Dict[str, List[Any]] = {}
+    
+    ecmo_df = get_data("ecmo")
+    impella_df = get_data("impella")
+    
+    # Pro Instrument + Event aggregieren
+    for key, is_selected in selected.items():
+        if not is_selected:
+            continue
+        
+        # Key aufsplitten: "labor_ecls_arm_2" -> ("labor", "ecls_arm_2")
+        # Events sind immer "ecls_arm_2" oder "impella_arm_2"
+        if key.endswith("_ecls_arm_2"):
+            event_name = "ecls_arm_2"
+            instr_name = key[:-len("_ecls_arm_2")]
+        elif key.endswith("_impella_arm_2"):
+            event_name = "impella_arm_2"
+            instr_name = key[:-len("_impella_arm_2")]
         else:
-            st.warning("Record ID is required to build data.")
+            continue
+        
+        # Referenz-Zeit je nach Event
+        if event_name == "ecls_arm_2":
+            ref_time = state.nearest_ecls_time
+            ref_df = ecmo_df
+        else:
+            ref_time = state.nearest_impella_time
+            ref_df = impella_df
+        
+        if ref_df.empty:
+            continue
+        
+        # Einträge für jeden Tag erstellen
+        entries = []
+        instance = 1
+        
+        for day in dates:
+            day_data = ref_df[ref_df["timestamp"].dt.date == day]
+            if day_data.empty:
+                continue
+            
+            entry = _create_instrument_entry(
+                instrument=instr_name,
+                day=day,
+                record_id=state.record_id,
+                event_name=event_name,
+                instance=instance,
+                nearest_time=ref_time,
+                value_strategy=state.value_strategy
+            )
+            
+            if entry:
+                entries.append(entry)
+                instance += 1
+        
+        # In export_forms speichern (mit Event-Suffix für Eindeutigkeit)
+        form_key = f"{instr_name}_{event_name}"
+        new_export_forms[form_key] = entries
+    
+    # State aktualisieren
+    state.export_forms = new_export_forms
+    save_state(state)
+    st.rerun()
 
-    def export_builder(self):
-        st.title("Export Builder")
-        st.write("Configure your export settings:")
-        self._render_record_id_input()
-        self._render_time_range_picker()
-        self._render_value_strategy_picker()
-        self._render_nearest_time_picker()
-        self._render_build_data_button()
 
-def export_builder():
-    builder = ExportBuilder()
-    builder.export_builder()
+def _get_date_range() -> List[date]:
+    """Erstellt Liste der Tage im ausgewählten Zeitraum."""
+    state = get_state()
+    
+    if not state.selected_time_range:
+        return []
+    
+    dates = []
+    start, end = state.selected_time_range
+    
+    if isinstance(start, datetime):
+        start = start.date()
+    if isinstance(end, datetime):
+        end = end.date()
+    
+    current = start
+    while current <= end:
+        dates.append(current)
+        current += timedelta(days=1)
+    
+    return dates
+
+
+def _create_instrument_entry(
+    instrument: str,
+    day: date,
+    record_id: str,
+    event_name: str,
+    instance: int,
+    nearest_time: Optional[time],
+    value_strategy: str
+) -> Optional[Any]:
+    """Erstellt einen Eintrag für das angegebene Instrument."""
+    
+    if instrument == "labor":
+        aggregator = LabAggregator(
+            date=day,
+            record_id=record_id,
+            redcap_event_name=event_name,
+            redcap_repeat_instrument="labor",
+            redcap_repeat_instance=instance,
+            value_strategy=value_strategy,
+            nearest_time=nearest_time
+        )
+        return aggregator.create_lab_entry()
+    
+    elif instrument == "hemodynamics_ventilation_medication":
+        aggregator = HemodynamicsAggregator(
+            date=day,
+            record_id=record_id,
+            redcap_event_name=event_name,
+            redcap_repeat_instance=instance,
+            value_strategy=value_strategy,
+            nearest_time=nearest_time
+        )
+        return aggregator.create_entry()
+    
+    elif instrument == "pump":
+        aggregator = PumpAggregator(
+            date=day,
+            record_id=record_id,
+            redcap_repeat_instance=instance,
+            value_strategy=value_strategy,
+            nearest_time=nearest_time
+        )
+        return aggregator.create_entry()
+    
+    elif instrument == "impellaassessment_and_complications":
+        aggregator = ImpellaAggregator(
+            date=day,
+            record_id=record_id,
+            redcap_repeat_instance=instance,
+            value_strategy=value_strategy,
+            nearest_time=nearest_time
+        )
+        return aggregator.create_entry()
+    
+    return None
+
+
+def _export_multi_csv(forms: List[Any]) -> str:
+    """Exportiert alle Formulare als eine CSV-Datei."""
+    
+    if not forms:
+        return ""
+    
+    # Alle Formulare zu Dicts konvertieren (exclude=True Felder werden automatisch ausgeschlossen)
+    data = [entry.model_dump() for entry in forms]
+    df = pd.DataFrame(data)
+    
+    # Formatierung
+    df = _format_dataframe(df)
+    
+    return df.to_csv(index=False, sep=",", na_rep="")
+
+
+def _format_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Formatiert DataFrame für REDCap-Export."""
+    
+    formatted = df.copy()
+    
+    for col in formatted.columns:
+        validation_type = REDCAP_VALIDATION_TYPES.get(col)
+        formatted[col] = formatted[col].apply(
+            lambda v: _format_value(v, validation_type)
+        )
+    
+    return formatted
+
+
+def _format_value(value, validation_type=None):
+    """Formatiert einen einzelnen Wert für REDCap."""
+    
+    if pd.isna(value):
+        return ""
+    
+    if isinstance(value, float):
+        if validation_type == "number_1dp_comma_decimal":
+            return f"{value:.1f}".replace(".", ",")
+        elif validation_type == "number_2dp_comma_decimal":
+            return f"{value:.2f}".replace(".", ",")
+        elif validation_type in ("number", "integer"):
+            return int(round(value))
+        else:
+            if value.is_integer():
+                return int(value)
+            return str(value).replace(".", ",")
+    
+    if isinstance(value, int):
+        return value
+    
+    if isinstance(value, date):
+        return value.strftime("%d/%m/%Y")
+    
+    if isinstance(value, time):
+        return value.strftime("%H:%M")
+    
+    return value

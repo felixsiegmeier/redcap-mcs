@@ -1,132 +1,180 @@
+"""
+Homepage - Datenübersicht und Navigation.
+
+Zeigt nach dem Datei-Upload:
+- Zeitbereich der Daten
+- Verfügbare Datenquellen mit Anzahl der Datenpunkte  
+- MCS-Gerätezeiträume (ECMO, Impella)
+- Schnellaktionen zur Navigation
+"""
+
 import streamlit as st
-from state_provider.state_provider import state_provider
-from datetime import datetime
 import pandas as pd
+from datetime import datetime
 
-def render_ecmo_time_ranges():
-    ecmo_time_ranges = state_provider.get_device_time_ranges("ecmo")
+from state import get_state, update_state, has_data, get_data, get_device_time_range, Views
 
-    # Cleanup required to remove invalid entries, e.g. "ECMO-Durchtrittsstelle"
-    clean_ecmo_time_ranges = []
-    for device, start, end in ecmo_time_ranges:
-        if not isinstance(device, str):
-            continue
-        if "ecmo " in device.lower() and device.lower().startswith("ecmo"):
-            clean_ecmo_time_ranges.append((device, start, end))
-
-    if not len(clean_ecmo_time_ranges):
-        st.write("No valid ECMO time ranges found.")
-        return
-
-    for device, start, end in clean_ecmo_time_ranges:
-        if isinstance(start, datetime) and isinstance(end, datetime):
-            st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
-
-def render_impella_time_ranges():
-    impella_time_ranges = state_provider.get_device_time_ranges("impella")
-
-    # Cleanup
-    clean_impella_time_ranges = []
-    for device, start, end in impella_time_ranges:
-        if not isinstance(device, str):
-            continue
-        if "impella " in device.lower() and device.lower().startswith("impella"):
-            clean_impella_time_ranges.append((device, start, end))
-
-    if not len(clean_impella_time_ranges):
-        st.write("No valid Impella time ranges found.")
-        return
-
-    for device, start, end in clean_impella_time_ranges:
-        if isinstance(start, datetime) and isinstance(end, datetime):
-            st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
-
-def render_crrt_time_ranges():
-    crrt_time_ranges = state_provider.get_device_time_ranges("crrt")
-
-    if not len(crrt_time_ranges):
-        st.write("No valid CRRT time ranges found.")
-        return
-
-    for device, start, end in crrt_time_ranges:
-        if isinstance(start, datetime) and isinstance(end, datetime):
-            st.markdown(f"**<u>{device}</u>: {start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}**", unsafe_allow_html=True)
-
-def render_set_selected_time_range_to_mcs_button():
-    mcs_time_ranges = []
-    mcs_time_ranges.extend(data for data in state_provider.get_device_time_ranges("impella"))
-    mcs_time_ranges.extend(data for data in state_provider.get_device_time_ranges("ecmo"))
-
-    if not len(mcs_time_ranges):
-        return
-
-    try:
-        mcs_start_date = min(range.start for range in mcs_time_ranges)
-        mcs_end_date = max(range.end for range in mcs_time_ranges)
-    except ValueError:
-        print("Error occurred while determining MCS time range.")
-        return
-
-    def set_mcs_range():
-        if not mcs_start_date or not mcs_end_date:
-            return
-
-        normalized = (mcs_start_date.date(), mcs_end_date.date())
-        st.session_state["date_range_input"] = normalized
-        st.session_state["export_date_range_input"] = normalized
-        state_provider.set_selected_time_range(mcs_start_date, mcs_end_date)
-
-    st.button("Set Selected Time Range to MCS", on_click=set_mcs_range, help="Set the selected time range to the cumulative time span of MCS devices.")
 
 def render_homepage():
-    st.header("Overview")
-    state = state_provider.get_state()
+    """Rendert die Homepage mit Datenübersicht."""
     
-    parsed = getattr(state, "parsed_data", None)
-    if not parsed:
-        st.info("No parsed data available.")
+    st.header("📋 Übersicht")
+    
+    if not has_data():
+        st.info("Keine Daten geladen. Bitte zuerst eine CSV-Datei hochladen.")
         return
     
-    if not state:
-        st.info("""No state available to display. 
-                Please upload a file.""")
-        return
-    st.subheader("Time Range")
-    time_range = state_provider.get_time_range()
-    selected_range = state_provider.get_selected_time_range()
+    state = get_state()
+    df = state.data
+    
+    # Zeitbereich
+    _render_time_info()
+    
+    st.divider()
+    
+    # Datenübersicht
+    _render_data_summary(df)
+    
+    st.divider()
+    
+    # Device-Zeiträume
+    _render_device_info()
+    
+    st.divider()
+    
+    # Quick Actions
+    _render_quick_actions()
 
-    if time_range:
-        start = time_range[0].strftime("%d.%m.%Y")
-        end = time_range[1].strftime("%d.%m.%Y")
-        st.write(f"Available Time Range of Patient Record: **{start} - {end}**")
-    else:
-        st.write("Available Time Range of Patient Record: **n/a**")
 
-    if selected_range:
-        selected_start = selected_range[0].strftime("%d.%m.%Y")
-        selected_end = selected_range[1].strftime("%d.%m.%Y")
-        st.write(f"Selected Time Range: **{selected_start} - {selected_end}**")
-    else:
-        st.write("Selected Time Range: **n/a**")
+def _render_time_info():
+    """Zeigt Zeitbereichs-Informationen."""
+    state = get_state()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📅 Verfügbarer Zeitraum")
+        if state.time_range:
+            start, end = state.time_range
+            start_str = start.strftime("%d.%m.%Y") if isinstance(start, datetime) else str(start)
+            end_str = end.strftime("%d.%m.%Y") if isinstance(end, datetime) else str(end)
+            st.write(f"**{start_str}** bis **{end_str}**")
+        else:
+            st.write("Nicht verfügbar")
+    
+    with col2:
+        st.subheader("🎯 Ausgewählter Zeitraum")
+        if state.selected_time_range:
+            start, end = state.selected_time_range
+            start_str = start.strftime("%d.%m.%Y") if isinstance(start, datetime) else str(start)
+            end_str = end.strftime("%d.%m.%Y") if isinstance(end, datetime) else str(end)
+            st.write(f"**{start_str}** bis **{end_str}**")
+        else:
+            st.write("Nicht ausgewählt")
 
-    vitals_count = len(parsed.vitals) if isinstance(parsed.vitals, pd.DataFrame) else 0
-    lab_count = len(parsed.lab) if isinstance(parsed.lab, pd.DataFrame) else 0
-    ecmo_count = len(parsed.ecmo) if isinstance(parsed.ecmo, pd.DataFrame) else 0
-    impella_count = len(parsed.impella) if isinstance(parsed.impella, pd.DataFrame) else 0
-    respiratory_count = len(parsed.respiratory) if isinstance(parsed.respiratory, pd.DataFrame) else 0
-    medication_count = len(parsed.medication) if isinstance(parsed.medication, pd.DataFrame) else 0
 
-    st.markdown(f""" Containing in Total:
-- **{vitals_count}** Vitals  
-- **{lab_count}** Lab Results  
-- **{ecmo_count + impella_count}** MCS Recordings  
-- **{respiratory_count}** Respiratory Values  
-- **{medication_count}** Medication entries
-    """)
+def _render_data_summary(df: pd.DataFrame):
+    """Zeigt eine Zusammenfassung der Daten."""
+    
+    st.subheader("📊 Datenübersicht")
+    
+    # Zähle pro source_type
+    source_counts = df["source_type"].value_counts().to_dict()
+    
+    # Kategorien mit Icons - manche benötigen contains-Suche
+    categories = {
+        "vitals": ("💓 Vitalwerte", ["Vitals", "Vitalparameter (manuell)"], False),
+        "lab": ("🧪 Labor", ["Lab"], False),
+        "ecmo": ("🫀 ECMO", ["ECMO"], False),
+        "impella": ("🫀 Impella", ["Impella"], True),  # contains-Suche
+        "respiratory": ("🌬️ Beatmung", ["Beatmung", "Respiratory"], False),
+        "medication": ("💊 Medikation", ["Medikation", "Medication"], False),
+        "crrt": ("🩸 CRRT", ["Hämofilter"], True),  # contains-Suche
+    }
+    
+    # 4 Spalten für die Metriken
+    cols = st.columns(4)
+    col_idx = 0
+    
+    for key, (label, sources, use_contains) in categories.items():
+        if use_contains:
+            # Contains-Suche für source_types wie "Impella A. axilliaris rechts"
+            count = 0
+            for pattern in sources:
+                for src, cnt in source_counts.items():
+                    if pattern.lower() in src.lower():
+                        count += cnt
+        else:
+            count = sum(source_counts.get(s, 0) for s in sources)
+        
+        if count > 0:
+            with cols[col_idx % 4]:
+                st.metric(label, f"{count:,}")
+            col_idx += 1
+    
+    # Gesamtzahl
+    st.caption(f"Gesamt: **{len(df):,}** Datenpunkte")
 
-    st.subheader("MCS Time Range")
-    render_ecmo_time_ranges()
-    render_impella_time_ranges()
-    render_set_selected_time_range_to_mcs_button()
-    st.subheader("CRRT Time Range")
-    render_crrt_time_ranges()
+
+def _render_device_info():
+    """Zeigt MCS-Device Informationen."""
+    
+    st.subheader("🔧 MCS-Geräte")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        ecmo_range = get_device_time_range("ecmo")
+        if ecmo_range:
+            start, end = ecmo_range
+            st.markdown(f"**ECMO**")
+            st.write(f"{start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}")
+        else:
+            st.write("Keine ECMO-Daten")
+    
+    with col2:
+        impella_range = get_device_time_range("impella")
+        if impella_range:
+            start, end = impella_range
+            st.markdown(f"**Impella**")
+            st.write(f"{start.strftime('%d.%m.%Y %H:%M')} - {end.strftime('%d.%m.%Y %H:%M')}")
+        else:
+            st.write("Keine Impella-Daten")
+    
+    # Button zum Setzen des MCS-Zeitraums
+    ecmo_range = get_device_time_range("ecmo")
+    impella_range = get_device_time_range("impella")
+    
+    if ecmo_range or impella_range:
+        ranges = [r for r in [ecmo_range, impella_range] if r]
+        mcs_start = min(r[0] for r in ranges)
+        mcs_end = max(r[1] for r in ranges)
+        
+        # Konvertiere pd.Timestamp zu datetime für konsistenten Vergleich
+        if hasattr(mcs_start, 'to_pydatetime'):
+            mcs_start = mcs_start.to_pydatetime()
+        if hasattr(mcs_end, 'to_pydatetime'):
+            mcs_end = mcs_end.to_pydatetime()
+        
+        if st.button("🎯 Zeitraum auf MCS setzen", help="Setzt den ausgewählten Zeitraum auf den MCS-Gerätezeitraum"):
+            # Pending time range setzen - wird in sidebar.py verarbeitet
+            st.session_state["_pending_time_range"] = (mcs_start, mcs_end)
+            st.rerun()
+
+
+def _render_quick_actions():
+    """Zeigt Quick-Action Buttons."""
+    
+    st.subheader("⚡ Schnellaktionen")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("📊 Daten erkunden", use_container_width=True):
+            update_state(selected_view=Views.EXPLORER)
+            st.rerun()
+    
+    with col2:
+        if st.button("🔨 Export erstellen", use_container_width=True):
+            update_state(selected_view=Views.EXPORT)
+            st.rerun()
