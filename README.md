@@ -1,75 +1,67 @@
-# Clean M-Life
+# MCS REDCap Exporter
 
-Streamlit-Anwendung zur Analyse, Aggregation und Visualisierung medizinischer Patientendaten.
+Streamlit-App zum Prüfen, Erkunden und Aggregieren von MCS-Daten (ECMO/Impella, Labor, Vitals, Beatmung) in REDCap-Formulare.
 
 ## Schnellstart
-- Repository klonen: `git clone <repo-url>`
-- Abhängigkeiten installieren (über `uv` oder klassisch):
-  - `uv sync` **oder** `pip install -r requirements.txt`
-- Anwendung starten: `uv run streamlit run app.py` (alternativ `streamlit run app.py`)
+- Python 3.11+ und `uv` empfohlen
+- Installieren: `uv sync` (alternativ `pip install -r requirements.txt`)
+- Starten: `uv run streamlit run app.py`
 
-## Architekturüberblick
-```
-[CSV Upload]
-    ↓
-[Parser (services/data_parser.py)]
-    ↓
-[State Management (state_provider)]
-    ↓
-[Aggregation (services/value_aggregation)]
-    ↓
-[Views (views/…)]
-```
+## Datenbasis
+- Input ist eine semikolon-separierte CSV aus dem mlife-parser (Download-Link in der App).
+- Pflichtspalten: `timestamp`, `source_type`, `parameter`, `value`; optional `category`, `rate`.
+- Typische `source_type`: Lab, Vitals, Respiratory/Beatmung, Medication, ECMO, Impella, HÄMOFILTER/CRRT, NIRS.
 
-### 1. Datenquelle & Upload
-- CSV-Dateien liegen typischerweise im Ordner `data/`.
-- Der Upload erfolgt über die Startseite (`views/startpage.py`).
-- Dateien werden an `StateProvider.parse_data_to_state()` weitergegeben.
+## App Flow
+1. Startseite (Upload): CSV laden, Grundvalidierung, Übergabe an den zentralen State.
+2. Sidebar: Record-ID setzen, Zeitraum wählen (oder per MCS-Button auf ECMO/Impella-Zeitfenster setzen) und zwischen Views navigieren.
+3. Übersicht: Zeitfenster, Datenquellen-Zählung und verfügbare MCS-Geräte anzeigen.
+4. Data Explorer: Filter nach Quelle, Zeitraum, Parametern; optional 24h-Median, Ausreißerfilter, Altair-Zeitreihe.
+5. Export Builder: Instrumente/Event auswählen (Labor, Hämodynamik/Beatmung/Medikation, ECMO/Pump, Impella), Aggregationsstrategie (`nearest`, `median`, `mean`, `first`, `last`) und Referenzzeiten setzen, Export-Daten erzeugen und als CSV laden.
+6. Tagesansicht: Generierte Formulare pro Tag/Event prüfen und Einzelwerte bei Bedarf aus allen Tagesmessungen auswählen.
 
-### 2. Parsing & Transformation
-- Implementiert in `services/data_parser.py`.
-- Die Klasse `DataParser` kombiniert spezialisierte Mixins (`MedicationParserMixin`, `DeviceParserMixin` etc.) auf Basis der gemeinsamen `DataParserBase`.
-- Kernschritte:
-  - `_clean_csv()` und `_split_blocks()` bereiten Rohdaten vor.
-  - Tabellarische Werte werden via `_parse_table_data()` in `pandas.DataFrame` überführt.
-  - Spezifische Parser (`parse_medication_logic`, `parse_fluidbalance_logic`, `parse_respiratory_data`, `parse_nirs_logic`, …) nutzen Pydantic-Modelle aus `schemas/parse_schemas/` zur Validierung.
-- Rückgaben fließen als DataFrames in den Applikationszustand.
+## Architektur
+- Einstieg: [app.py](app.py) wählt Views anhand des Session-States.
+- State: [state.py](state.py) hält Datenframe, UI-Status, Zeiträume, Export-Formulare und Geräte-Referenzzeiten.
+- Views: [views/startpage.py](views/startpage.py), [views/sidebar.py](views/sidebar.py), [views/homepage.py](views/homepage.py), [views/data_explorer.py](views/data_explorer.py), [views/export_builder.py](views/export_builder.py), [views/daily_form.py](views/daily_form.py).
+- Aggregation: Lab-Speziallogik in [services/lab_aggregator.py](services/lab_aggregator.py); generische Basisklasse in [services/aggregators/base.py](services/aggregators/base.py) und Fächer-spezifische Aggregatoren (z. B. Hämodynamik, ECMO, Impella) in [services/aggregators](services/aggregators).
+- REDCap-Modelle: Pydantic-Schemas unter [schemas/db_schemas](schemas/db_schemas) definieren Felder und Validierungen pro Instrument.
 
-### 3. State Management
-- `state_provider/state_provider.py` kapselt den Zugriff auf den Streamlit-Session-State.
-- Delegation:
-  - `QueryManager` (lesende Operationen, Filter, Aggregationen, Zeitbereichs-Abfragen).
-  - `DataManager` (Mutationen, Parsing, Formular-Updates).
-- `AppState` (`schemas/app_state_schemas/app_state.py`) speichert Parsed Data, UI-Status, Metadaten und Zeitbereiche.
+## Code-Überblick (kurz)
+- `state.py`: zentraler Session-State (DataFrame, Zeitfenster, Record-ID, Export-Forms). `load_data()` normalisiert Timestamp, setzt Zeitfenster und Geräte-Referenzzeiten. `get_data(source)` liefert gefilterte Sichten.
+- `views/*`: reine UI-Logik; rufen `state.get_data()` und Aggregatoren indirekt über Export Builder auf.
+- `services/aggregators/base.py`: Grundgerüst für alle Instrument-Aggregatoren (Tagesfilter, Regex-Matching auf `category`/`parameter`, Wertestrategien wie `nearest`, `median`, ...).
+- `services/lab_aggregator.py`: eigenständiger Labor-Aggregator mit Feld-Mapping und Spezialfällen (ACT, ECMELLA, nearest-Time).
+- `services/aggregators/*_aggregator.py`: Fächer-spezifische Aggregatoren (z. B. Hämodynamik) erben von `BaseAggregator` und definieren ihr Feld-Mapping.
+- `views/export_builder.py`: orchestriert Aggregation pro Tag/Event, speichert fertige Pydantic-Modelle in `state.export_forms`, bietet Download als REDCap-kompatible CSV.
 
-### 4. Aggregation & Value Services
-- Spezialisierte Aggregatoren liegen in `services/value_aggregation/` (z.B. `lab_aggregator.py`).
-- Aufrufende Komponenten geben Parameter wie Datum, Kategorie, Aggregationsstrategie (median, mean, first, last, nearest) an.
-- Aggregatoren beziehen Daten ausschließlich über den `state_provider`.
+## Aggregation im Detail
+1) **Eingangsdaten**: Long-Format-CSV. Wichtige Spalten: `timestamp` (Datetime), `source_type` (z. B. Lab, Vitals, ECMO, Impella, Respiratory, Medication), `category` (Subgruppe) und `parameter` (Messname), `value` (Messwert), optional `rate` (Infusionsrate).
+2) **Tagesfilter**: Jeder Aggregator filtert auf das Ziel-Datum (`timestamp.date == selected_day`).
+3) **Feld-Mapping**:
+	- Labor: `_FIELD_MAP` in [services/lab_aggregator.py](services/lab_aggregator.py) ordnet REDCap-Felder Kategorien- und Parameter-Regex zu (z. B. `"pc02": ("Blutgase arteriell", "^PCO2")`).
+	- Generische Aggregatoren: `FIELD_MAP` (z. B. in Hämodynamik) enthält Tupel `(source_type, category_pattern, parameter_pattern)`, ausgewertet via Regex auf `category`/`parameter`.
+4) **Wertestrategie** (`value_strategy` im State):
+	- `nearest`: Wert mit geringster Zeitdifferenz zur Referenzzeit (geräteabhängig aus Sidebar/Builder oder automatisch aus frühestem Device-Timestamp).
+	- `median`, `mean`, `first`, `last`: Standard-Aggregate über die Tageswerte.
+5) **Spezialfälle**:
+	- ACT: eigener `source_type` wird separat gelesen.
+	- ECMELLA: Flag, wenn am Tag sowohl ECMO- als auch Impella-Daten existieren.
+	- Medikamente (Hämodynamik): Infusionsraten in ml/h werden mit Konzentration (aus Perfusor-String geparst) und Patientengewicht (aus `PatientInfo`) zu µg/kg/min umgerechnet; Fertigspritzen werden ignoriert.
+6) **Export-Modelle**: Nach Aggregation werden Pydantic-Modelle (z. B. `LabModel`, `HemodynamicsModel`) gebaut. Diese liegen in `state.export_forms` unter Schlüsseln wie `labor_ecls_arm_2`.
+7) **Download**: Export Builder sammelt alle Modelle, serialisiert mit Schema-konformen Formaten (Komma-Dezimal, DD/MM/YYYY, HH:MM) und bietet eine CSV zum REDCap-Import.
 
-### 5. Views & UI
-- UI-Komponenten befinden sich im Verzeichnis `views/`.
-- Beispiele:
-  - `homepage.py` zeigt eine Übersicht.
-  - `vitals_data.py`, `lab_data.py` visualisieren Messwerte.
-  - `export_builder.py`, `lab_form.py` erzeugen strukturierte Formulare.
-- `views/sidebar.py` steuert Navigation, Record-ID und Datumsbereich.
-- Views interagieren ausschließlich über den `state_provider`, um Datenkohärenz sicherzustellen.
+## Arbeiten mit Exporten
+- Zeiträume steuern globale Filterung sowie die Tagesliste im Export Builder.
+- Strategien: `nearest` nutzt gerätespezifische Referenzzeiten, `median`/`mean` mitteln Tageswerte, `first`/`last` wählen chronologisch.
+- Download erzeugt eine REDCap-kompatible CSV mit gültigen Validierungstypen (Komma-Dezimalpunkt, DD/MM/YYYY, HH:MM).
 
-## Utility-Funktionen
-- Gemeinsame Hilfsfunktionen rund um Datumskonvertierungen wurden in `services/utils.py` konsolidiert (`coerce_to_datetime`, `normalize_date_range`, `expand_date_range_to_bounds`).
-- Diese Utilities werden u.a. von Sidebar, Export Builder und DataManager verwendet, um Verdopplung zu vermeiden.
+## Entwicklung
+- Hot-Reload: `uv run streamlit run app.py`
+- Sanity-Check Imports: `uv run python -c "import app; print('OK')"`
+- Tests: falls ergänzt, mit `uv run pytest`
 
-## Erweiterungspunkte
-- **Neue Parser**: Methoden im passenden Mixin ergänzen und in `DataManager.parse_data_to_state()` verdrahten.
-- **Neue Aggregationen**: Im Ordner `services/value_aggregation/` platzieren; Zugriff über `state_provider.query_manager` sicherstellen.
-- **Weitere Views**: Neue Datei in `views/` anlegen und in `app.py` registrieren.
-- **Schemas**: Neue Datenmodelle unter `schemas/` hinzufügen bzw. erweitern.
-
-## Entwicklung & Tests
-- Lokale Imports prüfen: `uv run python -c "import app; print('OK')"`
-- Streamlit Hot-Reload aktivieren: `uv run streamlit run app.py`
-- Bestehende Tests unter `tests/` starten: `uv run pytest`
-
-## Lizenz
-- (Hier Lizenzinformationen ergänzen, falls erforderlich.)
+## Wartung & Erweiterung
+- Neue Instrumente: Aggregator (Subklasse von BaseAggregator) in [services/aggregators](services/aggregators) anlegen und im Export Builder registrieren.
+- Neue Felder: Mapping im jeweiligen Aggregator erweitern und Schema in [schemas/db_schemas](schemas/db_schemas) anpassen.
+- Zusätzliche Views: Datei in [views](views) ergänzen und in [app.py](app.py) routen.
