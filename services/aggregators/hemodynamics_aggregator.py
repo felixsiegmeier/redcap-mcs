@@ -121,16 +121,7 @@ class HemodynamicsAggregator(BaseAggregator):
             if value is not None:
                 payload[field] = value
         
-        # Abgeleitete Felder
-        if any([values.get("nirs_left_c"), values.get("nirs_right_c")]):
-            payload["nirs_avail"] = 1
-        
-        if any([values.get(m) for m in self.MEDICATION_MAP.keys()]):
-            payload["vasoactive_med"] = 1
-        
-        if any([values.get("fi02"), values.get("vent_peep")]):
-            payload["vent"] = 1  # Beatmung vorhanden
-        
+        # Abgeleitete Felder werden automatisch vom Model-Validator gesetzt
         return HemodynamicsModel.model_validate(payload)
 
     def _get_medication_rate(

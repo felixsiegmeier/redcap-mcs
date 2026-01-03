@@ -396,9 +396,6 @@ def _build_multi_instrument_data():
     # Export-Forms zurücksetzen
     new_export_forms: Dict[str, List[Any]] = {}
     
-    ecmo_df = get_data("ecmo")
-    impella_df = get_data("impella")
-    
     # Pro Instrument + Event aggregieren
     for key, is_selected in selected.items():
         if not is_selected:
@@ -418,10 +415,10 @@ def _build_multi_instrument_data():
         # Referenz-Zeit je nach Event
         if event_name == "ecls_arm_2":
             ref_time = state.nearest_ecls_time
-            ref_df = ecmo_df
+            ref_df = get_data("ecmo")
         else:
             ref_time = state.nearest_impella_time
-            ref_df = impella_df
+            ref_df = get_data("impella")
         
         if ref_df.empty:
             continue

@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import Optional, ClassVar
+from pydantic import BaseModel, Field, model_validator
+from typing import Optional, ClassVar, Self
 from datetime import datetime, date, time
 from enum import IntEnum
 
@@ -89,5 +89,14 @@ class LabModel(TimedExportModel):
     urea: Optional[float] = Field(None)
 
     labor_complete: Optional[int] = Field(0, alias="labor_complete")
+    
+    @model_validator(mode="after")
+    def set_derived_fields(self) -> Self:
+        """Setzt abgeleitete Felder basierend auf vorhandenen Werten."""
+        self.post_pct = 1 if self.pct is not None else 0
+        self.post_crp = 1 if self.crp is not None else 0
+        self.post_act = 1 if self.act is not None else 0
+        self.hemolysis = 1 if any([self.fhb, self.hapto, self.bili]) else 0
+        return self
     
     # Config wird von TimedExportModel geerbt

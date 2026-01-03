@@ -39,6 +39,11 @@ def render_sidebar():
         
         st.divider()
         
+        # Daten-Filter
+        _render_filter_options()
+        
+        st.divider()
+        
         # Navigation
         if has_data():
             _render_navigation()
@@ -109,6 +114,37 @@ def _render_time_range_picker():
         current = state.selected_time_range
         if current is None or (new_range[0].date() != current[0].date() or new_range[1].date() != current[1].date()):
             update_state(selected_time_range=new_range)
+
+
+def _render_filter_options():
+    """Rendert die Filter-Optionen."""
+    from state import get_state, save_state
+    from utils.data_processing import filter_outliers
+    
+    state = get_state()
+    
+    st.subheader("🔍 Filter")
+    
+    # Checkbox für Ausreißer-Filterung
+    filter_enabled = st.checkbox(
+        "Ausreißer filtern",
+        value=st.session_state.get("filter_outliers_enabled", False),
+        key="filter_outliers_enabled",
+        help="Filtert Werte außerhalb des 2.5-97.5% Perzentil-Bereichs pro Parameter"
+    )
+    
+    # Wenn Checkbox aktiviert wird, wende Filterung an
+    if filter_enabled and state.filtered_data is None:
+        if state.data is not None and not state.data.empty:
+            state.filtered_data, _ = filter_outliers(state.data)
+            save_state(state)
+            st.rerun()
+    
+    # Wenn Checkbox deaktiviert wird, lösche gefilterte Daten
+    elif not filter_enabled and state.filtered_data is not None:
+        state.filtered_data = None
+        save_state(state)
+        st.rerun()
 
 
 def _render_navigation():

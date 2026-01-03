@@ -4,8 +4,8 @@ REDCap Hemodynamics/Ventilation/Medication Instrument Model.
 Erfasst täglich: Hämodynamik, Beatmung, Medikation, NIRS, etc.
 """
 
-from pydantic import Field
-from typing import Optional, ClassVar
+from pydantic import Field, model_validator
+from typing import Optional, ClassVar, Self
 from datetime import date
 from enum import IntEnum
 
@@ -147,3 +147,41 @@ class HemodynamicsModel(TimedExportModel):
         0, 
         alias="hemodynamics_ventilation_medication_complete"
     )
+    
+    @model_validator(mode="after")
+    def set_derived_fields(self) -> Self:
+        """Setzt abgeleitete Felder basierend auf vorhandenen Werten."""
+        # PAK verfügbar
+        pac_fields = [
+            self.pcwp,
+            self.sys_pap,
+            self.dia_pap,
+            self.mean_pap,
+            self.ci
+        ]
+        self.pac = 1 if any(field is not None for field in pac_fields) else 0
+
+        # NIRS verfügbar
+        nirs_fields = [
+            self.nirs_left_c,
+            self.nirs_right_c,
+            self.nirs_left_f,
+            self.nirs_right_f
+        ]
+        self.nirs_avail = 1 if any(field is not None for field in nirs_fields) else 0
+        
+        # Katecholamine vorhanden
+        catecholamines = [
+            self.dobutamine,
+            self.epinephrine,
+            self.norepinephrine,
+            self.milrinone,
+            self.vasopressin
+        ]
+        self.vasoactive_med = 1 if any(v is not None and v > 0 for v in catecholamines) else 0
+        
+        # Beatmung vorhanden
+        ventilation_params = [self.fi02, self.vent_peep, self.vent_pip]
+        self.vent = 1 if any(p is not None for p in ventilation_params) else 0
+        
+        return self

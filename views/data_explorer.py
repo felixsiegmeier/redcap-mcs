@@ -186,12 +186,12 @@ def render_data_explorer():
             )
         
         with col_opt2:
-            filter_outliers = st.checkbox(
-                "🎯 Ausreißer filtern",
-                value=True,
-                key="explorer_filter_outliers",
-                help="Entfernt Werte außerhalb des 2.5-97.5% Perzentil-Bereichs (pro Parameter)"
-            )
+            # Hinweis auf globalen Filter in Sidebar
+            filter_active = st.session_state.get("filter_outliers_enabled", False)
+            if filter_active:
+                st.info("🎯 Ausreißer-Filter aktiv (Sidebar)")
+            else:
+                st.caption("💡 Ausreißer-Filter in Sidebar")
     
     # =========================================================================
     # Daten anzeigen
@@ -202,13 +202,6 @@ def render_data_explorer():
     if df.empty:
         st.info("Keine Daten für die ausgewählten Filter gefunden.")
         return
-    
-    # Ausreißer-Filterung anwenden wenn aktiviert
-    filter_outliers = st.session_state.get("explorer_filter_outliers", True)
-    outlier_count = 0
-    
-    if filter_outliers:
-        df, outlier_count = _filter_outliers(df)
     
     # Statistik
     col1, col2, col3, col4 = st.columns(4)
@@ -221,8 +214,8 @@ def render_data_explorer():
         unique_sources = df["source_type"].nunique() if "source_type" in df.columns else 0
         st.metric("Datenquellen", unique_sources)
     with col4:
-        if filter_outliers and outlier_count > 0:
-            st.metric("Ausreißer gefiltert", outlier_count)
+        filter_active = st.session_state.get("filter_outliers_enabled", False)
+        st.metric("Filter aktiv", "Ja" if filter_active else "Nein")
     
     # 24h-Median Aggregation anwenden wenn aktiviert
     show_daily_median = st.session_state.get("explorer_daily_median", False)
@@ -257,64 +250,7 @@ def render_data_explorer():
         _render_chart(df_display, is_aggregated=show_daily_median)
 
 
-def _filter_outliers(df: pd.DataFrame, lower_pct: float = 2.5, upper_pct: float = 97.5) -> tuple:
-    """
-    Filtert Ausreißer basierend auf Perzentilen pro Parameter.
-    
-    Args:
-        df: DataFrame mit Daten
-        lower_pct: Unteres Perzentil (Standard: 2.5%)
-        upper_pct: Oberes Perzentil (Standard: 97.5%)
-    
-    Returns:
-        Tuple (gefilterter DataFrame, Anzahl entfernter Ausreißer)
-    """
-    if df.empty or "value" not in df.columns:
-        return df, 0
-    
-    df_work = df.copy()
-    df_work["_value_numeric"] = pd.to_numeric(df_work["value"], errors="coerce")
-    
-    original_count = len(df_work)
-    
-    # Erstelle Maske für zu behaltende Zeilen
-    keep_mask = pd.Series(True, index=df_work.index)
-    
-    # Pro Parameter filtern (falls vorhanden)
-    if "parameter" in df_work.columns:
-        for param in df_work["parameter"].dropna().unique():
-            param_mask = df_work["parameter"] == param
-            param_values = df_work.loc[param_mask, "_value_numeric"].dropna()
-            
-            if len(param_values) < 5:  # Zu wenige Werte für sinnvolle Perzentile
-                continue
-            
-            lower = param_values.quantile(lower_pct / 100)
-            upper = param_values.quantile(upper_pct / 100)
-            
-            # Numerische Werte außerhalb des Bereichs markieren
-            numeric_mask = param_mask & df_work["_value_numeric"].notna()
-            out_of_range = numeric_mask & (
-                (df_work["_value_numeric"] < lower) | (df_work["_value_numeric"] > upper)
-            )
-            keep_mask = keep_mask & ~out_of_range
-    else:
-        # Ohne Parameter: globale Perzentile
-        numeric_vals = df_work["_value_numeric"].dropna()
-        if len(numeric_vals) >= 5:
-            lower = numeric_vals.quantile(lower_pct / 100)
-            upper = numeric_vals.quantile(upper_pct / 100)
-            
-            numeric_mask = df_work["_value_numeric"].notna()
-            out_of_range = numeric_mask & (
-                (df_work["_value_numeric"] < lower) | (df_work["_value_numeric"] > upper)
-            )
-            keep_mask = keep_mask & ~out_of_range
-    
-    df_filtered = df[keep_mask].copy()
-    outlier_count = original_count - len(df_filtered)
-    
-    return df_filtered, outlier_count
+
 
 
 def _aggregate_daily_median(df: pd.DataFrame) -> pd.DataFrame:

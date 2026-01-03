@@ -56,6 +56,7 @@ class AppState:
     
     # Kerndaten
     data: Optional[pd.DataFrame] = None
+    filtered_data: Optional[pd.DataFrame] = None  # Gefilterte Daten (wenn filter_outliers aktiv)
     record_id: Optional[str] = None
     
     # Navigation
@@ -146,6 +147,11 @@ def load_data(df: pd.DataFrame) -> AppState:
     
     state.data = df
     
+    # Daten direkt filtern und Checkbox aktivieren
+    from utils.data_processing import filter_outliers
+    state.filtered_data, _ = filter_outliers(df)
+    st.session_state["filter_outliers_enabled"] = True
+    
     # Zeitbereich berechnen
     if not df.empty and "timestamp" in df.columns:
         ts_clean = df["timestamp"].dropna()
@@ -204,6 +210,7 @@ SOURCE_MAPPING = {
 def get_data(source: Optional[str] = None) -> pd.DataFrame:
     """
     Holt Daten aus dem State, optional gefiltert nach Source.
+    Nutzt gefilterte Daten wenn die Outlier-Filter-Checkbox aktiv ist.
     
     Args:
         source: Optional - "lab", "vitals", "ecmo", etc. oder None für alle Daten
@@ -212,10 +219,15 @@ def get_data(source: Optional[str] = None) -> pd.DataFrame:
         DataFrame (kann leer sein)
     """
     state = get_state()
-    if state.data is None or state.data.empty:
+    
+    # Nutze filtered_data wenn Filter aktiv, sonst state.data
+    use_filtered = st.session_state.get("filter_outliers_enabled", False)
+    df_to_use = state.filtered_data if (use_filtered and state.filtered_data is not None) else state.data
+    
+    if df_to_use is None or df_to_use.empty:
         return pd.DataFrame()
     
-    df = state.data
+    df = df_to_use
     
     if source is None:
         return df.copy()
@@ -249,11 +261,14 @@ def has_device_data(device: str) -> bool:
 
 
 def get_available_sources() -> List[str]:
-    """Gibt alle verfügbaren source_type Werte zurück."""
+    """Gibt alle verfügbaren source_type Werte zurück (aus gefilterten oder ungefilterten Daten)."""
     state = get_state()
-    if state.data is None or state.data.empty:
+    use_filtered = st.session_state.get("filter_outliers_enabled", False)
+    df_to_use = state.filtered_data if (use_filtered and state.filtered_data is not None) else state.data
+    
+    if df_to_use is None or df_to_use.empty:
         return []
-    return state.data["source_type"].unique().tolist()
+    return df_to_use["source_type"].unique().tolist()
 
 
 def get_device_time_range(device: str) -> Optional[tuple]:

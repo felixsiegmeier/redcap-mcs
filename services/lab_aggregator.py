@@ -127,16 +127,7 @@ class LabAggregator:
             if value is not None:
                 payload[field] = value
         
-        # Abgeleitete Felder
-        payload["post_pct"] = 1 if values.get("pct") is not None else 0
-        payload["post_crp"] = 1 if values.get("crp") is not None else 0
-        payload["post_act"] = 1 if values.get("act") is not None else 0
-        payload["hemolysis"] = 1 if any([
-            values.get("fhb"),
-            values.get("hapto"),
-            values.get("bili")
-        ]) else 0
-        
+        # Abgeleitete Felder werden automatisch vom Model-Validator gesetzt
         return LabModel.model_validate(payload)
 
     def _get_lab_data_for_day(self) -> pd.DataFrame:
