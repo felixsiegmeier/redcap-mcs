@@ -192,4 +192,7 @@ class HemodynamicsModel(TimedExportModel):
         else:
             self.vent = 2  # No Ventilation
         
+        # GCS vorhanden
+        self.gcs_avail = 1 if self.gcs is not None else 0
+        
         return self

@@ -50,6 +50,7 @@ class HemodynamicsAggregator(BaseAggregator):
         
         # ==================== Neurologie ====================
         "rass": ("Richmond", ".*", r"^Summe Richmond-Agitation-Sedation"),
+        "gcs": ("GCS", ".*", r"^Summe GCS2"),
     }
     
     # Medikamente: Spezielle Behandlung da sie anders strukturiert sind
@@ -91,6 +92,7 @@ class HemodynamicsAggregator(BaseAggregator):
         resp_df = self.get_source_data("respiratory")
         med_df = self.get_source_data("medication")
         rass_df = self.get_source_data("Richmond-Agitation-Sedation")
+        gcs_df = self.get_source_data("GCS (Jugendliche und Erwachsene)")
         
         # Werte aggregieren
         values: Dict[str, Optional[float]] = {}
@@ -102,6 +104,8 @@ class HemodynamicsAggregator(BaseAggregator):
                 values[field] = self.aggregate_value(resp_df, category, parameter)
             elif source == "Richmond":
                 values[field] = self.aggregate_value(rass_df, category, parameter)
+            elif source == "GCS":
+                values[field] = self.aggregate_value(gcs_df, category, parameter)
         
         # Medikamente aggregieren (mit Umrechnung zu µg/kg/min)
         for field, pattern in self.MEDICATION_MAP.items():

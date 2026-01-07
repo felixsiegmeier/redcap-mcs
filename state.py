@@ -205,6 +205,7 @@ SOURCE_MAPPING = {
     "nirs": ["NIRS"],
     "patient_info": ["PatientInfo"],
     "Richmond-Agitation-Sedation": ["Richmond-Agitation-Sedation"],
+    "GCS (Jugendliche und Erwachsene)": ["GCS (Jugendliche und Erwachsene)"],
 }
 
 
