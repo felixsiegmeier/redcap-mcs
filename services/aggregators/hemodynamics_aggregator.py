@@ -127,16 +127,23 @@ class HemodynamicsAggregator(BaseAggregator):
         }
         
         # Werte hinzufügen (nur nicht-None)
+        rass_score = None  # Speichere RASS separat
         for field, value in values.items():
             if value is not None:
-                # RASS wird zu _rass_score (internes Feld für Konvertierung)
+                # RASS wird separat behandelt (PrivateAttr)
                 if field == "rass":
-                    payload["_rass_score"] = int(value)
+                    rass_score = int(value)
                 else:
                     payload[field] = value
         
-        # Abgeleitete Felder werden automatisch vom Model-Validator gesetzt
-        return HemodynamicsModel.model_validate(payload)
+        # Model erstellen
+        model = HemodynamicsModel.model_validate(payload)
+        
+        # RASS-Score setzen und zu Checkboxen konvertieren
+        if rass_score is not None:
+            model.set_rass_score(rass_score)
+        
+        return model
 
     def _get_medication_rate(
         self,

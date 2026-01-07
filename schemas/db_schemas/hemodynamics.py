@@ -209,18 +209,25 @@ class HemodynamicsModel(TimedExportModel):
         # GCS vorhanden
         self.gcs_avail = 1 if self.gcs is not None else 0
         
-        # RASS: Konvertiere numerischen Score zu Checkbox
-        # Mapping: +4→1, +3→2, +2→3, +1→4, 0→5, -1→6, -2→7, -3→8, -4→9, -5→10
-        if self._rass_score is not None:
-            checkbox_mapping = {
-                4: 1, 3: 2, 2: 3, 1: 4, 0: 5,
-                -1: 6, -2: 7, -3: 8, -4: 9, -5: 10
-            }
-            if self._rass_score in checkbox_mapping:
-                checkbox_num = checkbox_mapping[self._rass_score]
-                # Setze alle Checkboxen auf 0, dann die richtige auf 1
-                for i in range(1, 11):
-                    setattr(self, f"rass___{i}", 0)
-                setattr(self, f"rass___{checkbox_num}", 1)
-        
         return self
+    
+    def set_rass_score(self, score: int) -> None:
+        """Setzt den RASS-Score und konvertiert zu Checkbox-Format.
+        
+        Args:
+            score: Numerischer RASS-Score (-5 bis +4)
+        """
+        self._rass_score = score
+        
+        # Mapping: +4→1, +3→2, +2→3, +1→4, 0→5, -1→6, -2→7, -3→8, -4→9, -5→10
+        checkbox_mapping = {
+            4: 1, 3: 2, 2: 3, 1: 4, 0: 5,
+            -1: 6, -2: 7, -3: 8, -4: 9, -5: 10
+        }
+        
+        if score in checkbox_mapping:
+            checkbox_num = checkbox_mapping[score]
+            # Setze alle Checkboxen auf 0, dann die richtige auf 1
+            for i in range(1, 11):
+                setattr(self, f"rass___{i}", 0)
+            setattr(self, f"rass___{checkbox_num}", 1)
