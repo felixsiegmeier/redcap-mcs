@@ -204,6 +204,7 @@ SOURCE_MAPPING = {
     "fluidbalance": ["Fluidbalance", "Bilanz"],
     "nirs": ["NIRS"],
     "patient_info": ["PatientInfo"],
+    "Richmond-Agitation-Sedation": ["Richmond-Agitation-Sedation"],
 }
 
 

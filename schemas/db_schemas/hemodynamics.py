@@ -123,6 +123,7 @@ class HemodynamicsModel(TimedExportModel):
     # ==================== Neurologie ====================
     gcs_avail: Optional[int] = Field(None, alias="gcs_avail")
     gcs: Optional[float] = Field(None, alias="gcs")  # Glasgow Coma Scale
+    rass: Optional[int] = Field(None, alias="rass")  # Richmond Agitation Sedation Scale
     
     # ==================== Transfusionen (24h) ====================
     transfusion_coag: Optional[int] = Field(None, alias="transfusion_coag")

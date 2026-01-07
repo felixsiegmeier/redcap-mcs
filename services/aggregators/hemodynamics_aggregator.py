@@ -47,6 +47,9 @@ class HemodynamicsAggregator(BaseAggregator):
         "vent_pip": ("Respiratory", ".*", r"^Ppeak\s*\[|^insp.*Spitzendruck"),
         "conv_vent_rate": ("Respiratory", ".*", r"mand.*Atemfrequenz|^mand\. Atemfrequenz"),
         "sp02": ("Respiratory", ".*", r"^SpO2"),  # Falls vorhanden
+        
+        # ==================== Neurologie ====================
+        "rass": ("Richmond", ".*", r"^Summe Richmond-Agitation-Sedation"),
     }
     
     # Medikamente: Spezielle Behandlung da sie anders strukturiert sind
@@ -87,6 +90,7 @@ class HemodynamicsAggregator(BaseAggregator):
         vitals_df = self.get_source_data("vitals")
         resp_df = self.get_source_data("respiratory")
         med_df = self.get_source_data("medication")
+        rass_df = self.get_source_data("Richmond-Agitation-Sedation")
         
         # Werte aggregieren
         values: Dict[str, Optional[float]] = {}
@@ -96,6 +100,8 @@ class HemodynamicsAggregator(BaseAggregator):
                 values[field] = self.aggregate_value(vitals_df, category, parameter)
             elif source == "Respiratory":
                 values[field] = self.aggregate_value(resp_df, category, parameter)
+            elif source == "Richmond":
+                values[field] = self.aggregate_value(rass_df, category, parameter)
         
         # Medikamente aggregieren (mit Umrechnung zu µg/kg/min)
         for field, pattern in self.MEDICATION_MAP.items():
