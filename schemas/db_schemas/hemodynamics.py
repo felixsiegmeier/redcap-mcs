@@ -4,7 +4,7 @@ REDCap Hemodynamics/Ventilation/Medication Instrument Model.
 Erfasst täglich: Hämodynamik, Beatmung, Medikation, NIRS, etc.
 """
 
-from pydantic import Field, model_validator
+from pydantic import Field, model_validator, PrivateAttr
 from typing import Optional, ClassVar, Self
 from datetime import date
 from enum import IntEnum
@@ -137,7 +137,7 @@ class HemodynamicsModel(TimedExportModel):
     rass___10: Optional[int] = Field(0, alias="rass___10")  # Unarousable (-5)
     
     # Internes Feld für numerischen RASS-Wert (nicht exportiert)
-    _rass_score: Optional[int] = Field(None, exclude=True)
+    _rass_score: Optional[int] = PrivateAttr(default=None)
     
     # ==================== Transfusionen (24h) ====================
     transfusion_coag: Optional[int] = Field(None, alias="transfusion_coag")
