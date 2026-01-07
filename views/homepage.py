@@ -19,13 +19,13 @@ def render_homepage():
     """Rendert die Homepage mit Datenübersicht."""
     
     st.header("📋 Übersicht")
-    st.info(
-        "Die CSV-Datei muss mit dem [mlife-parser](https://github.com/felixsiegmeier/mlife-parser/releases/latest) erzeugt werden. "
-        "Lade die aktuelle Version des Parsers hier herunter: "
-        "[mlife-parser v1.0.0](https://github.com/felixsiegmeier/mlife-parser/releases/latest)"
-    )
     
     if not has_data():
+        st.info(
+            "Die CSV-Datei muss mit dem [mlife-parser](https://github.com/felixsiegmeier/mlife-parser/releases/latest) erzeugt werden. "
+            "Lade die aktuelle Version des Parsers hier herunter: "
+            "[mlife-parser v1.0.0](https://github.com/felixsiegmeier/mlife-parser/releases/latest)"
+        )
         st.info("Keine Daten geladen. Bitte zuerst eine CSV-Datei hochladen.")
         return
     

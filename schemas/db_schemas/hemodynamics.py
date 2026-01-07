@@ -14,9 +14,10 @@ from .base import TimedExportModel
 
 class VentilationMode(IntEnum):
     """Beatmungsmodus"""
-    NO_VENTILATION = 0
-    INVASIVE = 1
-    NON_INVASIVE = 2
+    NON_INVASIVE = 1
+    NO_VENTILATION = 2
+    INVASIVE = 5
+    HIGH_FLOW = 6
 
 
 class VentilationType(IntEnum):
@@ -180,14 +181,14 @@ class HemodynamicsModel(TimedExportModel):
         ]
         self.vasoactive_med = 1 if any(v is not None and v > 0 for v in catecholamines) else 0
         
-        # Beatmung vorhanden - neue Logik
+        # Beatmung vorhanden - REDCap-konforme Werte
         if self.vent_peep is not None and self.conv_vent_rate is not None:
-            self.vent = 0
+            self.vent = 5  # Invasive Ventilation
         elif self.vent_peep is not None and self.conv_vent_rate is None:
-            self.vent = 1
+            self.vent = 1  # Non invasive Ventilation
         elif self.vent_peep is None and self.conv_vent_rate is None and self.fi02 is not None:
-            self.vent = 2
+            self.vent = 6  # High Flow Therapy
         else:
-            self.vent = 3
+            self.vent = 2  # No Ventilation
         
         return self
