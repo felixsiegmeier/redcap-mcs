@@ -34,3 +34,4 @@ pip-wheel-metadata/
 .env
 settings.ini
 secrets.json
+full_export.csv
