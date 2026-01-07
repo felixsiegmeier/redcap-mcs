@@ -49,7 +49,7 @@ class HemodynamicsAggregator(BaseAggregator):
         "sp02": ("Respiratory", ".*", r"^SpO2"),  # Falls vorhanden
         
         # ==================== Neurologie ====================
-        "rass": ("Richmond", ".*", r"^Summe Richmond-Agitation-Sedation"),
+        "rass": ("Richmond", ".*", r"^Summe Richmond-Agitation-Sedation"),  # → wird zu _rass_score
         "gcs": ("GCS", ".*", r"^Summe GCS2"),
     }
     
@@ -129,7 +129,11 @@ class HemodynamicsAggregator(BaseAggregator):
         # Werte hinzufügen (nur nicht-None)
         for field, value in values.items():
             if value is not None:
-                payload[field] = value
+                # RASS wird zu _rass_score (internes Feld für Konvertierung)
+                if field == "rass":
+                    payload["_rass_score"] = int(value)
+                else:
+                    payload[field] = value
         
         # Abgeleitete Felder werden automatisch vom Model-Validator gesetzt
         return HemodynamicsModel.model_validate(payload)

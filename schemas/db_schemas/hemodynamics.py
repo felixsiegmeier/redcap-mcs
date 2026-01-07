@@ -123,7 +123,21 @@ class HemodynamicsModel(TimedExportModel):
     # ==================== Neurologie ====================
     gcs_avail: Optional[int] = Field(None, alias="gcs_avail")
     gcs: Optional[float] = Field(None, alias="gcs")  # Glasgow Coma Scale
-    rass: Optional[int] = Field(None, alias="rass")  # Richmond Agitation Sedation Scale
+    
+    # RASS als Checkbox (10 Felder für RASS +4 bis -5)
+    rass___1: Optional[int] = Field(0, alias="rass___1")  # Combative (+4)
+    rass___2: Optional[int] = Field(0, alias="rass___2")  # Very agitated (+3)
+    rass___3: Optional[int] = Field(0, alias="rass___3")  # Agitated (+2)
+    rass___4: Optional[int] = Field(0, alias="rass___4")  # Restless (+1)
+    rass___5: Optional[int] = Field(0, alias="rass___5")  # Alert and calm (0)
+    rass___6: Optional[int] = Field(0, alias="rass___6")  # Drowsy (-1)
+    rass___7: Optional[int] = Field(0, alias="rass___7")  # Light sedation (-2)
+    rass___8: Optional[int] = Field(0, alias="rass___8")  # Moderate sedation (-3)
+    rass___9: Optional[int] = Field(0, alias="rass___9")  # Deep sedation (-4)
+    rass___10: Optional[int] = Field(0, alias="rass___10")  # Unarousable (-5)
+    
+    # Internes Feld für numerischen RASS-Wert (nicht exportiert)
+    _rass_score: Optional[int] = Field(None, exclude=True)
     
     # ==================== Transfusionen (24h) ====================
     transfusion_coag: Optional[int] = Field(None, alias="transfusion_coag")
@@ -194,5 +208,19 @@ class HemodynamicsModel(TimedExportModel):
         
         # GCS vorhanden
         self.gcs_avail = 1 if self.gcs is not None else 0
+        
+        # RASS: Konvertiere numerischen Score zu Checkbox
+        # Mapping: +4→1, +3→2, +2→3, +1→4, 0→5, -1→6, -2→7, -3→8, -4→9, -5→10
+        if self._rass_score is not None:
+            checkbox_mapping = {
+                4: 1, 3: 2, 2: 3, 1: 4, 0: 5,
+                -1: 6, -2: 7, -3: 8, -4: 9, -5: 10
+            }
+            if self._rass_score in checkbox_mapping:
+                checkbox_num = checkbox_mapping[self._rass_score]
+                # Setze alle Checkboxen auf 0, dann die richtige auf 1
+                for i in range(1, 11):
+                    setattr(self, f"rass___{i}", 0)
+                setattr(self, f"rass___{checkbox_num}", 1)
         
         return self
