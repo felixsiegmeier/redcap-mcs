@@ -180,8 +180,14 @@ class HemodynamicsModel(TimedExportModel):
         ]
         self.vasoactive_med = 1 if any(v is not None and v > 0 for v in catecholamines) else 0
         
-        # Beatmung vorhanden
-        ventilation_params = [self.fi02, self.vent_peep, self.vent_pip]
-        self.vent = 1 if any(p is not None for p in ventilation_params) else 0
+        # Beatmung vorhanden - neue Logik
+        if self.vent_peep is not None and self.conv_vent_rate is not None:
+            self.vent = 0
+        elif self.vent_peep is not None and self.conv_vent_rate is None:
+            self.vent = 1
+        elif self.vent_peep is None and self.conv_vent_rate is None and self.fi02 is not None:
+            self.vent = 2
+        else:
+            self.vent = 3
         
         return self
