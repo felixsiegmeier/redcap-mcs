@@ -97,6 +97,15 @@ class LabModel(TimedExportModel):
         self.post_crp = 1 if self.crp is not None else 0
         self.post_act = 1 if self.act is not None else 0
         self.hemolysis = 1 if any([self.fhb, self.hapto, self.bili]) else 0
+        
+        # Albumin: Umrechnung von g/L (Daten) zu g/dL (REDCap)
+        if self.albumin is not None:
+            self.albumin = round(self.albumin / 10, 1)
+        
+        # CRP: Umrechnung von mg/L (Daten) zu mg/dL (REDCap)
+        if self.crp is not None:
+            self.crp = round(self.crp / 10, 1)
+        
         return self
     
     # Config wird von TimedExportModel geerbt
