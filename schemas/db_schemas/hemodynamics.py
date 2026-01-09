@@ -199,8 +199,10 @@ class HemodynamicsModel(TimedExportModel):
         # Beatmung vorhanden - REDCap-konforme Werte
         if self.vent_peep is not None and self.conv_vent_rate is not None:
             self.vent = 5  # Invasive Ventilation
+            self.vent_type = VentilationType.CONVENTIONAL.value
         elif self.vent_peep is not None and self.conv_vent_rate is None:
             self.vent = 1  # Non invasive Ventilation
+            self.vent_type = VentilationType.CONVENTIONAL.value
         elif self.vent_peep is None and self.conv_vent_rate is None and self.fi02 is not None:
             self.vent = 6  # High Flow Therapy
         else:

@@ -36,7 +36,14 @@ class HemodynamicsAggregator(BaseAggregator):
         "dia_bp": ("Vitals", ".*", r"^ABPd\s*\[|^ARTd\s*\["),
         "mean_bp": ("Vitals", ".*", r"^ABPm\s*\[|^ARTm\s*\["),
         "cvp": ("Vitals", ".*", r"^ZVDm\s*\["),
-        "ci": ("Vitals", ".*", r"^HZV"),  # HZV (l/min) - CI wenn normiert
+        
+        # PAC (Pulmonary Artery Catheter) - nur aus "Online erfasste Vitaldaten"
+        "pcwp": ("Vitals", r"^Online.*", r"^PCWP\s*\[|^PAWP\s*\["),  # Pulmonary Capillary/Artery Wedge Pressure
+        "sys_pap": ("Vitals", r"^Online.*", r"^PAPs\s*\["),  # Systolic Pulmonary Arterial Pressure
+        "dia_pap": ("Vitals", r"^Online.*", r"^PAPd\s*\["),  # Diastolic Pulmonary Arterial Pressure
+        "mean_pap": ("Vitals", r"^Online.*", r"^PAPm\s*\["),  # Mean Pulmonary Arterial Pressure
+        "ci": ("Vitals", r"^Online.*", r"^CCI\s*\[|^HZV"),  # Cardiac Index (CCI) / HZV
+        
         # NIRS
         "nirs_left_c": ("Vitals", ".*", r"NIRS Channel 1 RSO2|NIRS.*Channel.*1"),
         "nirs_right_c": ("Vitals", ".*", r"NIRS Channel 2 RSO2|NIRS.*Channel.*2"),
