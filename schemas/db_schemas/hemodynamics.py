@@ -26,6 +26,34 @@ class VentilationType(IntEnum):
     HIGH_FREQUENCY = 2
 
 
+class VentilationSpec(IntEnum):
+    """Beatmungsmodus-Spezifikation"""
+    BIPAP = 2
+    SIMV = 3
+    ASB = 4
+    PC_BIPAP = 5
+    PC_PSV = 6
+    PC_CMV = 7
+    PC_SIMV = 8
+    PC_PC_APRV = 9
+    PC_AC = 10
+    VC_CMV = 11
+    VC_SIMV = 12
+    VC_MMV = 13
+    VC_AC = 14
+    SPN_CPAP_PS = 15
+    BiLevel = 16
+    A_C_VC = 17
+    A_C_PC = 18
+    A_C_PRVC = 19
+    SIMV_VC = 20
+    SIMV_PC = 21
+    BiLevel_VG = 22
+    CPAP_PS = 23
+    SBT = 24
+    NIV = 25
+
+
 class RenalReplacement(IntEnum):
     """Nierenersatztherapie"""
     NONE = 0
