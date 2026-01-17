@@ -127,7 +127,26 @@ class HemodynamicsModel(TimedExportModel):
     
     # ==================== Katecholamine ====================
     vasoactive_med: Optional[int] = Field(None, alias="vasoactive_med")  # Katecholamine ja/nein
-    # vasoactive_spec ist checkbox - nicht modelliert
+    
+    # Vasoactive Infusion Checkboxes (17 Medikamente)
+    vasoactive_spec___1: Optional[int] = Field(0, alias="vasoactive_spec___1")  # Dobutamine
+    vasoactive_spec___2: Optional[int] = Field(0, alias="vasoactive_spec___2")  # Dopamine
+    vasoactive_spec___3: Optional[int] = Field(0, alias="vasoactive_spec___3")  # Enoximone
+    vasoactive_spec___4: Optional[int] = Field(0, alias="vasoactive_spec___4")  # Epinephrine
+    vasoactive_spec___5: Optional[int] = Field(0, alias="vasoactive_spec___5")  # Esmolol
+    vasoactive_spec___6: Optional[int] = Field(0, alias="vasoactive_spec___6")  # Levosimendan
+    vasoactive_spec___7: Optional[int] = Field(0, alias="vasoactive_spec___7")  # Metaraminol
+    vasoactive_spec___8: Optional[int] = Field(0, alias="vasoactive_spec___8")  # Metoprolol
+    vasoactive_spec___9: Optional[int] = Field(0, alias="vasoactive_spec___9")  # Milrinone
+    vasoactive_spec___10: Optional[int] = Field(0, alias="vasoactive_spec___10")  # Nicardipine
+    vasoactive_spec___11: Optional[int] = Field(0, alias="vasoactive_spec___11")  # Nitroglycerin
+    vasoactive_spec___12: Optional[int] = Field(0, alias="vasoactive_spec___12")  # Nitroprusside
+    vasoactive_spec___13: Optional[int] = Field(0, alias="vasoactive_spec___13")  # Norepinephrine
+    vasoactive_spec___14: Optional[int] = Field(0, alias="vasoactive_spec___14")  # Phenylephrine
+    vasoactive_spec___15: Optional[int] = Field(0, alias="vasoactive_spec___15")  # Tolazoline
+    vasoactive_spec___16: Optional[int] = Field(0, alias="vasoactive_spec___16")  # Vasopressin
+    vasoactive_spec___17: Optional[int] = Field(0, alias="vasoactive_spec___17")  # Other
+    
     vasoactive_o: Optional[str] = Field(None, alias="vasoactive_o")  # Andere Katecholamine
     dobutamine: Optional[float] = Field(None, alias="dobutamine")  # µg/kg/min
     epinephrine: Optional[float] = Field(None, alias="epinephrine")  # µg/kg/min

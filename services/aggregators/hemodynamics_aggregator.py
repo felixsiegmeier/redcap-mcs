@@ -243,6 +243,7 @@ class HemodynamicsAggregator(BaseAggregator):
         
         Prüft für jedes Medikament im VASOACTIVE_SPEC_MAP ob es am Tag vorhanden ist
         (Parameter enthält Medikamentenname). Setzt entsprechende Checkbox auf 1.
+        Setzt auch vasoactive_med=1 wenn mindestens ein Medikament gefunden wurde.
         
         Args:
             model: HemodynamicsModel das angepasst wird
@@ -250,6 +251,8 @@ class HemodynamicsAggregator(BaseAggregator):
         """
         if med_df.empty:
             return
+        
+        any_medication_found = False
         
         # Prüfe jedes Medikament
         for checkbox_id, pattern in self.VASOACTIVE_SPEC_MAP.items():
@@ -261,8 +264,15 @@ class HemodynamicsAggregator(BaseAggregator):
             
             has_medication = (mask & fer_mask).any()
             
+            if has_medication:
+                any_medication_found = True
+            
             # Setze Checkbox
             setattr(model, f"vasoactive_spec___{checkbox_id}", 1 if has_medication else 0)
+        
+        # Setze vasoactive_med=1 wenn mindestens ein Medikament vorhanden ist
+        if any_medication_found:
+            model.vasoactive_med = 1
 
     def _get_medication_rate(
         self,
