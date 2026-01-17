@@ -16,7 +16,7 @@ import pandas as pd
 from typing import Optional, Dict, Tuple
 from datetime import date, time
 
-from schemas.db_schemas.hemodynamics import HemodynamicsModel
+from schemas.db_schemas.hemodynamics import HemodynamicsModel, VentilationSpec
 from .base import BaseAggregator
 
 
@@ -25,6 +25,54 @@ class HemodynamicsAggregator(BaseAggregator):
 
     INSTRUMENT_NAME = "hemodynamics_ventilation_medication"
     MODEL_CLASS = HemodynamicsModel
+
+    # Zentrales Mapping: Beatmungsmodus-String -> VentilationSpec Enum-Name oder None (ignorieren)
+    VENT_SPEC_MAP: Dict[str, Optional[str]] = {
+        # CPAP-Varianten
+        "CPAP": "SPN_CPAP_PS",
+        "CPAP_PS": "CPAP_PS",
+        "SPN_CPAP": "SPN_CPAP_PS",
+        "SPN_CPAP_PS": "SPN_CPAP_PS",
+        # BiLevel-Varianten
+        "BILEVEL": "BiLevel",
+        "BI_LEVEL": "BiLevel",
+        "BILEVEL_VG": "BiLevel_VG",
+        # BIPAP-Varianten
+        "BIPAP": "BIPAP",
+        "PC_BIPAP": "PC_BIPAP",
+        # SIMV-Varianten
+        "SIMV": "SIMV",
+        "SIMV_PC": "SIMV_PC",
+        "SIMV_VC": "SIMV_VC",
+        "PC_SIMV": "PC_SIMV",
+        "VC_SIMV": "VC_SIMV",
+        # A/C-Varianten
+        "A_C_VC": "A_C_VC",
+        "A_C_PC": "A_C_PC",
+        "A_C_PRVC": "A_C_PRVC",
+        "AC_VC": "A_C_VC",
+        "AC_PC": "A_C_PC",
+        # PC-Varianten
+        "PC_CMV": "PC_CMV",
+        "PC_PSV": "PC_PSV",
+        "PC_AC": "PC_AC",
+        "PC_PC_APRV": "PC_PC_APRV",
+        "APRV": "PC_PC_APRV",
+        "IPPV": "PC_CMV",  # IPPV = Intermittent Positive Pressure Ventilation → PC-CMV
+        # VC-Varianten
+        "VC_CMV": "VC_CMV",
+        "VC_AC": "VC_AC",
+        "VC_MMV": "VC_MMV",
+        # Spontanatmung
+        "SPONTANEOUS": "SPN_CPAP_PS",  # Spontanatmung → CPAP/PS
+        "SPONT": "SPN_CPAP_PS",
+        # Andere
+        "ASB": "ASB",
+        "NIV": "NIV",
+        "SBT": "SBT",
+        # Standby ignorieren (None zurückgeben)
+        "STANDBY": None,
+    }
 
     # Mapping: Model-Feld -> (Source, Category-Pattern, Parameter-Pattern)
     # Vitals-Parameter kommen aus "Vitals" source_type
@@ -54,11 +102,14 @@ class HemodynamicsAggregator(BaseAggregator):
         "vent_pip": ("Respiratory", ".*", r"^Ppeak\s*\[|^insp.*Spitzendruck"),
         "conv_vent_rate": ("Respiratory", ".*", r"mand.*Atemfrequenz|^mand\. Atemfrequenz"),
         "sp02": ("Respiratory", ".*", r"^SpO2"),  # Falls vorhanden
+        "vent_spec": ("Respiratory", ".*", r"^Modus"),
         
         # ==================== Neurologie ====================
         "rass": ("Richmond", ".*", r"^Summe Richmond-Agitation-Sedation"),  # → wird zu _rass_score
         "gcs": ("GCS", ".*", r"^Summe GCS2"),
+        
     }
+   
     
     # Medikamente: Spezielle Behandlung da sie anders strukturiert sind
     # (aus Medication source_type, Parameter enthält Medikamentennamen)
@@ -69,6 +120,28 @@ class HemodynamicsAggregator(BaseAggregator):
         "dobutamine": r"Dobutamin",
         "milrinone": r"Milrinone|Corotrop",
         "vasopressin": r"Vasopressin|Empressin",
+    }
+    
+    # Mapping: vasoactive_spec Checkbox-ID -> Medikamentenname Pattern (Regex)
+    # Für Checkbox-Felder in REDCap (prüft ob Medikament am Tag vorhanden ist)
+    VASOACTIVE_SPEC_MAP: Dict[int, str] = {
+        1: r"Dobutamin",
+        2: r"Dopamin",
+        3: r"Enoximon",
+        4: r"(?<!Nor)Epinephrin|^Suprarenin",  # Epinephrin aber nicht in "Norepinephrin"
+        5: r"Esmolol",
+        6: r"Levosimendan|Simdax",
+        7: r"Metaraminol|Aramino",
+        8: r"Metoprolol|Beloc",
+        9: r"Milrinone|Corotrop",
+        10: r"Nicardipin",
+        11: r"Nitroglycerin|Nitro",
+        12: r"Nitroprussid",
+        13: r"(?<!o)Norepinephrin|^Arterenol",  # Norepinephrin aber nicht "Epinephrin" allein
+        14: r"Phenylephrin",
+        15: r"Tolazolin",
+        16: r"Vasopressin|Empressin",
+        # 17: Other - wird automatisch gesetzt wenn vasoactive_o befüllt ist
     }
 
     def __init__(
@@ -108,7 +181,13 @@ class HemodynamicsAggregator(BaseAggregator):
             if source == "Vitals":
                 values[field] = self.aggregate_value(vitals_df, category, parameter)
             elif source == "Respiratory":
-                values[field] = self.aggregate_value(resp_df, category, parameter)
+                # vent_spec braucht String-Wert und Mapping zu Integer
+                if field == "vent_spec":
+                    vent_mode_str = self._get_string_value(resp_df, category, parameter)
+                    if vent_mode_str:
+                        values[field] = self._map_ventilation_spec(vent_mode_str)
+                else:
+                    values[field] = self.aggregate_value(resp_df, category, parameter)
             elif source == "Richmond":
                 values[field] = self.aggregate_value(rass_df, category, parameter)
             elif source == "GCS":
@@ -150,7 +229,40 @@ class HemodynamicsAggregator(BaseAggregator):
         if rass_score is not None:
             model.set_rass_score(rass_score)
         
+        # Vasoactive Spec Checkboxen setzen (prüft alle Medikamente am Tag)
+        self._set_vasoactive_checkboxes(model, med_df)
+        
         return model
+
+    def _set_vasoactive_checkboxes(
+        self,
+        model: HemodynamicsModel,
+        med_df: pd.DataFrame
+    ) -> None:
+        """Setzt vasoactive_spec Checkboxen basierend auf vorhandenen Medikamenten.
+        
+        Prüft für jedes Medikament im VASOACTIVE_SPEC_MAP ob es am Tag vorhanden ist
+        (Parameter enthält Medikamentenname). Setzt entsprechende Checkbox auf 1.
+        
+        Args:
+            model: HemodynamicsModel das angepasst wird
+            med_df: DataFrame mit Medikamentendaten für den Tag
+        """
+        if med_df.empty:
+            return
+        
+        # Prüfe jedes Medikament
+        for checkbox_id, pattern in self.VASOACTIVE_SPEC_MAP.items():
+            # Prüfe ob Medikament im Parameter vorkommt
+            mask = med_df["parameter"].str.contains(pattern, case=False, na=False, regex=True)
+            
+            # Fertigspritzen ignorieren (das sind Bolusgaben)
+            fer_mask = ~med_df["parameter"].str.contains(r"\(FER\)|Fertigspritze", case=False, na=False, regex=True)
+            
+            has_medication = (mask & fer_mask).any()
+            
+            # Setze Checkbox
+            setattr(model, f"vasoactive_spec___{checkbox_id}", 1 if has_medication else 0)
 
     def _get_medication_rate(
         self,
@@ -172,6 +284,8 @@ class HemodynamicsAggregator(BaseAggregator):
         - Also: IU/h = ml/h × 1 = ml/h (direkt übernehmen)
         
         IGNORIERT: Fertigspritzen "(FER)" - das sind Bolusgaben, keine kontinuierlichen Infusionen!
+        
+        WARNUNG: Benötigt Patientengewicht aus der CSV. Wenn nicht vorhanden → None + Warnung
         """
         if df.empty:
             return None
@@ -217,6 +331,9 @@ class HemodynamicsAggregator(BaseAggregator):
         # Gewicht holen
         weight_kg = self._get_patient_weight()
         if weight_kg is None:
+            # Gewicht fehlt → Warnung und None zurückgeben
+            print(f"⚠️ WARNING: Patientengewicht nicht in Daten vorhanden. "
+                  f"Medikamentendosierung '{field_name}' kann nicht berechnet werden (µg/kg/min benötigt Gewicht).")
             return None
         
         # Umrechnung: µg/kg/min = (ml/h × µg/ml) / (60 × kg)
@@ -269,7 +386,22 @@ class HemodynamicsAggregator(BaseAggregator):
         return default_concentrations.get(field_name)
     
     def _get_patient_weight(self) -> Optional[float]:
-        """Holt das Patientengewicht aus den Daten."""
+        """Holt das Patientengewicht aus den Daten oder dem State.
+        
+        Priorität:
+        1. Manuell eingegeben im State (patient_weight)
+        2. Aus den Daten (PatientInfo)
+        """
+        # Erst im State prüfen (manuell eingegeben)
+        try:
+            from state import get_state
+            state = get_state()
+            if state.patient_weight is not None:
+                return state.patient_weight
+        except:
+            pass
+        
+        # Dann in den Daten suchen
         if self._data is None or self._data.empty:
             from state import get_data
             full_df = get_data()
@@ -298,6 +430,80 @@ class HemodynamicsAggregator(BaseAggregator):
             except (ValueError, TypeError):
                 continue
         
+        return None
+
+    def _get_string_value(
+        self,
+        df: pd.DataFrame,
+        category_pattern: str,
+        param_pattern: str
+    ) -> Optional[str]:
+        """Holt einen String-Wert aus dem DataFrame (für vent_spec, etc.).
+        
+        Args:
+            df: Quelldaten (bereits auf Tag gefiltert)
+            category_pattern: Regex-Pattern für Kategorie
+            param_pattern: Regex-Pattern für Parameter
+            
+        Returns:
+            Erster gefundener String-Wert oder None
+        """
+        if df.empty:
+            return None
+        
+        # Parameter-Filter
+        param_mask = df["parameter"].str.contains(param_pattern, case=False, na=False, regex=True)
+        
+        # Category-Filter nur wenn Spalte existiert und Pattern nicht ".*" ist
+        if "category" in df.columns and category_pattern != ".*":
+            cat_mask = df["category"].str.contains(category_pattern, case=False, na=False, regex=True)
+            mask = param_mask & cat_mask
+        else:
+            mask = param_mask
+        
+        filtered = df[mask]
+        
+        if filtered.empty:
+            return None
+        
+        # Ersten nicht-leeren String-Wert zurückgeben
+        for val in filtered["value"].dropna():
+            str_val = str(val).strip()
+            if str_val:
+                return str_val
+        
+        return None
+
+    def _map_ventilation_spec(self, mode_str: str) -> Optional[int]:
+        """Mappt Beatmungsmodus-String zu VentilationSpec Integer.
+        
+        Args:
+            mode_str: String vom Beatmungsgerät (z.B. "CPAP", "BiLevel", "SIMV-PC")
+        
+        Returns:
+            Integer-Wert für REDCap oder None bei unbekanntem Modus
+        """
+        # Normalisieren: uppercase, Bindestriche zu Unterstrichen
+        normalized = mode_str.upper().replace("-", "_").replace(" ", "_").strip()
+        
+        # Prüfe ob Modus explizit auf None gemappt ist (z.B. STANDBY)
+        if normalized in self.VENT_SPEC_MAP:
+            enum_name = self.VENT_SPEC_MAP[normalized]
+            if enum_name is None:
+                return None  # Explizit ignorieren
+            try:
+                return VentilationSpec[enum_name].value
+            except KeyError:
+                pass
+        
+        # Versuche direkten Enum-Namen
+        try:
+            return VentilationSpec[normalized].value
+        except KeyError:
+            pass
+        
+        # Unbekannter Modus
+        print(f"Warning: Unknown ventilation mode '{mode_str}' (normalized: '{normalized}')")
         return None
 
     def _check_ecmella(self) -> int:

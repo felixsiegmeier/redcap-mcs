@@ -42,6 +42,11 @@ def render_homepage():
     
     st.divider()
     
+    # Patientendaten (Gewicht/Größe)
+    _render_patient_data_section()
+    
+    st.divider()
+    
     # Device-Zeiträume
     _render_device_info()
     
@@ -183,3 +188,92 @@ def _render_quick_actions():
         if st.button("🔨 Export erstellen", use_container_width=True):
             update_state(selected_view=Views.EXPORT)
             st.rerun()
+
+
+def _render_patient_data_section():
+    """Zeigt Patientendaten (Gewicht/Größe) und ermöglicht manuelle Eingabe falls fehlend."""
+    
+    state = get_state()
+    
+    st.subheader("👤 Patientendaten")
+    
+    # Prüfe ob Gewicht/Größe in den Daten vorhanden sind
+    df = state.data
+    patient_info_data = get_data("patient_info")
+    
+    weight_found = False
+    height_found = False
+    
+    if not patient_info_data.empty:
+        # Suche nach Gewicht und Größe in den Daten
+        weight_params = patient_info_data[
+            patient_info_data["parameter"].str.lower().str.contains("gewicht|weight", na=False, regex=True)
+        ]
+        height_params = patient_info_data[
+            patient_info_data["parameter"].str.lower().str.contains("größe|height|größe|länge", na=False, regex=True)
+        ]
+        
+        if not weight_params.empty:
+            weight_found = True
+            # Nimm den letzten Wert
+            weight_val = weight_params.iloc[-1]["value"]
+            st.info(f"✅ Gewicht aus Datensatz: **{weight_val} kg**")
+            # Speichere im State falls noch nicht gesetzt
+            if state.patient_weight is None:
+                state.patient_weight = float(weight_val)
+        
+        if not height_params.empty:
+            height_found = True
+            height_val = height_params.iloc[-1]["value"]
+            st.info(f"✅ Größe aus Datensatz: **{height_val} cm**")
+            if state.patient_height is None:
+                state.patient_height = float(height_val)
+    
+    # Falls Gewicht fehlt: Warnung + Eingabefeld
+    if not weight_found:
+        st.warning(
+            "⚠️ **Gewicht nicht im Datensatz vorhanden!**\n\n"
+            "Das Gewicht wird zur Berechnung der Katecholaminperfusoren (µg/kg/min) benötigt. "
+            "Falls keine Eingabe erfolgt, werden diese Parameter nicht exportiert."
+        )
+        
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            weight_input = st.text_input(
+                "Gewicht eingeben (kg)",
+                value=str(state.patient_weight) if state.patient_weight else "",
+                key="patient_weight_input"
+            )
+            if weight_input:
+                try:
+                    weight_val = float(weight_input)
+                    state.patient_weight = weight_val
+                    st.success(f"✅ Gewicht gespeichert: **{weight_val} kg**")
+                except ValueError:
+                    st.error("Ungültige Eingabe - bitte eine Dezimalzahl eingeben (z.B. 75.5)")
+        
+        update_state(patient_weight=state.patient_weight)
+    
+    # Falls Größe fehlt: Info + optionales Eingabefeld
+    if not height_found:
+        st.info(
+            "ℹ️ **Größe nicht im Datensatz vorhanden** (optional)\n\n"
+            "Die Größe wird nicht zur Berechnung verwendet, kann aber für die Dokumentation nützlich sein."
+        )
+        
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            height_input = st.text_input(
+                "Größe eingeben (cm)",
+                value=str(state.patient_height) if state.patient_height else "",
+                key="patient_height_input"
+            )
+            if height_input:
+                try:
+                    height_val = float(height_input)
+                    state.patient_height = height_val
+                    st.success(f"✅ Größe gespeichert: **{height_val} cm**")
+                except ValueError:
+                    st.error("Ungültige Eingabe - bitte eine Dezimalzahl eingeben (z.B. 175.0)")
+        
+        update_state(patient_height=state.patient_height)

@@ -70,6 +70,10 @@ class AppState:
     nearest_ecls_time: Optional[time] = None
     nearest_impella_time: Optional[time] = None
     
+    # Patientenspezifische Daten (manuell eingegeben falls nicht im Datensatz)
+    patient_weight: Optional[float] = None  # in kg - NÖTIG für Katecholaminberechnung
+    patient_height: Optional[float] = None  # in cm - optional
+    
     # Export-Daten: Generisches Dict für alle Instrumente
     # Key = instrument_name (z.B. "labor", "echocardiography")
     # Value = Liste von Export-Models
