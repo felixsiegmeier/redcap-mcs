@@ -158,7 +158,7 @@ class HemodynamicsModel(TimedExportModel):
     vent: Optional[int] = Field(None, alias="vent")  # VentilationMode
     o2: Optional[float] = Field(None, alias="o2")  # O2-Flow L/min
     fi02: Optional[float] = Field(None, alias="fi02")  # FiO2 %
-    # vent_spec ist dropdown - nicht modelliert
+    vent_spec: Optional[int] = Field(None, alias="vent_spec")  # VentilationSpec
     vent_type: Optional[int] = Field(None, alias="vent_type")  # VentilationType
     hfv_rate: Optional[float] = Field(None, alias="hfv_rate")  # HF-Ventilation Rate
     conv_vent_rate: Optional[float] = Field(None, alias="conv_vent_rate")  # Konv. Vent Rate
