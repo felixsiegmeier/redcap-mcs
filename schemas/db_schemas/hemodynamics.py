@@ -69,6 +69,18 @@ class FluidBalance(IntEnum):
     NEUTRAL = 1
     POSITIVE = 2
 
+class Anticoagulation(IntEnum):
+    """Anticoagulation"""
+    HEPARIN = 1
+    ARGATROBAN = 2
+
+class Antiplatelet(IntEnum):
+    """Antiplatelets"""
+    ASS = 1
+    CLOPIDOGREL = 2
+    TICAGRELOR = 3
+    PRASUGREL = 4
+
 
 class HemodynamicsModel(TimedExportModel):
     """
@@ -115,7 +127,7 @@ class HemodynamicsModel(TimedExportModel):
     dia_bp: Optional[float] = Field(None, alias="dia_bp")  # Diastolischer BD
     mean_bp: Optional[float] = Field(None, alias="mean_bp")  # Mittlerer BD
     cvp: Optional[float] = Field(None, alias="cvp")  # ZVD
-    sp02: Optional[float] = Field(None, alias="sp02")  # SpO2
+    spo2: Optional[float] = Field(None, alias="spo2")  # SpO2
     
     # Pulmonalarterie (PAC)
     pac: Optional[int] = Field(None, alias="pac")  # PAC vorhanden?
@@ -157,7 +169,7 @@ class HemodynamicsModel(TimedExportModel):
     # ==================== Beatmung ====================
     vent: Optional[int] = Field(None, alias="vent")  # VentilationMode
     o2: Optional[float] = Field(None, alias="o2")  # O2-Flow L/min
-    fi02: Optional[float] = Field(None, alias="fi02")  # FiO2 %
+    fio2: Optional[float] = Field(None, alias="fio2")  # FiO2 %
     vent_spec: Optional[int] = Field(None, alias="vent_spec")  # VentilationSpec
     vent_type: Optional[int] = Field(None, alias="vent_type")  # VentilationType
     hfv_rate: Optional[float] = Field(None, alias="hfv_rate")  # HF-Ventilation Rate
@@ -185,7 +197,42 @@ class HemodynamicsModel(TimedExportModel):
     
     # Internes Feld für numerischen RASS-Wert (nicht exportiert)
     _rass_score: Optional[int] = PrivateAttr(default=None)
+
+    # ==================== Antikoagulation ====================
+    iv_ac: Optional[int] = Field(None, alias="iv_ac")
+    iv_ac_spec: Optional[int] = Field(None, alias="iv_ac_spec")
+
+    antiplat_th: Optional[int] = Field(None, alias="antiplat_th")
+    antiplat_therapy_spec___1: Optional[int] = Field(0, alias="antiplat_therapy_spec___1")
+    antiplat_therapy_spec___2: Optional[int] = Field(0, alias="antiplat_therapy_spec___2")
+    antiplat_therapy_spec___3: Optional[int] = Field(0, alias="antiplat_therapy_spec___3")
+    antiplat_therapy_spec___4: Optional[int] = Field(0, alias="antiplat_therapy_spec___4")
+    antiplat_therapy_spec___5: Optional[int] = Field(0, alias="antiplat_therapy_spec___5")
     
+    # ==================== Antibiotika ====================
+    antibiotic: Optional[int] = Field(None, alias="antibiotic")
+    antibiotic_spec___1: Optional[int] = Field(0, alias="antibiotic_spec___1")
+    antibiotic_spec___2: Optional[int] = Field(0, alias="antibiotic_spec___2")
+    antibiotic_spec___3: Optional[int] = Field(0, alias="antibiotic_spec___3")
+    antibiotic_spec___4: Optional[int] = Field(0, alias="antibiotic_spec___4")
+    antibiotic_spec___5: Optional[int] = Field(0, alias="antibiotic_spec___5")
+    antibiotic_spec___6: Optional[int] = Field(0, alias="antibiotic_spec___6")
+    antibiotic_spec___7: Optional[int] = Field(0, alias="antibiotic_spec___7")
+    antibiotic_spec___8: Optional[int] = Field(0, alias="antibiotic_spec___8")
+    antibiotic_spec___9: Optional[int] = Field(0, alias="antibiotic_spec___9")
+    antibiotic_spec___10: Optional[int] = Field(0, alias="antibiotic_spec___10")
+    antibiotic_spec___11: Optional[int] = Field(0, alias="antibiotic_spec___11")
+    antibiotic_spec___12: Optional[int] = Field(0, alias="antibiotic_spec___12")
+    antibiotic_spec___13: Optional[int] = Field(0, alias="antibiotic_spec___13")
+    antibiotic_spec___14: Optional[int] = Field(0, alias="antibiotic_spec___14") # Other
+    antibiotic_spec___15: Optional[int] = Field(0, alias="antibiotic_spec___15")
+    antibiotic_spec___16: Optional[int] = Field(0, alias="antibiotic_spec___16")
+    antibiotic_spec___17: Optional[int] = Field(0, alias="antibiotic_spec___17")
+    antibiotic_spec___18: Optional[int] = Field(0, alias="antibiotic_spec___18")
+    antibiotic_spec___19: Optional[int] = Field(0, alias="antibiotic_spec___19")
+    antibiotic_spec___20: Optional[int] = Field(0, alias="antibiotic_spec___20")
+    antibiotic_spec_o: Optional[str] = Field(None, alias="antibiotic_spec_o")
+
     # ==================== Transfusionen (24h) ====================
     transfusion_coag: Optional[int] = Field(None, alias="transfusion_coag")
     thromb_t: Optional[float] = Field(None, alias="thromb_t")  # Thrombozyten-Konzentrate
@@ -242,6 +289,25 @@ class HemodynamicsModel(TimedExportModel):
             self.vasopressin
         ]
         self.vasoactive_med = 1 if any(v is not None and v > 0 for v in catecholamines) else 0
+
+        # Antikoagulation vorhanden
+        self.iv_ac = 1 if self.iv_ac_spec else 0
+
+        # Antiplatelet-Therapie vorhanden
+        antiplatelets = [
+            self.antiplat_therapy_spec___1,
+            self.antiplat_therapy_spec___2,
+            self.antiplat_therapy_spec___3,
+            self.antiplat_therapy_spec___4,
+            self.antiplat_therapy_spec___5
+        ]
+        self.antiplat_th = 1 if any(v == 1 for v in antiplatelets) else 0
+
+        # Antibiotika vorhanden
+        antibiotics = [
+            getattr(self, f"antibiotic_spec___{i}") for i in range(1, 21)
+        ]
+        self.antibiotic = 1 if any(v == 1 for v in antibiotics) else 0
         
         # Beatmung vorhanden - REDCap-konforme Werte
         if self.vent_peep is not None and self.conv_vent_rate is not None:
@@ -250,7 +316,7 @@ class HemodynamicsModel(TimedExportModel):
         elif self.vent_peep is not None and self.conv_vent_rate is None:
             self.vent = 1  # Non invasive Ventilation
             self.vent_type = VentilationType.CONVENTIONAL.value
-        elif self.vent_peep is None and self.conv_vent_rate is None and self.fi02 is not None:
+        elif self.vent_peep is None and self.conv_vent_rate is None and self.fio2 is not None:
             self.vent = 6  # High Flow Therapy
         else:
             self.vent = 2  # No Ventilation

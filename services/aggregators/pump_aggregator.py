@@ -16,6 +16,7 @@ from datetime import date, time
 
 from schemas.db_schemas.pump import PumpModel
 from .base import BaseAggregator
+from .mapping import PUMP_FIELD_MAP
 
 
 class PumpAggregator(BaseAggregator):
@@ -25,13 +26,7 @@ class PumpAggregator(BaseAggregator):
     MODEL_CLASS = PumpModel
 
     # Mapping: Model-Feld -> (Source, Category-Pattern, Parameter-Pattern)
-    # ECMO-Parameter kommen aus source_type mit "ECMO" im Namen
-    FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
-        "ecls_rpm": ("ECMO", ".*", r"^Drehzahl"),
-        "ecls_pf": ("ECMO", ".*", r"^Blutfluss arteriell|^Blutfluss.*l/min"),
-        "ecls_gf": ("ECMO", ".*", r"^Gasfluss"),
-        "ecls_fi02": ("ECMO", ".*", r"^FiO2"),
-    }
+    FIELD_MAP = PUMP_FIELD_MAP
 
     def __init__(
         self,

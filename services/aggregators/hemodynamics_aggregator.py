@@ -18,6 +18,15 @@ from datetime import date, time
 
 from schemas.db_schemas.hemodynamics import HemodynamicsModel, VentilationSpec
 from .base import BaseAggregator
+from .mapping import (
+    HEMODYNAMICS_FIELD_MAP, 
+    HEMODYNAMICS_MEDICATION_MAP, 
+    VASOACTIVE_SPEC_MAP,
+    VENT_SPEC_MAP,
+    ANTICOAGULANT_MAP,
+    ANTIPLATELET_MAP,
+    ANTIBIOTIC_MAP
+)
 
 
 class HemodynamicsAggregator(BaseAggregator):
@@ -27,122 +36,25 @@ class HemodynamicsAggregator(BaseAggregator):
     MODEL_CLASS = HemodynamicsModel
 
     # Zentrales Mapping: Beatmungsmodus-String -> VentilationSpec Enum-Name oder None (ignorieren)
-    VENT_SPEC_MAP: Dict[str, Optional[str]] = {
-        # CPAP-Varianten
-        "CPAP": "SPN_CPAP_PS",
-        "CPAP_PS": "CPAP_PS",
-        "SPN_CPAP": "SPN_CPAP_PS",
-        "SPN_CPAP_PS": "SPN_CPAP_PS",
-        # BiLevel-Varianten
-        "BILEVEL": "BiLevel",
-        "BI_LEVEL": "BiLevel",
-        "BILEVEL_VG": "BiLevel_VG",
-        # BIPAP-Varianten
-        "BIPAP": "BIPAP",
-        "PC_BIPAP": "PC_BIPAP",
-        # SIMV-Varianten
-        "SIMV": "SIMV",
-        "SIMV_PC": "SIMV_PC",
-        "SIMV_VC": "SIMV_VC",
-        "PC_SIMV": "PC_SIMV",
-        "VC_SIMV": "VC_SIMV",
-        # A/C-Varianten
-        "A_C_VC": "A_C_VC",
-        "A_C_PC": "A_C_PC",
-        "A_C_PRVC": "A_C_PRVC",
-        "AC_VC": "A_C_VC",
-        "AC_PC": "A_C_PC",
-        # PC-Varianten
-        "PC_CMV": "PC_CMV",
-        "PC_PSV": "PC_PSV",
-        "PC_AC": "PC_AC",
-        "PC_PC_APRV": "PC_PC_APRV",
-        "APRV": "PC_PC_APRV",
-        "IPPV": "PC_CMV",  # IPPV = Intermittent Positive Pressure Ventilation → PC-CMV
-        # VC-Varianten
-        "VC_CMV": "VC_CMV",
-        "VC_AC": "VC_AC",
-        "VC_MMV": "VC_MMV",
-        # Spontanatmung
-        "SPONTANEOUS": "SPN_CPAP_PS",  # Spontanatmung → CPAP/PS
-        "SPONT": "SPN_CPAP_PS",
-        # Andere
-        "ASB": "ASB",
-        "NIV": "NIV",
-        "SBT": "SBT",
-        # Standby ignorieren (None zurückgeben)
-        "STANDBY": None,
-    }
+    VENT_SPEC_MAP = VENT_SPEC_MAP
 
     # Mapping: Model-Feld -> (Source, Category-Pattern, Parameter-Pattern)
-    # Vitals-Parameter kommen aus "Vitals" source_type
-    # Respiratory-Parameter kommen aus "Respiratory" source_type
-    FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
-        # ==================== Vitals ====================
-        "hr": ("Vitals", ".*", r"^HF\s*\["),
-        "sys_bp": ("Vitals", ".*", r"^ABPs\s*\[|^ARTs\s*\["),
-        "dia_bp": ("Vitals", ".*", r"^ABPd\s*\[|^ARTd\s*\["),
-        "mean_bp": ("Vitals", ".*", r"^ABPm\s*\[|^ARTm\s*\["),
-        "cvp": ("Vitals", ".*", r"^ZVDm\s*\["),
-        
-        # PAC (Pulmonary Artery Catheter) - nur aus "Online erfasste Vitaldaten"
-        "pcwp": ("Vitals", r"^Online.*", r"^PCWP\s*\[|^PAWP\s*\["),  # Pulmonary Capillary/Artery Wedge Pressure
-        "sys_pap": ("Vitals", r"^Online.*", r"^PAPs\s*\["),  # Systolic Pulmonary Arterial Pressure
-        "dia_pap": ("Vitals", r"^Online.*", r"^PAPd\s*\["),  # Diastolic Pulmonary Arterial Pressure
-        "mean_pap": ("Vitals", r"^Online.*", r"^PAPm\s*\["),  # Mean Pulmonary Arterial Pressure
-        "ci": ("Vitals", r"^Online.*", r"^CCI\s*\[|^HZV"),  # Cardiac Index (CCI) / HZV
-        
-        # NIRS
-        "nirs_left_c": ("Vitals", ".*", r"NIRS Channel 1 RSO2|NIRS.*Channel.*1"),
-        "nirs_right_c": ("Vitals", ".*", r"NIRS Channel 2 RSO2|NIRS.*Channel.*2"),
-        
-        # ==================== Respiratory ====================
-        "fi02": ("Respiratory", ".*", r"^FiO2\s*\[%\]"),
-        "vent_peep": ("Respiratory", ".*", r"^PEEP\s*\["),
-        "vent_pip": ("Respiratory", ".*", r"^Ppeak\s*\[|^insp.*Spitzendruck"),
-        "conv_vent_rate": ("Respiratory", ".*", r"mand.*Atemfrequenz|^mand\. Atemfrequenz"),
-        "sp02": ("Respiratory", ".*", r"^SpO2"),  # Falls vorhanden
-        "vent_spec": ("Respiratory", ".*", r"^Modus"),
-        
-        # ==================== Neurologie ====================
-        "rass": ("Richmond", ".*", r"^Summe Richmond-Agitation-Sedation"),  # → wird zu _rass_score
-        "gcs": ("GCS", ".*", r"^Summe GCS2"),
-        
-    }
-   
+    FIELD_MAP = HEMODYNAMICS_FIELD_MAP
     
     # Medikamente: Spezielle Behandlung da sie anders strukturiert sind
-    # (aus Medication source_type, Parameter enthält Medikamentennamen)
-    # WICHTIG: Regex so gestalten dass Epinephrin nicht Norepinephrin matcht!
-    MEDICATION_MAP: Dict[str, str] = {
-        "norepinephrine": r"(?<!o)Norepinephrin|^Arterenol",  # Norepinephrin aber nicht "Epinephrin" allein
-        "epinephrine": r"(?<!Nor)Epinephrin|^Suprarenin",     # Epinephrin aber nicht in "Norepinephrin"
-        "dobutamine": r"Dobutamin",
-        "milrinone": r"Milrinone|Corotrop",
-        "vasopressin": r"Vasopressin|Empressin",
-    }
+    MEDICATION_MAP = HEMODYNAMICS_MEDICATION_MAP
     
     # Mapping: vasoactive_spec Checkbox-ID -> Medikamentenname Pattern (Regex)
-    # Für Checkbox-Felder in REDCap (prüft ob Medikament am Tag vorhanden ist)
-    VASOACTIVE_SPEC_MAP: Dict[int, str] = {
-        1: r"Dobutamin",
-        2: r"Dopamin",
-        3: r"Enoximon",
-        4: r"(?<!Nor)Epinephrin|^Suprarenin",  # Epinephrin aber nicht in "Norepinephrin"
-        5: r"Esmolol",
-        6: r"Levosimendan|Simdax",
-        7: r"Metaraminol|Aramino",
-        8: r"Metoprolol|Beloc",
-        9: r"Milrinone|Corotrop",
-        10: r"Nicardipin",
-        11: r"Nitroglycerin|Nitro",
-        12: r"Nitroprussid",
-        13: r"(?<!o)Norepinephrin|^Arterenol",  # Norepinephrin aber nicht "Epinephrin" allein
-        14: r"Phenylephrin",
-        15: r"Tolazolin",
-        16: r"Vasopressin|Empressin",
-        # 17: Other - wird automatisch gesetzt wenn vasoactive_o befüllt ist
-    }
+    VASOACTIVE_SPEC_MAP = VASOACTIVE_SPEC_MAP
+
+    # Mapping für Antikoagulation
+    ANTICOAGULANT_MAP = ANTICOAGULANT_MAP
+
+    # Mapping für Antithrombozytäre Therapie
+    ANTIPLATELET_MAP = ANTIPLATELET_MAP
+
+    # Mapping für Antibiotika / Antimykotika
+    ANTIBIOTIC_MAP = ANTIBIOTIC_MAP
 
     def __init__(
         self,
@@ -193,7 +105,7 @@ class HemodynamicsAggregator(BaseAggregator):
             elif source == "GCS":
                 values[field] = self.aggregate_value(gcs_df, category, parameter)
         
-        # Medikamente aggregieren (mit Umrechnung zu µg/kg/min)
+        # Katecholamine/Medikamente aggregieren (mit Umrechnung zu µg/kg/min)
         for field, pattern in self.MEDICATION_MAP.items():
             values[field] = self._get_medication_rate(med_df, pattern, field)
         
@@ -230,49 +142,84 @@ class HemodynamicsAggregator(BaseAggregator):
             model.set_rass_score(rass_score)
         
         # Vasoactive Spec Checkboxen setzen (prüft alle Medikamente am Tag)
-        self._set_vasoactive_checkboxes(model, med_df)
+        self._set_medication_checkboxes(
+            model, 
+            med_df, 
+            self.VASOACTIVE_SPEC_MAP, 
+            "vasoactive_spec", 
+            exclude_fer=True
+        )
+        
+        # Antikoagulation prüfen (Radio-Button / Int)
+        if not med_df.empty:
+            for key, pattern in self.ANTICOAGULANT_MAP.items():
+                if med_df["parameter"].str.contains(pattern, case=False, na=False, regex=True).any():
+                    model.iv_ac_spec = key
+            
+            # Manuelle Validierung triggern, da iv_ac_spec direkt gesetzt wurde
+            model.iv_ac = 1 if model.iv_ac_spec else 0
+        
+        # Antiplatelet Therapie prüfen
+        self._set_medication_checkboxes(
+            model, 
+            med_df, 
+            self.ANTIPLATELET_MAP, 
+            "antiplat_therapy_spec"
+        )
+
+        # Antibiotika prüfen
+        self._set_medication_checkboxes(
+            model, 
+            med_df, 
+            self.ANTIBIOTIC_MAP, 
+            "antibiotic_spec"
+        )
         
         return model
 
-    def _set_vasoactive_checkboxes(
+    def _set_medication_checkboxes(
         self,
         model: HemodynamicsModel,
-        med_df: pd.DataFrame
+        med_df: pd.DataFrame,
+        mapping: Dict[int, str],
+        field_prefix: str,
+        exclude_fer: bool = False
     ) -> None:
-        """Setzt vasoactive_spec Checkboxen basierend auf vorhandenen Medikamenten.
-        
-        Prüft für jedes Medikament im VASOACTIVE_SPEC_MAP ob es am Tag vorhanden ist
-        (Parameter enthält Medikamentenname). Setzt entsprechende Checkbox auf 1.
-        Setzt auch vasoactive_med=1 wenn mindestens ein Medikament gefunden wurde.
+        """Generische Methode zum Setzen von Medikamenten-Checkboxen.
         
         Args:
-            model: HemodynamicsModel das angepasst wird
-            med_df: DataFrame mit Medikamentendaten für den Tag
+            model: Das zu befüllende HemodynamicsModel
+            med_df: DataFrame mit Medikamentendaten
+            mapping: Dictionary mit ID -> Regex-Pattern
+            field_prefix: Präfix des REDCap-Feldes (z.B. 'vasoactive_spec')
+            exclude_fer: Ob Fertigspritzen (Bolus) ignoriert werden sollen
         """
         if med_df.empty:
             return
-        
-        any_medication_found = False
-        
-        # Prüfe jedes Medikament
-        for checkbox_id, pattern in self.VASOACTIVE_SPEC_MAP.items():
-            # Prüfe ob Medikament im Parameter vorkommt
+            
+        any_found = False
+        for drug_id, pattern in mapping.items():
             mask = med_df["parameter"].str.contains(pattern, case=False, na=False, regex=True)
             
-            # Fertigspritzen ignorieren (das sind Bolusgaben)
-            fer_mask = ~med_df["parameter"].str.contains(r"\(FER\)|Fertigspritze", case=False, na=False, regex=True)
-            
-            has_medication = (mask & fer_mask).any()
-            
+            if exclude_fer:
+                fer_mask = ~med_df["parameter"].str.contains(r"\(FER\)|Fertigspritze", case=False, na=False, regex=True)
+                mask = mask & fer_mask
+                
+            has_medication = mask.any()
             if has_medication:
-                any_medication_found = True
-            
-            # Setze Checkbox
-            setattr(model, f"vasoactive_spec___{checkbox_id}", 1 if has_medication else 0)
-        
-        # Setze vasoactive_med=1 wenn mindestens ein Medikament vorhanden ist
-        if any_medication_found:
+                any_found = True
+            setattr(model, f"{field_prefix}___{drug_id}", 1 if has_medication else 0)
+
+        # Spezialfall vasoactive_med: Muss manuell gesetzt werden, da kein model_validator 
+        # für die Checkboxen existiert (im Gegensatz zu Antibiotika/Antiplatelets)
+        if field_prefix == "vasoactive_spec" and any_found:
             model.vasoactive_med = 1
+        
+        # Abgeleitete Felder für Checkboxen manuell setzen
+        if field_prefix == "antiplat_therapy_spec" and any_found:
+            model.antiplat_th = 1
+        elif field_prefix == "antibiotic_spec" and any_found:
+            model.antibiotic = 1
 
     def _get_medication_rate(
         self,

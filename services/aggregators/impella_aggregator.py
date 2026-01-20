@@ -16,6 +16,7 @@ from datetime import date, time
 
 from schemas.db_schemas.impella import ImpellaAssessmentModel
 from .base import BaseAggregator
+from .mapping import IMPELLA_FIELD_MAP
 
 
 class ImpellaAggregator(BaseAggregator):
@@ -25,14 +26,7 @@ class ImpellaAggregator(BaseAggregator):
     MODEL_CLASS = ImpellaAssessmentModel
 
     # Mapping: Model-Feld -> (Source, Category-Pattern, Parameter-Pattern)
-    # Impella-Parameter kommen aus source_type der "Impella" enthält
-    FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
-        "imp_flow": ("Impella", ".*", r"^HZV"),  # HZV (l/min)
-        "imp_purge_flow": ("Impella", ".*", r"Purgefluß|Purgefluss|Purge.*ml/h"),
-        "imp_purge_pressure": ("Impella", ".*", r"Purgedruck"),
-        # imp_level: Oft als "Flußregelung" gespeichert (z.B. "P8")
-        # imp_rpm: Drehzahl (falls vorhanden)
-    }
+    FIELD_MAP = IMPELLA_FIELD_MAP
 
     def __init__(
         self,
