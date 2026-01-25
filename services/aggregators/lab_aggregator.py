@@ -4,7 +4,8 @@ Lab Aggregator - Laborwerte zu REDCap-Model.
 Aggregiert tägliche Laborwerte (Blutgase, Blutbild, Gerinnung, etc.)
 zu einem LabModel für den REDCap-Export.
 
-Die _FIELD_MAP definiert für jedes REDCap-Feld:
+Die FIELD_MAP definiert für jedes REDCap-Feld:
+- Source-Type (z.B. "Lab" oder "ACT")
 - Kategorie-Pattern (z.B. "Blutgase arteriell")
 - Parameter-Pattern (z.B. "^PCO2" für pCO2-Werte)
 
@@ -12,13 +13,12 @@ Unterstützte Aggregations-Strategien: median, mean, nearest, first, last.
 """
 
 import pandas as pd
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict
 from datetime import date, time
 
-from state import get_data
 from schemas.db_schemas.lab import LabModel, WithdrawalSite
-from .aggregators.base import BaseAggregator
-from .aggregators.mapping import LAB_FIELD_MAP
+from .base import BaseAggregator
+from .mapping import LAB_FIELD_MAP
 
 
 class LabAggregator(BaseAggregator):
@@ -51,27 +51,17 @@ class LabAggregator(BaseAggregator):
         self.redcap_repeat_instrument = redcap_repeat_instrument
 
     def create_entry(self) -> LabModel:
-        """Erstellt ein LabModel mit aggregierten Werten.
-        
-        Alias für create_lab_entry für Kompatibilität mit BaseAggregator.
-        """
-        return self.create_lab_entry()
-
-    def create_lab_entry(self) -> LabModel:
         """Erstellt ein LabModel mit aggregierten Werten."""
-        
-        # Alle Labor-Daten für den Tag holen
-        lab_df = self.get_source_data("lab")
-        
-        # Werte aggregieren
+
+        # Werte aggregieren, Daten pro Source nur einmal ziehen
         values: Dict[str, Optional[float]] = {}
-        for field, (category, parameter) in self.FIELD_MAP.items():
-            if category == "__ACT__":
-                # ACT: Spezialfall - hat eigenen source_type
-                values[field] = self._get_act_value()
-            else:
-                values[field] = self.aggregate_value(lab_df, category, parameter)
-        
+        data_by_source: Dict[str, pd.DataFrame] = {}
+        for field, (source, category, parameter) in self.FIELD_MAP.items():
+            source_key = source.lower()
+            if source_key not in data_by_source:
+                data_by_source[source_key] = self.get_source_data(source)
+            values[field] = self.aggregate_value(data_by_source[source_key], category, parameter)
+
         # ECMELLA prüfen (ECMO + Impella gleichzeitig)
         ecmella = self._check_ecmella()
         
@@ -98,23 +88,9 @@ class LabAggregator(BaseAggregator):
         # Abgeleitete Felder werden automatisch vom Model-Validator gesetzt
         return LabModel.model_validate(payload)
 
-    def _get_act_value(self) -> Optional[float]:
-        """Holt ACT-Wert aus dem separaten ACT source_type."""
-        # ACT hat eigenen source_type
-        act_df = self.get_source_data("ACT")
-        
-        if act_df.empty:
-            return None
-        
-        # Numerische Werte
-        values = pd.to_numeric(act_df["value"], errors="coerce").dropna()
-        if values.empty:
-            return None
-        
-        # Strategie anwenden (hier nutzen wir die Logik aus BaseAggregator)
-        # Da act_df bereits auf Tag und Source gefiltert ist, können wir aggregate_value nutzen
-        # Wir müssen nur sicherstellen dass das Pattern passt
-        return self.aggregate_value(act_df, ".*", r"^ACT")
+    def create_lab_entry(self) -> LabModel:
+        """Alias für create_entry (Rückwärtskompatibilität)."""
+        return self.create_entry()
 
     def _check_ecmella(self) -> int:
         """Prüft ob sowohl ECMO als auch Impella am Tag aktiv sind."""

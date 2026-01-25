@@ -28,6 +28,7 @@ class VentilationType(IntEnum):
 
 class VentilationSpec(IntEnum):
     """Beatmungsmodus-Spezifikation"""
+    IPPV = 1
     BIPAP = 2
     SIMV = 3
     ASB = 4
@@ -56,30 +57,25 @@ class VentilationSpec(IntEnum):
 
 class RenalReplacement(IntEnum):
     """Nierenersatztherapie"""
-    NONE = 0
-    CVVH = 1
-    CVVHD = 2
-    CVVHDF = 3
-    IHD = 4
+    HEMODIALYSIS = 1
+    CONTINUOUS_HEMOFILTRATION = 2
+    NONE = 3
 
 
 class FluidBalance(IntEnum):
     """Flüssigkeitsbilanz-Kategorie"""
-    NEGATIVE = 0
-    NEUTRAL = 1
-    POSITIVE = 2
+    POSITIVE = 1
+    NEGATIVE = 2
 
 class Anticoagulation(IntEnum):
     """Anticoagulation"""
     HEPARIN = 1
     ARGATROBAN = 2
 
-class Antiplatelet(IntEnum):
-    """Antiplatelets"""
-    ASS = 1
-    CLOPIDOGREL = 2
-    TICAGRELOR = 3
-    PRASUGREL = 4
+class Nutrition(IntEnum):
+    """Ernährung"""
+    ENTERAL = 1
+    PARENTERAL = 2
 
 
 class HemodynamicsModel(TimedExportModel):
@@ -167,11 +163,11 @@ class HemodynamicsModel(TimedExportModel):
     milrinone: Optional[float] = Field(None, alias="milrinone")  # µg/kg/min
     
     # ==================== Beatmung ====================
-    vent: Optional[int] = Field(None, alias="vent")  # VentilationMode
+    vent: Optional[VentilationMode] = Field(None, alias="vent")
     o2: Optional[float] = Field(None, alias="o2")  # O2-Flow L/min
     fio2: Optional[float] = Field(None, alias="fio2")  # FiO2 %
-    vent_spec: Optional[int] = Field(None, alias="vent_spec")  # VentilationSpec
-    vent_type: Optional[int] = Field(None, alias="vent_type")  # VentilationType
+    vent_spec: Optional[VentilationSpec] = Field(None, alias="vent_spec")
+    vent_type: Optional[VentilationType] = Field(None, alias="vent_type")
     hfv_rate: Optional[float] = Field(None, alias="hfv_rate")  # HF-Ventilation Rate
     conv_vent_rate: Optional[float] = Field(None, alias="conv_vent_rate")  # Konv. Vent Rate
     vent_map: Optional[float] = Field(None, alias="vent_map")  # MAP mbar
@@ -200,7 +196,7 @@ class HemodynamicsModel(TimedExportModel):
 
     # ==================== Antikoagulation ====================
     iv_ac: Optional[int] = Field(None, alias="iv_ac")
-    iv_ac_spec: Optional[int] = Field(None, alias="iv_ac_spec")
+    iv_ac_spec: Optional[Anticoagulation] = Field(None, alias="iv_ac_spec")
 
     antiplat_th: Optional[int] = Field(None, alias="antiplat_th")
     antiplat_therapy_spec___1: Optional[int] = Field(0, alias="antiplat_therapy_spec___1")
@@ -233,6 +229,10 @@ class HemodynamicsModel(TimedExportModel):
     antibiotic_spec___20: Optional[int] = Field(0, alias="antibiotic_spec___20")
     antibiotic_spec_o: Optional[str] = Field(None, alias="antibiotic_spec_o")
 
+    # ==================== Ernährung ====================
+    nutrition: Optional[int] = Field(None, alias="nutrition")
+    nutrition_spec: Optional[Nutrition] = Field(None, alias="nutrition_spec")
+
     # ==================== Transfusionen (24h) ====================
     transfusion_coag: Optional[int] = Field(None, alias="transfusion_coag")
     thromb_t: Optional[float] = Field(None, alias="thromb_t")  # Thrombozyten-Konzentrate
@@ -244,12 +244,12 @@ class HemodynamicsModel(TimedExportModel):
     fxiii_t: Optional[float] = Field(None, alias="fxiii_t")  # Faktor XIII
     
     # ==================== Nierenfunktion ====================
-    renal_repl: Optional[int] = Field(None, alias="renal_repl")  # RenalReplacement
+    renal_repl: Optional[RenalReplacement] = Field(None, alias="renal_repl")
     urine: Optional[float] = Field(None, alias="urine")  # Urinausscheidung
     output_renal_repl: Optional[float] = Field(None, alias="output_renal_repl")  # CRRT Output ml
     
     # ==================== Bilanz ====================
-    fluid_balance: Optional[int] = Field(None, alias="fluid_balance")  # FluidBalance
+    fluid_balance: Optional[FluidBalance] = Field(None, alias="fluid_balance")
     fluid_balance_numb: Optional[float] = Field(None, alias="fluid_balance_numb")  # Numerische Bilanz
     
     # Completion Status
@@ -311,18 +311,21 @@ class HemodynamicsModel(TimedExportModel):
         
         # Beatmung vorhanden - REDCap-konforme Werte
         if self.vent_peep is not None and self.conv_vent_rate is not None:
-            self.vent = 5  # Invasive Ventilation
-            self.vent_type = VentilationType.CONVENTIONAL.value
+            self.vent = VentilationMode.INVASIVE
+            self.vent_type = VentilationType.CONVENTIONAL
         elif self.vent_peep is not None and self.conv_vent_rate is None:
-            self.vent = 1  # Non invasive Ventilation
-            self.vent_type = VentilationType.CONVENTIONAL.value
+            self.vent = VentilationMode.NON_INVASIVE
+            self.vent_type = VentilationType.CONVENTIONAL
         elif self.vent_peep is None and self.conv_vent_rate is None and self.fio2 is not None:
-            self.vent = 6  # High Flow Therapy
+            self.vent = VentilationMode.HIGH_FLOW
         else:
-            self.vent = 2  # No Ventilation
+            self.vent = VentilationMode.NO_VENTILATION
         
         # GCS vorhanden
         self.gcs_avail = 1 if self.gcs is not None else 0
+
+        # Ernährung
+        self.nutrition = 1 if self.nutrition_spec else 0
         
         return self
     

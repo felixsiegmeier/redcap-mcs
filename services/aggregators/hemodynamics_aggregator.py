@@ -16,7 +16,12 @@ import pandas as pd
 from typing import Optional, Dict, Tuple
 from datetime import date, time
 
-from schemas.db_schemas.hemodynamics import HemodynamicsModel, VentilationSpec
+from schemas.db_schemas.hemodynamics import (
+    HemodynamicsModel,
+    VentilationSpec,
+    Anticoagulation,
+    Nutrition,
+)
 from .base import BaseAggregator
 from .mapping import (
     HEMODYNAMICS_FIELD_MAP, 
@@ -109,6 +114,18 @@ class HemodynamicsAggregator(BaseAggregator):
         for field, pattern in self.MEDICATION_MAP.items():
             values[field] = self._get_medication_rate(med_df, pattern, field)
         
+        # Ernährung prüfen (enteral über Kategorie "Sonden")
+        nutrition_spec = None
+        if not med_df.empty and "category" in med_df.columns:
+            has_enteral = med_df["category"].str.contains(
+                r"\bSonden\b",
+                case=False,
+                na=False,
+                regex=True,
+            ).any()
+            if has_enteral:
+                nutrition_spec = Nutrition.ENTERAL
+
         # ECMELLA prüfen
         ecmella = self._check_ecmella()
         
@@ -123,6 +140,8 @@ class HemodynamicsAggregator(BaseAggregator):
             "na_post": 1,
             "ecmella": ecmella,
         }
+        if nutrition_spec is not None:
+            payload["nutrition_spec"] = nutrition_spec
         
         # Werte hinzufügen (nur nicht-None)
         rass_score = None  # Speichere RASS separat
@@ -154,7 +173,7 @@ class HemodynamicsAggregator(BaseAggregator):
         if not med_df.empty:
             for key, pattern in self.ANTICOAGULANT_MAP.items():
                 if med_df["parameter"].str.contains(pattern, case=False, na=False, regex=True).any():
-                    model.iv_ac_spec = key
+                    model.iv_ac_spec = Anticoagulation(key)
             
             # Manuelle Validierung triggern, da iv_ac_spec direkt gesetzt wurde
             model.iv_ac = 1 if model.iv_ac_spec else 0

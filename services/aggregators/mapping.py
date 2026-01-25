@@ -10,50 +10,50 @@ from typing import Dict, Tuple, Optional
 
 # =============================================================================
 # LABOR MAPPING (LabAggregator)
-# Mapping: LabModel-Feld -> (Kategorie-Pattern, Parameter-Pattern)
+# Mapping: LabModel-Feld -> (Source-Type, Kategorie-Pattern, Parameter-Pattern)
 # =============================================================================
-LAB_FIELD_MAP: Dict[str, Tuple[str, str]] = {
+LAB_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
     # Blutgase arteriell
-    "pc02": ("Blutgase arteriell", r"^PCO2"),
-    "p02": ("Blutgase arteriell", r"^PO2"),
-    "ph": ("Blutgase arteriell", r"^PH$|^PH "),
-    "hco3": ("Blutgase arteriell", r"^HCO3"),
-    "be": ("Blutgase arteriell", r"^ABEc"),
-    "sa02": ("Blutgase arteriell", r"^O2-SAETTIGUNG"),
-    "k": ("Blutgase arteriell", r"^KALIUM"),
-    "na": ("Blutgase arteriell", r"^NATRIUM"),
-    "gluc": ("Blutgase arteriell", r"^GLUCOSE"),
-    "lactate": ("Blutgase arteriell", r"^LACTAT"),
+    "pc02": ("Lab", "Blutgase arteriell", r"^PCO2"),
+    "p02": ("Lab", "Blutgase arteriell", r"^PO2"),
+    "ph": ("Lab", "Blutgase arteriell", r"^PH$|^PH "),
+    "hco3": ("Lab", "Blutgase arteriell", r"^HCO3"),
+    "be": ("Lab", "Blutgase arteriell", r"^ABEc"),
+    "sa02": ("Lab", "Blutgase arteriell", r"^O2-SAETTIGUNG"),
+    "k": ("Lab", "Blutgase arteriell", r"^KALIUM"),
+    "na": ("Lab", "Blutgase arteriell", r"^NATRIUM"),
+    "gluc": ("Lab", "Blutgase arteriell", r"^GLUCOSE"),
+    "lactate": ("Lab", "Blutgase arteriell", r"^LACTAT"),
     # Blutgase venös
-    "sv02": ("Blutgase venös", r"^O2-SAETTIGUNG"),
+    "sv02": ("Lab", "Blutgase venös", r"^O2-SAETTIGUNG"),
     # Hämatologie / Blutbild
-    "wbc": ("Blutbild", r"^WBC"),
-    "hb": ("Blutbild", r"^HB \(HGB\)|^HB\b"),
-    "hct": ("Blutbild", r"^HCT"),
-    "plt": ("Blutbild", r"^PLT"),
-    "fhb": ("Blutbild|Klinische Chemie", r"^FREIES HB"),
+    "wbc": ("Lab", "Blutbild", r"^WBC"),
+    "hb": ("Lab", "Blutbild", r"^HB \(HGB\)|^HB\b"),
+    "hct": ("Lab", "Blutbild", r"^HCT"),
+    "plt": ("Lab", "Blutbild", r"^PLT"),
+    "fhb": ("Lab", "Blutbild|Klinische Chemie", r"^FREIES HB"),
     # Gerinnung
-    "ptt": ("Gerinnung", r"^PTT"),
-    "quick": ("Gerinnung", r"^TPZ"),
-    "inr": ("Gerinnung", r"^INR"),
-    "act": ("__ACT__", r"^ACT"),  # Spezialfall
+    "ptt": ("Lab", "Gerinnung", r"^PTT"),
+    "quick": ("Lab", "Gerinnung", r"^TPZ"),
+    "inr": ("Lab", "Gerinnung", r"^INR"),
+    "act": ("ACT", ".*", r"^ACT"),  # eigener source_type
     # Enzyme
-    "ck": ("Enzyme", r"^CK \[|^CK$"),
-    "ckmb": ("Enzyme", r"^CK-MB"),
-    "ggt": ("Enzyme", r"^GGT"),
-    "ldh": ("Enzyme", r"^LDH"),
-    "lipase": ("Enzyme", r"^LIPASE"),
-    "got": ("Enzyme", r"^GOT"),
-    "alat": ("Enzyme", r"^GPT"),
+    "ck": ("Lab", "Enzyme", r"^CK \[|^CK$"),
+    "ckmb": ("Lab", "Enzyme", r"^CK-MB"),
+    "ggt": ("Lab", "Enzyme", r"^GGT"),
+    "ldh": ("Lab", "Enzyme", r"^LDH"),
+    "lipase": ("Lab", "Enzyme", r"^LIPASE"),
+    "got": ("Lab", "Enzyme", r"^GOT"),
+    "alat": ("Lab", "Enzyme", r"^GPT"),
     # Klinische Chemie
-    "pct": ("Klinische Chemie|Proteine", r"^PROCALCITONIN"),
-    "crp": ("Klinische Chemie|Proteine", r"^CRP"),
-    "bili": ("Klinische Chemie", r"^BILI"),
-    "crea": ("Klinische Chemie|Retention", r"^KREATININ"),
-    "urea": ("Klinische Chemie|Retention", r"^HARNSTOFF"),
-    "cc": ("Klinische Chemie|Retention", r"^GFRKREA"),
-    "albumin": ("Klinische Chemie|Proteine", r"^ALBUMIN"),
-    "hapto": ("Klinische Chemie|Proteine", r"^HAPTOGLOBIN"),
+    "pct": ("Lab", "Klinische Chemie|Proteine", r"^PROCALCITONIN"),
+    "crp": ("Lab", "Klinische Chemie|Proteine", r"^CRP"),
+    "bili": ("Lab", "Klinische Chemie", r"^BILI"),
+    "crea": ("Lab", "Klinische Chemie|Retention", r"^KREATININ"),
+    "urea": ("Lab", "Klinische Chemie|Retention", r"^HARNSTOFF"),
+    "cc": ("Lab", "Klinische Chemie|Retention", r"^GFRKREA"),
+    "albumin": ("Lab", "Klinische Chemie|Proteine", r"^ALBUMIN"),
+    "hapto": ("Lab", "Klinische Chemie|Proteine", r"^HAPTOGLOBIN"),
 }
 
 # =============================================================================
@@ -140,7 +140,7 @@ VENT_SPEC_MAP: Dict[str, Optional[str]] = {
     "PC_AC": "PC_AC",
     "PC_PC_APRV": "PC_PC_APRV",
     "APRV": "PC_PC_APRV",
-    "IPPV": "PC_CMV",
+    "IPPV": "IPPV",
     "VC_CMV": "VC_CMV",
     "VC_AC": "VC_AC",
     "VC_MMV": "VC_MMV",

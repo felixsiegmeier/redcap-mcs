@@ -19,8 +19,12 @@ from datetime import date, datetime, time, timedelta
 from typing import Optional, List, Dict, Any
 
 from state import get_state, update_state, save_state, get_data, has_data
-from services.lab_aggregator import LabAggregator
-from services.aggregators import HemodynamicsAggregator, PumpAggregator, ImpellaAggregator
+from services.aggregators import (
+    LabAggregator,
+    HemodynamicsAggregator,
+    PumpAggregator,
+    ImpellaAggregator,
+)
 
 
 # REDCap Validierungstypen für Formatierung (aus DataDictionary)
@@ -500,7 +504,7 @@ def _create_instrument_entry(
             value_strategy=value_strategy,
             nearest_time=nearest_time
         )
-        return aggregator.create_lab_entry()
+        return aggregator.create_entry()
     
     elif instrument == "hemodynamics_ventilation_medication":
         aggregator = HemodynamicsAggregator(

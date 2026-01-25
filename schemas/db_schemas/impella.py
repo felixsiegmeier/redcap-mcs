@@ -8,13 +8,34 @@ Nur in impella_arm_2 verfügbar!
 from pydantic import Field
 from typing import Optional, ClassVar
 from datetime import date
+from enum import IntEnum
 
 from .base import TimedExportModel
 
 
-class ImpellaPositionLevel(int):
-    """Impella Performance Level (P-Level)"""
-    pass
+class ImpellaPumpLevel(IntEnum):
+    """Impella Pump Level (P-Level)."""
+    P1 = 1
+    P2 = 2
+    P3 = 3
+    P4 = 4
+    P5 = 5
+    P6 = 6
+    P7 = 7
+    P8 = 8
+    P9 = 9
+
+
+class ImpellaPositionWrongSpec(IntEnum):
+    """Impella position in case of alarm position wrong."""
+    AORTA = 1
+    VENTRICLE = 2
+
+
+class ImpellaRepositionSpec(IntEnum):
+    """Type of repositioning."""
+    HYBRID = 1
+    ECHOCARDIOGRAPHIC = 2
 
 
 class ImpellaAssessmentModel(TimedExportModel):
@@ -48,7 +69,7 @@ class ImpellaAssessmentModel(TimedExportModel):
     
     # ==================== Impella-Parameter ====================
     imp_level: Optional[float] = Field(None, alias="imp_level")  # Level (numerisch)
-    imp_p_level: Optional[int] = Field(None, alias="imp_p_level")  # P-Level (Radio)
+    imp_p_level: Optional[ImpellaPumpLevel] = Field(None, alias="imp_p_level")  # P-Level (Radio)
     imp_flow: Optional[float] = Field(None, alias="imp_flow")  # Flow L/min
     imp_purge_pressure: Optional[float] = Field(None, alias="imp_purge_pressure")  # Purge-Druck mmHg
     imp_purge_flow: Optional[float] = Field(None, alias="imp_purge_flow")  # Purge-Flow ml/h
@@ -57,14 +78,20 @@ class ImpellaAssessmentModel(TimedExportModel):
     # ==================== Alarme & Komplikationen ====================
     imp_alarm: Optional[int] = Field(None, alias="imp_alarm")  # Alarm aufgetreten
     imp_position_wrong: Optional[int] = Field(None, alias="imp_position_wrong")
-    imp_position_wrong_spec: Optional[int] = Field(None, alias="imp_position_wrong_spec")
+    imp_position_wrong_spec: Optional[ImpellaPositionWrongSpec] = Field(
+        None,
+        alias="imp_position_wrong_spec",
+    )
     imp_suction: Optional[int] = Field(None, alias="imp_suction")  # Suction Alarm
     imp_position_unknown: Optional[int] = Field(None, alias="imp_position_unknown")
     imp_high_purge_pr: Optional[int] = Field(None, alias="imp_high_purge_pr")  # Hoher Purge-Druck
     imp_thrombolytic: Optional[int] = Field(None, alias="imp_thrombolytic")  # Thrombolyse
     imp_exchange: Optional[int] = Field(None, alias="imp_exchange")  # Gerätewechsel
     imp_reposition: Optional[int] = Field(None, alias="imp_reposition")  # Repositionierung
-    imp_reposition_spec: Optional[int] = Field(None, alias="imp_reposition_spec")
+    imp_reposition_spec: Optional[ImpellaRepositionSpec] = Field(
+        None,
+        alias="imp_reposition_spec",
+    )
     imp_problem: Optional[int] = Field(None, alias="imp_problem")  # Anderes Problem
     imp_problem_spec: Optional[str] = Field(None, alias="imp_problem_spec")
     

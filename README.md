@@ -24,14 +24,14 @@ Streamlit-App zum Prüfen, Erkunden und Aggregieren von MCS-Daten (ECMO/Impella,
 - Einstieg: [app.py](app.py) wählt Views anhand des Session-States.
 - State: [state.py](state.py) hält Datenframe, UI-Status, Zeiträume, Export-Formulare und Geräte-Referenzzeiten.
 - Views: [views/startpage.py](views/startpage.py), [views/sidebar.py](views/sidebar.py), [views/homepage.py](views/homepage.py), [views/data_explorer.py](views/data_explorer.py), [views/export_builder.py](views/export_builder.py), [views/daily_form.py](views/daily_form.py).
-- Aggregation: Lab-Speziallogik in [services/lab_aggregator.py](services/lab_aggregator.py); generische Basisklasse in [services/aggregators/base.py](services/aggregators/base.py) und Fächer-spezifische Aggregatoren (z. B. Hämodynamik, ECMO, Impella) in [services/aggregators](services/aggregators).
+- Aggregation: Lab-Speziallogik in [services/aggregators/lab_aggregator.py](services/aggregators/lab_aggregator.py); generische Basisklasse in [services/aggregators/base.py](services/aggregators/base.py) und Fächer-spezifische Aggregatoren (z. B. Hämodynamik, ECMO, Impella) in [services/aggregators](services/aggregators).
 - REDCap-Modelle: Pydantic-Schemas unter [schemas/db_schemas](schemas/db_schemas) definieren Felder und Validierungen pro Instrument.
 
 ## Code-Überblick (kurz)
 - `state.py`: zentraler Session-State (DataFrame, Zeitfenster, Record-ID, Export-Forms). `load_data()` normalisiert Timestamp, setzt Zeitfenster und Geräte-Referenzzeiten. `get_data(source)` liefert gefilterte Sichten.
 - `views/*`: reine UI-Logik; rufen `state.get_data()` und Aggregatoren indirekt über Export Builder auf.
 - `services/aggregators/base.py`: Grundgerüst für alle Instrument-Aggregatoren (Tagesfilter, Regex-Matching auf `category`/`parameter`, Wertestrategien wie `nearest`, `median`, ...).
-- `services/lab_aggregator.py`: eigenständiger Labor-Aggregator mit Feld-Mapping und Spezialfällen (ACT, ECMELLA, nearest-Time).
+- `services/aggregators/lab_aggregator.py`: Labor-Aggregator mit Feld-Mapping und Spezialfällen (ACT, ECMELLA, nearest-Time).
 - `services/aggregators/*_aggregator.py`: Fächer-spezifische Aggregatoren (z. B. Hämodynamik) erben von `BaseAggregator` und definieren ihr Feld-Mapping.
 - `views/export_builder.py`: orchestriert Aggregation pro Tag/Event, speichert fertige Pydantic-Modelle in `state.export_forms`, bietet Download als REDCap-kompatible CSV.
 
@@ -39,7 +39,7 @@ Streamlit-App zum Prüfen, Erkunden und Aggregieren von MCS-Daten (ECMO/Impella,
 1) **Eingangsdaten**: Long-Format-CSV. Wichtige Spalten: `timestamp` (Datetime), `source_type` (z. B. Lab, Vitals, ECMO, Impella, Respiratory, Medication), `category` (Subgruppe) und `parameter` (Messname), `value` (Messwert), optional `rate` (Infusionsrate).
 2) **Tagesfilter**: Jeder Aggregator filtert auf das Ziel-Datum (`timestamp.date == selected_day`).
 3) **Feld-Mapping**:
-	- Labor: `_FIELD_MAP` in [services/lab_aggregator.py](services/lab_aggregator.py) ordnet REDCap-Felder Kategorien- und Parameter-Regex zu (z. B. `"pc02": ("Blutgase arteriell", "^PCO2")`).
+	- Labor: `LAB_FIELD_MAP` in [services/aggregators/mapping.py](services/aggregators/mapping.py) ordnet REDCap-Felder via `(source_type, category_pattern, parameter_pattern)` zu (z. B. `"pc02": ("Lab", "Blutgase arteriell", "^PCO2")`).
 	- Generische Aggregatoren: `FIELD_MAP` (z. B. in Hämodynamik) enthält Tupel `(source_type, category_pattern, parameter_pattern)`, ausgewertet via Regex auf `category`/`parameter`.
 4) **Wertestrategie** (`value_strategy` im State):
 	- `nearest`: Wert mit geringster Zeitdifferenz zur Referenzzeit (geräteabhängig aus Sidebar/Builder oder automatisch aus frühestem Device-Timestamp).
