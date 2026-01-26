@@ -12,6 +12,8 @@ WICHTIG: Katecholamine werden von ml/h zu µg/kg/min umgerechnet!
 """
 
 import re
+from unicodedata import category
+
 import pandas as pd
 from typing import Optional, Dict, Tuple
 from datetime import date, time
@@ -30,7 +32,8 @@ from .mapping import (
     VENT_SPEC_MAP,
     ANTICOAGULANT_MAP,
     ANTIPLATELET_MAP,
-    ANTIBIOTIC_MAP
+    ANTIBIOTIC_MAP,
+    TRANSFUSION_FIELD_MAP
 )
 
 
@@ -60,6 +63,9 @@ class HemodynamicsAggregator(BaseAggregator):
 
     # Mapping für Antibiotika / Antimykotika
     ANTIBIOTIC_MAP = ANTIBIOTIC_MAP
+
+    # Mapping für Transfusion/ Blutprodukte
+    TRANSFUSION_FIELD_MAP = TRANSFUSION_FIELD_MAP
 
     def __init__(
         self,
@@ -174,9 +180,6 @@ class HemodynamicsAggregator(BaseAggregator):
             for key, pattern in self.ANTICOAGULANT_MAP.items():
                 if med_df["parameter"].str.contains(pattern, case=False, na=False, regex=True).any():
                     model.iv_ac_spec = Anticoagulation(key)
-            
-            # Manuelle Validierung triggern, da iv_ac_spec direkt gesetzt wurde
-            model.iv_ac = 1 if model.iv_ac_spec else 0
         
         # Antiplatelet Therapie prüfen
         self._set_medication_checkboxes(
@@ -193,6 +196,16 @@ class HemodynamicsAggregator(BaseAggregator):
             self.ANTIBIOTIC_MAP, 
             "antibiotic_spec"
         )
+
+        # Transfusionen prüfen
+        self._set_transfusion(
+            model = model,
+            med_df = med_df,
+            mapping = self.TRANSFUSION_FIELD_MAP,
+        )
+        
+        # Finale Validierung/Berechnung abgeleiteter Felder triggern
+        model.set_derived_fields()
         
         return model
 
@@ -202,7 +215,7 @@ class HemodynamicsAggregator(BaseAggregator):
         med_df: pd.DataFrame,
         mapping: Dict[int, str],
         field_prefix: str,
-        exclude_fer: bool = False
+        exclude_fer: bool = True
     ) -> None:
         """Generische Methode zum Setzen von Medikamenten-Checkboxen.
         
@@ -216,7 +229,6 @@ class HemodynamicsAggregator(BaseAggregator):
         if med_df.empty:
             return
             
-        any_found = False
         for drug_id, pattern in mapping.items():
             mask = med_df["parameter"].str.contains(pattern, case=False, na=False, regex=True)
             
@@ -225,20 +237,16 @@ class HemodynamicsAggregator(BaseAggregator):
                 mask = mask & fer_mask
                 
             has_medication = mask.any()
-            if has_medication:
-                any_found = True
             setattr(model, f"{field_prefix}___{drug_id}", 1 if has_medication else 0)
 
         # Spezialfall vasoactive_med: Muss manuell gesetzt werden, da kein model_validator 
         # für die Checkboxen existiert (im Gegensatz zu Antibiotika/Antiplatelets)
-        if field_prefix == "vasoactive_spec" and any_found:
-            model.vasoactive_med = 1
+        # Update: model.set_derived_fields() übernimmt das jetzt.
+        pass
         
         # Abgeleitete Felder für Checkboxen manuell setzen
-        if field_prefix == "antiplat_therapy_spec" and any_found:
-            model.antiplat_th = 1
-        elif field_prefix == "antibiotic_spec" and any_found:
-            model.antibiotic = 1
+        # Update: model.set_derived_fields() übernimmt das jetzt.
+        pass
 
     def _get_medication_rate(
         self,
@@ -491,3 +499,24 @@ class HemodynamicsAggregator(BaseAggregator):
         has_impella = not impella_df.empty
         
         return 1 if (has_ecmo and has_impella) else 0
+
+    def _set_transfusion(
+        self,
+        model: HemodynamicsModel,
+        med_df: pd.DataFrame,
+        mapping: Dict[str, Tuple[str, str, str]]
+    ) -> None:
+        for key, value in mapping.items():
+            if key in ("ppsb_t", "at3_t", "fxiii_t"):
+                # Skip until reliable parsing is defined for these products.
+                continue
+            if med_df.empty:
+                continue
+            category_df = med_df[med_df["category"].str.contains(value[1], case=False, na=False, regex=True)]
+            if category_df.empty:
+                continue
+            product_df = category_df[category_df["parameter"].str.contains(value[2], case=False, na=False, regex=True)]
+            if product_df.empty:
+                continue
+            if key in  ["thromb_t","ery_t","ffp_t"]:
+                setattr(model, key, len(product_df))

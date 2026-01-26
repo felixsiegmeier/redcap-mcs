@@ -196,6 +196,20 @@ ANTIBIOTIC_MAP: Dict[int, str] = {
 }
 
 # =============================================================================
+# TRANSFUSION MAPPING
+# =============================================================================
+TRANSFUSION_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
+    "thromb_t": ("Medication", "Blutersatz", r"^TK"),
+    "ery_t": ("Medication", "Blutersatz", r"^EK"),
+    "ffp_t": ("Medication", "Blutersatz", r"^FFP"),
+    # NOTE: ppsb_t/at3_t/fxiii_t are currently skipped in _set_transfusion.
+    "ppsb_t": ("Medication", ".*", r"Prothromplex|Cofactor"),
+    "fib_t": ("Medication", ".*", r"Haemocomplettan"),
+    "at3_t": ("Medication", ".*", r"Antithrombin"),
+    "fxiii_t": ("Medication", ".*", r"Faktor XIII"),
+}
+
+# =============================================================================
 # PUMP MAPPING (PumpAggregator)
 # =============================================================================
 PUMP_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {

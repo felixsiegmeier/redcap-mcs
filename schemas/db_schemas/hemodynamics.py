@@ -235,13 +235,13 @@ class HemodynamicsModel(TimedExportModel):
 
     # ==================== Transfusionen (24h) ====================
     transfusion_coag: Optional[int] = Field(None, alias="transfusion_coag")
-    thromb_t: Optional[float] = Field(None, alias="thromb_t")  # Thrombozyten-Konzentrate
-    ery_t: Optional[float] = Field(None, alias="ery_t")  # Erythrozyten-Konzentrate
-    ffp_t: Optional[float] = Field(None, alias="ffp_t")  # Fresh Frozen Plasma
-    ppsb_t: Optional[float] = Field(None, alias="ppsb_t")  # PPSB
-    fib_t: Optional[float] = Field(None, alias="fib_t")  # Fibrinogen
-    at3_t: Optional[float] = Field(None, alias="at3_t")  # Antithrombin III
-    fxiii_t: Optional[float] = Field(None, alias="fxiii_t")  # Faktor XIII
+    thromb_t: Optional[int] = Field(None, alias="thromb_t")  # Thrombozyten-Konzentrate Bags/24h
+    ery_t: Optional[int] = Field(None, alias="ery_t")  # Erythrozyten-Konzentrate Bags/24h
+    ffp_t: Optional[int] = Field(None, alias="ffp_t")  # Fresh Frozen Plasma Bags/24h
+    ppsb_t: Optional[int] = Field(None, alias="ppsb_t")  # PPSB Units/24h
+    fib_t: Optional[int] = Field(None, alias="fib_t")  # Fibrinogen grams/24h
+    at3_t: Optional[int] = Field(None, alias="at3_t")  # Antithrombin III Units/24h
+    fxiii_t: Optional[int] = Field(None, alias="fxiii_t")  # Faktor XIII Units/24h
     
     # ==================== Nierenfunktion ====================
     renal_repl: Optional[RenalReplacement] = Field(None, alias="renal_repl")
@@ -260,7 +260,11 @@ class HemodynamicsModel(TimedExportModel):
     
     @model_validator(mode="after")
     def set_derived_fields(self) -> Self:
-        """Setzt abgeleitete Felder basierend auf vorhandenen Werten."""
+        """Setzt abgeleitete Felder basierend auf vorhandenen Werten.
+        
+        Diese Methode kann auch manuell aufgerufen werden, um abgeleitete Felder
+        nach Attribut-Änderungen zu aktualisieren.
+        """
         # PAK verfügbar
         pac_fields = [
             self.pcwp,
@@ -324,8 +328,13 @@ class HemodynamicsModel(TimedExportModel):
         # GCS vorhanden
         self.gcs_avail = 1 if self.gcs is not None else 0
 
-        # Ernährung
-        self.nutrition = 1 if self.nutrition_spec else 0
+        # Ernährung (nicht default auf 0 da parenterale Ernährung nicht sicher erfasst)
+        if self.nutrition_spec:
+            self.nutrition = 1
+
+        # Blutprodukte (nicht default auf 0 da Apothekenprodukte (PPSB, Fibrinogen, Antithrombin III, Faktor XIII) nicht sicher erfasst)
+        if any([self.thromb_t, self.ery_t, self.ffp_t, self.ppsb_t, self.fib_t, self.at3_t, self.fxiii_t]):
+            self.transfusion_coag = 1
         
         return self
     

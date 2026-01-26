@@ -92,7 +92,11 @@ class LabModel(TimedExportModel):
     
     @model_validator(mode="after")
     def set_derived_fields(self) -> Self:
-        """Setzt abgeleitete Felder basierend auf vorhandenen Werten."""
+        """Setzt abgeleitete Felder basierend auf vorhandenen Werten.
+        
+        Diese Methode kann auch manuell aufgerufen werden, um abgeleitete Felder
+        nach Attribut-Änderungen zu aktualisieren.
+        """
         self.post_pct = 1 if self.pct is not None else 0
         self.post_crp = 1 if self.crp is not None else 0
         self.post_act = 1 if self.act is not None else 0
