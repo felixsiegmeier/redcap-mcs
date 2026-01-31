@@ -75,12 +75,12 @@ HEMODYNAMICS_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
     "nirs_left_c": ("Vitals", ".*", r"NIRS Channel 1 RSO2|NIRS.*Channel.*1"),
     "nirs_right_c": ("Vitals", ".*", r"NIRS Channel 2 RSO2|NIRS.*Channel.*2"),
     # Respiratory
-    "fio2": ("Respiratory", ".*", r"^FiO2\s*\[%\]"),
+    "fi02": ("Respiratory", ".*", r"^FiO2\s*\[%\]"),
     "o2": ("O2 Gabe", ".*", r"^O2\s*l/min"),
     "vent_peep": ("Respiratory", ".*", r"^PEEP\s*\["),
     "vent_pip": ("Respiratory", ".*", r"^Ppeak\s*\[|^insp.*Spitzendruck"),
     "conv_vent_rate": ("Respiratory", ".*", r"mand.*Atemfrequenz|^mand\. Atemfrequenz"),
-    "spo2": ("Vitals", ".*", r"^SpO2\s*\[%\]"),
+    "sp02": ("Vitals", ".*", r"^SpO2\s*\[%\]"),
     "vent_spec": ("Respiratory", ".*", r"^Modus"),
     # Neurologie
     "rass": ("Richmond", ".*", r"^Summe Richmond-Agitation-Sedation"),

@@ -22,7 +22,6 @@ from schemas.db_schemas.hemodynamics import (
     HemodynamicsModel,
     VentilationSpec,
     Anticoagulation,
-    Nutrition,
 )
 from .base import BaseAggregator
 from .mapping import (
@@ -121,7 +120,7 @@ class HemodynamicsAggregator(BaseAggregator):
             values[field] = self._get_medication_rate(med_df, pattern, field)
         
         # Ernährung prüfen (enteral über Kategorie "Sonden")
-        nutrition_spec = None
+        nutrition_spec___1 = 0
         if not med_df.empty and "category" in med_df.columns:
             has_enteral = med_df["category"].str.contains(
                 r"\bSonden\b",
@@ -130,7 +129,7 @@ class HemodynamicsAggregator(BaseAggregator):
                 regex=True,
             ).any()
             if has_enteral:
-                nutrition_spec = Nutrition.ENTERAL
+                nutrition_spec___1 = 1
 
         # ECMELLA prüfen
         ecmella = self._check_ecmella()
@@ -145,9 +144,8 @@ class HemodynamicsAggregator(BaseAggregator):
             "assess_date_hemo": self.date,
             "na_post": 1,
             "ecmella": ecmella,
+            "nutrition_spec___1": nutrition_spec___1,
         }
-        if nutrition_spec is not None:
-            payload["nutrition_spec"] = nutrition_spec
         
         # Werte hinzufügen (nur nicht-None)
         rass_score = None  # Speichere RASS separat

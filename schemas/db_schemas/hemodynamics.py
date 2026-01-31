@@ -72,12 +72,6 @@ class Anticoagulation(IntEnum):
     HEPARIN = 1
     ARGATROBAN = 2
 
-class Nutrition(IntEnum):
-    """Ernährung"""
-    ENTERAL = 1
-    PARENTERAL = 2
-
-
 class HemodynamicsModel(TimedExportModel):
     """
     REDCap hemodynamics_ventilation_medication Instrument.
@@ -123,7 +117,7 @@ class HemodynamicsModel(TimedExportModel):
     dia_bp: Optional[float] = Field(None, alias="dia_bp")  # Diastolischer BD
     mean_bp: Optional[float] = Field(None, alias="mean_bp")  # Mittlerer BD
     cvp: Optional[float] = Field(None, alias="cvp")  # ZVD
-    spo2: Optional[float] = Field(None, alias="spo2")  # SpO2
+    sp02: Optional[float] = Field(None, alias="sp02")  # SpO2
     
     # Pulmonalarterie (PAC)
     pac: Optional[int] = Field(None, alias="pac")  # PAC vorhanden?
@@ -165,7 +159,7 @@ class HemodynamicsModel(TimedExportModel):
     # ==================== Beatmung ====================
     vent: Optional[VentilationMode] = Field(None, alias="vent")
     o2: Optional[float] = Field(None, alias="o2")  # O2-Flow L/min
-    fio2: Optional[float] = Field(None, alias="fio2")  # FiO2 %
+    fi02: Optional[float] = Field(None, alias="fi02")  # FiO2 %
     vent_spec: Optional[VentilationSpec] = Field(None, alias="vent_spec")
     vent_type: Optional[VentilationType] = Field(None, alias="vent_type")
     hfv_rate: Optional[float] = Field(None, alias="hfv_rate")  # HF-Ventilation Rate
@@ -231,7 +225,8 @@ class HemodynamicsModel(TimedExportModel):
 
     # ==================== Ernährung ====================
     nutrition: Optional[int] = Field(None, alias="nutrition")
-    nutrition_spec: Optional[Nutrition] = Field(None, alias="nutrition_spec")
+    nutrition_spec___1: Optional[int] = Field(0, alias="nutrition_spec___1")
+    nutrition_spec___2: Optional[int] = Field(0, alias="nutrition_spec___2")
 
     # ==================== Transfusionen (24h) ====================
     transfusion_coag: Optional[int] = Field(None, alias="transfusion_coag")
@@ -320,7 +315,7 @@ class HemodynamicsModel(TimedExportModel):
         elif self.vent_peep is not None and self.conv_vent_rate is None:
             self.vent = VentilationMode.NON_INVASIVE
             self.vent_type = VentilationType.CONVENTIONAL
-        elif self.vent_peep is None and self.conv_vent_rate is None and self.fio2 is not None:
+        elif self.vent_peep is None and self.conv_vent_rate is None and self.fi02 is not None:
             self.vent = VentilationMode.HIGH_FLOW
         else:
             self.vent = VentilationMode.NO_VENTILATION
@@ -329,7 +324,7 @@ class HemodynamicsModel(TimedExportModel):
         self.gcs_avail = 1 if self.gcs is not None else 0
 
         # Ernährung (nicht default auf 0 da parenterale Ernährung nicht sicher erfasst)
-        if self.nutrition_spec:
+        if self.nutrition_spec___1 or self.nutrition_spec___2:
             self.nutrition = 1
 
         # Blutprodukte (nicht default auf 0 da Apothekenprodukte (PPSB, Fibrinogen, Antithrombin III, Faktor XIII) nicht sicher erfasst)

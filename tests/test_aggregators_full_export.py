@@ -149,7 +149,7 @@ def test_hemodynamics_aggregator_full_export(full_export_df: pd.DataFrame) -> No
     expected_sys_bp = _median_value(
         full_export_df, TEST_DATE, "Vitals", ".*", r"^ABPs\s*\[|^ARTs\s*\["
     )
-    expected_fio2 = _median_value(
+    expected_fi02 = _median_value(
         full_export_df, TEST_DATE, "Respiratory", ".*", r"^FiO2\s*\[%\]"
     )
 
@@ -158,11 +158,11 @@ def test_hemodynamics_aggregator_full_export(full_export_df: pd.DataFrame) -> No
 
     assert expected_hr is not None
     assert expected_sys_bp is not None
-    assert expected_fio2 is not None
+    assert expected_fi02 is not None
 
     assert entry.hr == pytest.approx(expected_hr)
     assert entry.sys_bp == pytest.approx(expected_sys_bp)
-    assert entry.fio2 == pytest.approx(expected_fio2)
+    assert entry.fi02 == pytest.approx(expected_fi02)
 
 
 def test_pump_aggregator_full_export(full_export_df: pd.DataFrame) -> None:
