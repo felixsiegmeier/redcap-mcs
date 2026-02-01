@@ -192,12 +192,12 @@ class HemodynamicsModel(TimedExportModel):
     iv_ac: Optional[int] = Field(None, alias="iv_ac")
     iv_ac_spec: Optional[Anticoagulation] = Field(None, alias="iv_ac_spec")
 
-    antiplat_th: Optional[int] = Field(None, alias="antiplat_th")
-    antiplat_therapy_spec___1: Optional[int] = Field(0, alias="antiplat_therapy_spec___1")
-    antiplat_therapy_spec___2: Optional[int] = Field(0, alias="antiplat_therapy_spec___2")
-    antiplat_therapy_spec___3: Optional[int] = Field(0, alias="antiplat_therapy_spec___3")
-    antiplat_therapy_spec___4: Optional[int] = Field(0, alias="antiplat_therapy_spec___4")
-    antiplat_therapy_spec___5: Optional[int] = Field(0, alias="antiplat_therapy_spec___5")
+    post_antiplat: Optional[int] = Field(None, alias="post_antiplat")
+    post_antiplat_spec___1: Optional[int] = Field(0, alias="post_antiplat_spec___1")
+    post_antiplat_spec___2: Optional[int] = Field(0, alias="post_antiplat_spec___2")
+    post_antiplat_spec___3: Optional[int] = Field(0, alias="post_antiplat_spec___3")
+    post_antiplat_spec___4: Optional[int] = Field(0, alias="post_antiplat_spec___4")
+    post_antiplat_spec___5: Optional[int] = Field(0, alias="post_antiplat_spec___5")
     
     # ==================== Antibiotika ====================
     antibiotic: Optional[int] = Field(None, alias="antibiotic")
@@ -294,13 +294,13 @@ class HemodynamicsModel(TimedExportModel):
 
         # Antiplatelet-Therapie vorhanden
         antiplatelets = [
-            self.antiplat_therapy_spec___1,
-            self.antiplat_therapy_spec___2,
-            self.antiplat_therapy_spec___3,
-            self.antiplat_therapy_spec___4,
-            self.antiplat_therapy_spec___5
+            self.post_antiplat_spec___1,
+            self.post_antiplat_spec___2,
+            self.post_antiplat_spec___3,
+            self.post_antiplat_spec___4,
+            self.post_antiplat_spec___5
         ]
-        self.antiplat_th = 1 if any(v == 1 for v in antiplatelets) else 0
+        self.post_antiplat = 1 if any(v == 1 for v in antiplatelets) else 0
 
         # Antibiotika vorhanden
         antibiotics = [
