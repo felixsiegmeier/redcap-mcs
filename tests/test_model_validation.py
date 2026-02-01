@@ -32,9 +32,9 @@ def test_hemodynamics_derived_fields_manual_update():
     assert model.vasoactive_med == 1
     
     # Teste Antiplatelets
-    model.antiplat_therapy_spec___1 = 1
+    model.post_antiplat_spec___1 = 1
     model.set_derived_fields()
-    assert model.antiplat_th == 1
+    assert model.post_antiplat == 1
 
 def test_lab_derived_fields_manual_update():
     model = LabModel(

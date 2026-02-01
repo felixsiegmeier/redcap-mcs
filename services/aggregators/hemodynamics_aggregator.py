@@ -184,7 +184,7 @@ class HemodynamicsAggregator(BaseAggregator):
             model, 
             med_df, 
             self.ANTIPLATELET_MAP, 
-            "antiplat_therapy_spec"
+            "post_antiplat_spec"
         )
 
         # Antibiotika prüfen
