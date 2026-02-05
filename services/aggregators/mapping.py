@@ -196,6 +196,29 @@ ANTIBIOTIC_MAP: Dict[int, str] = {
 }
 
 # =============================================================================
+# SPECIFIC MEDICATION MAPPING
+# =============================================================================
+MEDICATION_SPEC_MAP: Dict[int, str] = {
+    1: r"Alprostadil|Prostin",
+    2: r"Bicarbonat|Bicarb",
+    3: r"Prostacyclin|Iloprost|Ventavis|Remodulin|Flolan",
+    4: r"Propofol|Midazolam|Ketamin|Dexmedetomidin|Dexmetomidin|Dormicum|Esketamin|Ketanest|Dexdor|Disoprivan|Thiopental|SEDALAM",
+    5: r"Rocuronium|Pancuronium|Atracurium|Cisatracurium|Esmeron|Nimbex",
+    10: r"Sufentanil|Fentanyl|Remifentanil|Morphin|Piritramid|Dipidolor|Oxycodon|Oxygesic|Targin|Oxycontin",
+    11: r"Haloperidol|Quetiapin|Risperidon|Haldol|Seroquel|Pipamperon|Dipiperon",
+    6: r"Sildenafil|Revatio|Viagra",
+    7: r"Hydrocortison|Dexamethason|Prednisolon|Methylprednisolon|Solu-Decortin|Fortecortin|Urbason",
+    8: r"Trometamol|THAM|Tris",
+}
+
+NARCOTICS_SPEC_MAP: Dict[int, str] = {
+    1: r"Propofol|Disoprivan",
+    2: r"Midazolam|Dormicum|SEDALAM",
+    3: r"Ketamin|Esketamin|Ketanest",
+    4: r"Dexmedetomidin|Dexmetomidin|Dexdor",
+}
+
+# =============================================================================
 # TRANSFUSION MAPPING
 # =============================================================================
 TRANSFUSION_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {

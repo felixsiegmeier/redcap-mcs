@@ -23,7 +23,7 @@ from schemas.db_schemas.impella import ImpellaAssessmentModel
 # Instrument-Anzeige-Konfiguration
 INSTRUMENT_CONFIG = {
     "labor": {
-        "icon": "🧪",
+        "icon": None,
         "label": "Labor",
         "model": LabModel,
         "sections": {
@@ -38,7 +38,7 @@ INSTRUMENT_CONFIG = {
         }
     },
     "hemodynamics_ventilation_medication": {
-        "icon": "💓",
+        "icon": None,
         "label": "Hämodynamik / Beatmung",
         "model": HemodynamicsModel,
         "sections": {
@@ -51,7 +51,7 @@ INSTRUMENT_CONFIG = {
         }
     },
     "pump": {
-        "icon": "🔄",
+        "icon": None,
         "label": "ECMO / Pump",
         "model": PumpModel,
         "sections": {
@@ -59,7 +59,7 @@ INSTRUMENT_CONFIG = {
         }
     },
     "impellaassessment_and_complications": {
-        "icon": "❤️",
+        "icon": None,
         "label": "Impella",
         "model": ImpellaAssessmentModel,
         "sections": {
@@ -163,7 +163,7 @@ FIELD_TO_SOURCE = {
 def render_daily_form():
     """Hauptfunktion für die tagesbasierte Formularansicht."""
     
-    st.header("📅 Tagesansicht")
+    st.header("Tagesansicht")
     
     if not has_data():
         st.warning("Keine Daten geladen.")
@@ -291,8 +291,8 @@ def _get_events_for_day(day: date) -> List[str]:
 def _get_event_label(event_name: str) -> str:
     """Gibt das Label für einen Event-Namen zurück."""
     labels = {
-        "ecls_arm_2": "🫀 ECLS",
-        "impella_arm_2": "❤️ Impella",
+        "ecls_arm_2": "ECLS",
+        "impella_arm_2": "Impella",
     }
     return labels.get(event_name, event_name)
 
@@ -328,10 +328,13 @@ def _render_day_instruments(day: date, day_number: int, event_name: str, hide_em
                 entry_idx = i
                 break
         
-        # Status-Icon
-        status = "✅" if entry else "⏳"
+        # Status-Text
+        status_text = "(Vollständig)" if entry else "(Fehlt)"
+        expander_label = f"{label} {status_text}"
+        if icon:
+            expander_label = f"{icon} {expander_label}"
         
-        with st.expander(f"{icon} {label} {status}", expanded=(entry is not None)):
+        with st.expander(expander_label, expanded=(entry is not None)):
             if entry:
                 _render_instrument_fields(instr_key, entry, form_key, entry_idx, hide_empty)
             else:
@@ -502,7 +505,7 @@ def _render_field_with_select(
         options=options,
         index=options.index(current_option) if current_option in options else 0,
         key=f"{key_base}_select",
-        help=f"📊 {len(day_values)} Werte verfügbar"
+        help=f"{len(day_values)} Werte verfügbar"
     )
     
     if selected_option == "Manuell eingeben...":

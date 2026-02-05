@@ -75,6 +75,42 @@ class BaseAggregator(ABC):
         """
         pass
     
+    # ------------------------------------------------------------------
+    # Hilfsfunktionen
+    # ------------------------------------------------------------------
+    def _to_float(self, v) -> Optional[float]:
+        """Konvertiert heterogene Laborwerte robust zu float.
+        
+        Unterstützt u. a. Strings wie ">180", "<0,5", "  46.0 s".
+        Nicht numerische Inhalte ("zu wenig Material") werden als None gewertet.
+        """
+        if v is None:
+            return None
+        # Direkte Zahlen
+        if isinstance(v, (int, float)):
+            try:
+                return float(v)
+            except Exception:
+                return None
+        # Stringverarbeitung
+        try:
+            s = str(v).strip()
+        except Exception:
+            return None
+        if not s:
+            return None
+        # Komma als Dezimalpunkt interpretieren
+        s_norm = s.replace(",", ".")
+        # Erste Zahl (mit optionalem Vorzeichen/Dezimalteil) extrahieren
+        import re
+        m = re.search(r"[-+]?\d+(?:\.\d+)?", s_norm)
+        if not m:
+            return None
+        try:
+            return float(m.group(0))
+        except Exception:
+            return None
+    
     def get_source_data(self, source: str) -> pd.DataFrame:
         """
         Holt Daten aus einer Quelle (Lab, Vitals, etc.).
@@ -140,25 +176,25 @@ class BaseAggregator(ABC):
         if filtered.empty:
             return None
         
-        # Numerische Werte
-        values = pd.to_numeric(filtered["value"], errors="coerce").dropna()
-        if values.empty:
+        # Numerische Werte (robust parsen, z. B. ">180")
+        parsed = filtered["value"].apply(self._to_float).dropna()
+        if parsed.empty:
             return None
         
         # Strategie anwenden
         if self.value_strategy == "nearest" and self.nearest_time:
-            return self._get_nearest_value(filtered, values)
+            return self._get_nearest_value(filtered, parsed)
         elif self.value_strategy == "median":
-            return float(values.median())
+            return float(parsed.median())
         elif self.value_strategy == "mean":
-            return float(values.mean())
+            return float(parsed.mean())
         elif self.value_strategy == "first":
-            return float(values.iloc[0])
+            return float(parsed.iloc[0])
         elif self.value_strategy == "last":
-            return float(values.iloc[-1])
+            return float(parsed.iloc[-1])
         
         # Default: median
-        return float(values.median())
+        return float(parsed.median())
     
     def _get_nearest_value(
         self,
@@ -185,7 +221,8 @@ class BaseAggregator(ABC):
         
         df = df.copy()
         df["_time_diff"] = df["timestamp"].dt.time.apply(time_diff)
-        df["_value_numeric"] = pd.to_numeric(df["value"], errors="coerce")
+        # Robuste Konvertierung
+        df["_value_numeric"] = df["value"].apply(self._to_float)
         
         # Nächsten gültigen Wert finden
         valid = df.dropna(subset=["_value_numeric"])
@@ -229,12 +266,11 @@ class BaseAggregator(ABC):
         
         results = []
         for _, row in filtered.iterrows():
-            try:
-                val = float(row["value"])
-                time_str = row["timestamp"].strftime("%H:%M") if pd.notna(row["timestamp"]) else "?"
-                results.append((val, time_str))
-            except (ValueError, TypeError):
+            val = self._to_float(row.get("value"))
+            if val is None:
                 continue
+            time_str = row["timestamp"].strftime("%H:%M") if pd.notna(row["timestamp"]) else "?"
+            results.append((val, time_str))
         
         results.sort(key=lambda x: x[1])
         return results

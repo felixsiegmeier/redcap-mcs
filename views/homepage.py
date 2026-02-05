@@ -18,7 +18,7 @@ from state import get_state, update_state, has_data, get_data, get_device_time_r
 def render_homepage():
     """Rendert die Homepage mit Datenübersicht."""
     
-    st.header("📋 Übersicht")
+    st.header("Übersicht")
     
     if not has_data():
         st.info(
@@ -63,7 +63,7 @@ def _render_time_info():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📅 Verfügbarer Zeitraum")
+        st.subheader("Verfügbarer Zeitraum")
         if state.time_range:
             start, end = state.time_range
             start_str = start.strftime("%d.%m.%Y") if isinstance(start, datetime) else str(start)
@@ -73,7 +73,7 @@ def _render_time_info():
             st.write("Nicht verfügbar")
     
     with col2:
-        st.subheader("🎯 Ausgewählter Zeitraum")
+        st.subheader("Ausgewählter Zeitraum")
         if state.selected_time_range:
             start, end = state.selected_time_range
             start_str = start.strftime("%d.%m.%Y") if isinstance(start, datetime) else str(start)
@@ -86,20 +86,20 @@ def _render_time_info():
 def _render_data_summary(df: pd.DataFrame):
     """Zeigt eine Zusammenfassung der Daten."""
     
-    st.subheader("📊 Datenübersicht")
+    st.subheader("Datenübersicht")
     
     # Zähle pro source_type
     source_counts = df["source_type"].value_counts().to_dict()
     
-    # Kategorien mit Icons - manche benötigen contains-Suche
+    # Kategorien
     categories = {
-        "vitals": ("💓 Vitalwerte", ["Vitals", "Vitalparameter (manuell)"], False),
-        "lab": ("🧪 Labor", ["Lab"], False),
-        "ecmo": ("🫀 ECMO", ["ECMO"], False),
-        "impella": ("🫀 Impella", ["Impella"], True),  # contains-Suche
-        "respiratory": ("🌬️ Beatmung", ["Beatmung", "Respiratory"], False),
-        "medication": ("💊 Medikation", ["Medikation", "Medication"], False),
-        "crrt": ("🩸 CRRT", ["Hämofilter"], True),  # contains-Suche
+        "vitals": ("Vitalwerte", ["Vitals", "Vitalparameter (manuell)"], False),
+        "lab": ("Labor", ["Lab"], False),
+        "ecmo": ("ECMO", ["ECMO"], False),
+        "impella": ("Impella", ["Impella"], True),  # contains-Suche
+        "respiratory": ("Beatmung", ["Beatmung", "Respiratory"], False),
+        "medication": ("Medikation", ["Medikation", "Medication"], False),
+        "crrt": ("CRRT", ["Hämofilter"], True),  # contains-Suche
     }
     
     # 4 Spalten für die Metriken
@@ -129,7 +129,7 @@ def _render_data_summary(df: pd.DataFrame):
 def _render_device_info():
     """Zeigt MCS-Device Informationen."""
     
-    st.subheader("🔧 MCS-Geräte")
+    st.subheader("MCS-Geräte")
     
     col1, col2 = st.columns(2)
     
@@ -166,7 +166,7 @@ def _render_device_info():
         if hasattr(mcs_end, 'to_pydatetime'):
             mcs_end = mcs_end.to_pydatetime()
         
-        if st.button("🎯 Zeitraum auf MCS setzen", help="Setzt den ausgewählten Zeitraum auf den MCS-Gerätezeitraum"):
+        if st.button("Zeitraum auf MCS setzen", help="Setzt den ausgewählten Zeitraum auf den MCS-Gerätezeitraum"):
             # Pending time range setzen - wird in sidebar.py verarbeitet
             st.session_state["_pending_time_range"] = (mcs_start, mcs_end)
             st.rerun()
@@ -175,64 +175,53 @@ def _render_device_info():
 def _render_quick_actions():
     """Zeigt Quick-Action Buttons."""
     
-    st.subheader("⚡ Schnellaktionen")
+    st.subheader("Schnellaktionen")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("📊 Daten erkunden", use_container_width=True):
+        if st.button("Daten erkunden", use_container_width=True):
             update_state(selected_view=Views.EXPLORER)
             st.rerun()
     
     with col2:
-        if st.button("🔨 Export erstellen", use_container_width=True):
+        if st.button("Export erstellen", use_container_width=True):
             update_state(selected_view=Views.EXPORT)
             st.rerun()
 
 
 def _render_patient_data_section():
-    """Zeigt Patientendaten (Gewicht/Größe) und ermöglicht manuelle Eingabe falls fehlend."""
+    """Zeigt Patientendaten (Gewicht) und ermöglicht manuelle Eingabe falls fehlend."""
     
     state = get_state()
     
-    st.subheader("👤 Patientendaten")
+    st.subheader("Patientendaten")
     
-    # Prüfe ob Gewicht/Größe in den Daten vorhanden sind
+    # Prüfe ob Gewicht in den Daten vorhanden ist
     df = state.data
     patient_info_data = get_data("patient_info")
     
     weight_found = False
-    height_found = False
     
     if not patient_info_data.empty:
-        # Suche nach Gewicht und Größe in den Daten
+        # Suche nach Gewicht in den Daten
         weight_params = patient_info_data[
             patient_info_data["parameter"].str.lower().str.contains("gewicht|weight", na=False, regex=True)
-        ]
-        height_params = patient_info_data[
-            patient_info_data["parameter"].str.lower().str.contains("größe|height|größe|länge", na=False, regex=True)
         ]
         
         if not weight_params.empty:
             weight_found = True
             # Nimm den letzten Wert
             weight_val = weight_params.iloc[-1]["value"]
-            st.info(f"✅ Gewicht aus Datensatz: **{weight_val} kg**")
+            st.info(f"Gewicht aus Datensatz: **{weight_val} kg**")
             # Speichere im State falls noch nicht gesetzt
             if state.patient_weight is None:
                 state.patient_weight = float(weight_val)
-        
-        if not height_params.empty:
-            height_found = True
-            height_val = height_params.iloc[-1]["value"]
-            st.info(f"✅ Größe aus Datensatz: **{height_val} cm**")
-            if state.patient_height is None:
-                state.patient_height = float(height_val)
     
     # Falls Gewicht fehlt: Warnung + Eingabefeld
     if not weight_found:
         st.warning(
-            "⚠️ **Gewicht nicht im Datensatz vorhanden!**\n\n"
+            "**Gewicht nicht im Datensatz vorhanden!**\n\n"
             "Das Gewicht wird zur Berechnung der Katecholaminperfusoren (µg/kg/min) benötigt. "
             "Falls keine Eingabe erfolgt, werden diese Parameter nicht exportiert."
         )
@@ -248,32 +237,8 @@ def _render_patient_data_section():
                 try:
                     weight_val = float(weight_input)
                     state.patient_weight = weight_val
-                    st.success(f"✅ Gewicht gespeichert: **{weight_val} kg**")
+                    st.success(f"Gewicht gespeichert: **{weight_val} kg**")
                 except ValueError:
                     st.error("Ungültige Eingabe - bitte eine Dezimalzahl eingeben (z.B. 75.5)")
         
         update_state(patient_weight=state.patient_weight)
-    
-    # Falls Größe fehlt: Info + optionales Eingabefeld
-    if not height_found:
-        st.info(
-            "ℹ️ **Größe nicht im Datensatz vorhanden** (optional)\n\n"
-            "Die Größe wird nicht zur Berechnung verwendet, kann aber für die Dokumentation nützlich sein."
-        )
-        
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            height_input = st.text_input(
-                "Größe eingeben (cm)",
-                value=str(state.patient_height) if state.patient_height else "",
-                key="patient_height_input"
-            )
-            if height_input:
-                try:
-                    height_val = float(height_input)
-                    state.patient_height = height_val
-                    st.success(f"✅ Größe gespeichert: **{height_val} cm**")
-                except ValueError:
-                    st.error("Ungültige Eingabe - bitte eine Dezimalzahl eingeben (z.B. 175.0)")
-        
-        update_state(patient_height=state.patient_height)

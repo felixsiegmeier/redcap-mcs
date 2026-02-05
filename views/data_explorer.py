@@ -17,36 +17,36 @@ from datetime import datetime, time as dt_time
 from state import get_state, get_data, has_data
 
 
-# Schönere Labels für source_type Werte
+# Labels für source_type Werte
 SOURCE_LABELS = {
-    "Lab": "🧪 Labor",
-    "Vitals": "💓 Vitalwerte",
-    "Vitalparameter (manuell)": "💓 Vitalwerte (manuell)",
-    "ECMO": "🫀 ECMO",
-    "IMPELLA": "🫀 Impella",
-    "Beatmung": "🌬️ Beatmung",
-    "Respiratory": "🌬️ Beatmung",
-    "Medikation": "💊 Medikation",
-    "Medication": "💊 Medikation",
-    "HÄMOFILTER": "🩸 CRRT/Hämofilter",
-    "CRRT": "🩸 CRRT",
-    "Bilanz": "💧 Flüssigkeitsbilanz",
-    "NIRS": "🧠 NIRS",
-    "PatientInfo": "👤 Patienteninfo",
+    "Lab": "Labor",
+    "Vitals": "Vitalwerte",
+    "Vitalparameter (manuell)": "Vitalwerte (manuell)",
+    "ECMO": "ECMO",
+    "IMPELLA": "Impella",
+    "Beatmung": "Beatmung",
+    "Respiratory": "Beatmung",
+    "Medikation": "Medikation",
+    "Medication": "Medikation",
+    "HÄMOFILTER": "CRRT/Hämofilter",
+    "CRRT": "CRRT",
+    "Bilanz": "Flüssigkeitsbilanz",
+    "NIRS": "NIRS",
+    "PatientInfo": "Patienteninfo",
 }
 
 # Die wichtigsten/sinnvollen Datenquellen für den Explorer
 # Format: (Label, source_type-Pattern, use_contains)
 CORE_SOURCES = [
-    ("🧪 Laborwerte", "Lab", False),
-    ("🌬️ Respiratorwerte", "Respiratory", False),
-    ("💓 Vitalwerte", "Vitals", False),
-    ("🫀 Impella", "Impella", True),  # contains-Suche
-    ("🫀 ECMO", "ECMO", False),
-    ("🩸 CRRT", "Hämofilter", True),  # contains-Suche
-    ("🧠 NIRS", "NIRS", True),  # contains-Suche für "PSI/NIRS/ICP"
-    ("🩸 Blutprodukte", "__CATEGORY__:Blutersatz", False),  # Spezial: category-Filter
-    ("💧 Bilanzen", "FluidBalance", False),
+    ("Laborwerte", "Lab", False),
+    ("Respiratorwerte", "Respiratory", False),
+    ("Vitalwerte", "Vitals", False),
+    ("Impella", "Impella", True),  # contains-Suche
+    ("ECMO", "ECMO", False),
+    ("CRRT", "Hämofilter", True),  # contains-Suche
+    ("NIRS", "NIRS", True),  # contains-Suche für "PSI/NIRS/ICP"
+    ("Blutprodukte", "__CATEGORY__:Blutersatz", False),  # Spezial: category-Filter
+    ("Bilanzen", "FluidBalance", False),
 ]
 
 
@@ -60,7 +60,7 @@ def render_data_explorer():
     
     df = state.data.copy()
     
-    st.header("📊 Data Explorer")
+    st.header("Data Explorer")
     
     # Zeitbereich anzeigen
     if state.selected_time_range:
@@ -72,10 +72,10 @@ def render_data_explorer():
     # Filter-Sektion
     # =========================================================================
     
-    with st.expander("🔍 Filter", expanded=True):
+    with st.expander("Filter", expanded=True):
         # Checkbox für alle Datenquellen
         show_all_sources = st.checkbox(
-            "📋 Alle Datenquellen anzeigen",
+            "Alle Datenquellen anzeigen",
             value=False,
             key="explorer_show_all_sources",
             help="Zeigt alle verfügbaren Datenquellen statt nur der wichtigsten"
@@ -179,7 +179,7 @@ def render_data_explorer():
         
         with col_opt1:
             show_daily_median = st.checkbox(
-                "📊 24h-Median anzeigen",
+                "24h-Median anzeigen",
                 value=False,
                 key="explorer_daily_median",
                 help="Zeigt für numerische Werte den Median pro Tag statt Einzelwerte"
@@ -189,9 +189,9 @@ def render_data_explorer():
             # Hinweis auf globalen Filter in Sidebar
             filter_active = st.session_state.get("filter_outliers_enabled", False)
             if filter_active:
-                st.info("🎯 Ausreißer-Filter aktiv (Sidebar)")
+                st.info("Ausreißer-Filter aktiv (Sidebar)")
             else:
-                st.caption("💡 Ausreißer-Filter in Sidebar")
+                st.caption("Ausreißer-Filter in Sidebar")
     
     # =========================================================================
     # Daten anzeigen
@@ -229,7 +229,7 @@ def render_data_explorer():
         df_display = df
     
     # Tabs für Tabelle und Chart
-    tab_table, tab_chart = st.tabs(["📋 Tabelle", "📈 Chart"])
+    tab_table, tab_chart = st.tabs(["Tabelle", "Chart"])
     
     with tab_table:
         # Spalten für Anzeige auswählen

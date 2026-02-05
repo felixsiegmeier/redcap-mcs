@@ -32,7 +32,9 @@ from .mapping import (
     ANTICOAGULANT_MAP,
     ANTIPLATELET_MAP,
     ANTIBIOTIC_MAP,
-    TRANSFUSION_FIELD_MAP
+    TRANSFUSION_FIELD_MAP,
+    MEDICATION_SPEC_MAP,
+    NARCOTICS_SPEC_MAP,
 )
 
 
@@ -65,6 +67,12 @@ class HemodynamicsAggregator(BaseAggregator):
 
     # Mapping für Transfusion/ Blutprodukte
     TRANSFUSION_FIELD_MAP = TRANSFUSION_FIELD_MAP
+
+    # Mapping für spezifische Medikation (Checkbox-Gruppe 'medication')
+    MEDICATION_SPEC_MAP = MEDICATION_SPEC_MAP
+
+    # Mapping für Narkotika/ Sedativa (Checkbox-Gruppe 'narcotics_spec')
+    NARCOTICS_SPEC_MAP = NARCOTICS_SPEC_MAP
 
     def __init__(
         self,
@@ -193,6 +201,32 @@ class HemodynamicsAggregator(BaseAggregator):
             med_df, 
             self.ANTIBIOTIC_MAP, 
             "antibiotic_spec"
+        )
+
+        # Spezifische Medikation (Medication-Checkboxen)
+        self._set_medication_checkboxes(
+            model,
+            med_df,
+            self.MEDICATION_SPEC_MAP,
+            "medication",
+            exclude_fer=True,
+        )
+        # 'None' (Option 9) setzen, wenn keine andere Option gesetzt ist
+        meds_flags = [
+            getattr(model, f"medication___{i}") for i in [1,2,3,4,5,6,7,8,10,11]
+        ]
+        if all((v == 0 or v is None) for v in meds_flags):
+            model.medication___9 = 1
+        else:
+            model.medication___9 = 0
+
+        # Narkotika/Sedativa Spezifikation
+        self._set_medication_checkboxes(
+            model,
+            med_df,
+            self.NARCOTICS_SPEC_MAP,
+            "narcotics_spec",
+            exclude_fer=True,
         )
 
         # Transfusionen prüfen

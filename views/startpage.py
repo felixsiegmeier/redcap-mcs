@@ -18,7 +18,7 @@ from state import load_data, Views
 def render_startpage():
     """Rendert die Startseite mit File Upload."""
     
-    st.title("🏥 MCS Data Parser")
+    st.title("MCS Data Parser")
     
     st.write("Laden Sie Ihre CSV-Datei hoch, um die Daten zu analysieren und für RedCap zu exportieren.")
 
@@ -26,7 +26,7 @@ def render_startpage():
     st.markdown(
         "<a href='https://github.com/felixsiegmeier/mlife-parser/releases' target='_blank'>"
         "<button style='background-color:#0099ff;color:white;padding:8px 16px;border:none;border-radius:4px;font-size:16px;cursor:pointer;'>"
-        "🔗 Zum aktuellen Release des Parsers"
+        "Zum aktuellen Release des Parsers"
         "</button></a>", unsafe_allow_html=True
     )
     
@@ -56,7 +56,7 @@ def render_startpage():
                 # Daten laden
                 state = load_data(df)
                 
-                st.success(f"✅ {len(df):,} Datenpunkte erfolgreich geladen!")
+                st.success(f"{len(df):,} Datenpunkte erfolgreich geladen!")
                 
                 # Automatisch zur Homepage wechseln
                 st.rerun()

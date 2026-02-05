@@ -123,7 +123,7 @@ def _render_filter_options():
     
     state = get_state()
     
-    st.subheader("🔍 Filter")
+    st.subheader("Filter")
     
     # Checkbox für Ausreißer-Filterung
     filter_enabled = st.checkbox(
@@ -151,12 +151,12 @@ def _render_navigation():
     """Rendert die Navigationsbuttons."""
     
     # Übersicht
-    if st.button("🏠 Übersicht", use_container_width=True):
+    if st.button("Übersicht", use_container_width=True):
         update_state(selected_view=Views.HOMEPAGE)
         st.rerun()
     
     # Data Explorer
-    if st.button("📊 Data Explorer", use_container_width=True):
+    if st.button("Data Explorer", use_container_width=True):
         update_state(selected_view=Views.EXPLORER)
         st.rerun()
     
@@ -165,10 +165,10 @@ def _render_navigation():
     # Export-Bereich
     st.subheader("Export")
     
-    if st.button("🔨 Export Builder", use_container_width=True):
+    if st.button("Export Builder", use_container_width=True):
         update_state(selected_view=Views.EXPORT)
         st.rerun()
     
-    if st.button("📅 Tagesansicht", use_container_width=True):
+    if st.button("Tagesansicht", use_container_width=True):
         update_state(selected_view=Views.DAILY_FORM)
         st.rerun()

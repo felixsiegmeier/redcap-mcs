@@ -103,7 +103,8 @@ class HemodynamicsModel(TimedExportModel):
     
     # ==================== NIRS ====================
     nirs_avail: Optional[int] = Field(None, alias="nirs_avail")  # 0=no, 1=yes
-    # nirs_loc ist checkbox - hier nicht modelliert
+    nirs_loc___1: Optional[int] = Field(0, alias="nirs_loc___1") # Cerebral
+    nirs_loc___2: Optional[int] = Field(0, alias="nirs_loc___2") # Femoral
     nirs_left_c: Optional[float] = Field(None, alias="nirs_left_c")  # Cerebral links
     nirs_right_c: Optional[float] = Field(None, alias="nirs_right_c")  # Cerebral rechts
     nirs_left_f: Optional[float] = Field(None, alias="nirs_left_f")  # Femoral links
@@ -168,6 +169,7 @@ class HemodynamicsModel(TimedExportModel):
     vent_pip: Optional[float] = Field(None, alias="vent_pip")  # PIP mbar
     vent_peep: Optional[float] = Field(None, alias="vent_peep")  # PEEP mbar
     prone_pos: Optional[int] = Field(None, alias="prone_pos")  # Bauchlage ja/nein
+    mobil: Optional[int] = Field(None, alias="mobil")  # Level of Mobilization
     
     # ==================== Neurologie ====================
     gcs_avail: Optional[int] = Field(None, alias="gcs_avail")
@@ -222,6 +224,39 @@ class HemodynamicsModel(TimedExportModel):
     antibiotic_spec___19: Optional[int] = Field(0, alias="antibiotic_spec___19")
     antibiotic_spec___20: Optional[int] = Field(0, alias="antibiotic_spec___20")
     antibiotic_spec_o: Optional[str] = Field(None, alias="antibiotic_spec_o")
+
+    # ==================== Spezifische Medikation ====================
+    antiviral: Optional[int] = Field(None, alias="antiviral")
+    antiviral_spec: Optional[str] = Field(None, alias="antiviral_spec")
+    
+    medication___1: Optional[int] = Field(0, alias="medication___1")  # Alprostadil
+    medication___2: Optional[int] = Field(0, alias="medication___2")  # IV Bicarbonate
+    medication___3: Optional[int] = Field(0, alias="medication___3")  # Prostacyclin Analogues
+    medication___4: Optional[int] = Field(0, alias="medication___4")  # Narcotics/Sedative Agents
+    medication___5: Optional[int] = Field(0, alias="medication___5")  # Neuromuscular blockers
+    medication___6: Optional[int] = Field(0, alias="medication___6")  # Sildenafil
+    medication___7: Optional[int] = Field(0, alias="medication___7")  # Systemic Steroids
+    medication___8: Optional[int] = Field(0, alias="medication___8")  # Trometamol
+    medication___9: Optional[int] = Field(0, alias="medication___9")  # None
+    medication___10: Optional[int] = Field(0, alias="medication___10") # Opioids
+    medication___11: Optional[int] = Field(0, alias="medication___11") # Antipsychotic medication
+
+    narcotics_spec___1: Optional[int] = Field(0, alias="narcotics_spec___1") # Propofol
+    narcotics_spec___2: Optional[int] = Field(0, alias="narcotics_spec___2") # Midazolam
+    narcotics_spec___3: Optional[int] = Field(0, alias="narcotics_spec___3") # Ketamin
+    narcotics_spec___4: Optional[int] = Field(0, alias="narcotics_spec___4") # Dexmetomidin
+
+    # ==================== Organ Support ====================
+    organ_support___1: Optional[int] = Field(0, alias="organ_support___1")
+    organ_support___2: Optional[int] = Field(0, alias="organ_support___2")
+    organ_support___3: Optional[int] = Field(0, alias="organ_support___3")
+    organ_support___4: Optional[int] = Field(0, alias="organ_support___4")
+    organ_support___5: Optional[int] = Field(0, alias="organ_support___5")
+    organ_support___6: Optional[int] = Field(0, alias="organ_support___6")
+    organ_support___7: Optional[int] = Field(0, alias="organ_support___7")
+    organ_support___8: Optional[int] = Field(0, alias="organ_support___8") # None
+    organ_support___9: Optional[int] = Field(0, alias="organ_support___9") # MARS
+    organ_support___10: Optional[int] = Field(0, alias="organ_support___10") # Cytosorb
 
     # ==================== Ernährung ====================
     nutrition: Optional[int] = Field(None, alias="nutrition")
@@ -279,6 +314,12 @@ class HemodynamicsModel(TimedExportModel):
         ]
         self.nirs_avail = 1 if any(field is not None for field in nirs_fields) else 0
         
+        if self.nirs_avail:
+            if self.nirs_left_c is not None or self.nirs_right_c is not None:
+                self.nirs_loc___1 = 1
+            if self.nirs_left_f is not None or self.nirs_right_f is not None:
+                self.nirs_loc___2 = 1
+        
         # Katecholamine vorhanden
         catecholamines = [
             self.dobutamine,
@@ -307,6 +348,10 @@ class HemodynamicsModel(TimedExportModel):
             getattr(self, f"antibiotic_spec___{i}") for i in range(1, 21)
         ]
         self.antibiotic = 1 if any(v == 1 for v in antibiotics) else 0
+        
+        # Antiviral vorhanden
+        if self.antiviral_spec:
+            self.antiviral = 1
         
         # Beatmung vorhanden - REDCap-konforme Werte
         if self.vent_peep is not None and self.conv_vent_rate is not None:

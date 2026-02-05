@@ -9,6 +9,12 @@ from .lab import LabModel, WithdrawalSite
 from .hemodynamics import HemodynamicsModel, VentilationMode, VentilationType, RenalReplacement, FluidBalance
 from .pump import PumpModel
 from .impella import ImpellaAssessmentModel
+from .pre_assessment import (
+    PreImpellaHVLabModel,
+    PreImpellaMedicationModel,
+    PreVAECLSHVLabModel,
+    PreVAECLSMedicationModel,
+)
 
 __all__ = [
     # Base
@@ -27,4 +33,9 @@ __all__ = [
     "PumpModel",
     # Impella
     "ImpellaAssessmentModel",
+    # Pre-Assessment
+    "PreImpellaHVLabModel",
+    "PreImpellaMedicationModel",
+    "PreVAECLSHVLabModel",
+    "PreVAECLSMedicationModel",
 ]

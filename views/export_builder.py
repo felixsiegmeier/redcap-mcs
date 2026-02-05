@@ -24,6 +24,8 @@ from services.aggregators import (
     HemodynamicsAggregator,
     PumpAggregator,
     ImpellaAggregator,
+    PreImpellaAggregator,
+    PreVAECLSAggregator,
 )
 
 
@@ -130,29 +132,86 @@ REDCAP_VALIDATION_TYPES = {
     "ecls_pf": "number_1dp_comma_decimal",
     "ecls_gf": "number_1dp_comma_decimal",
     "ecls_fi02": "number",
+    # Pre-Assessment (Common formats)
+    "pre_pco2": "number_1dp_comma_decimal", "pre_pco2_i": "number_1dp_comma_decimal",
+    "pre_p02": "number_1dp_comma_decimal", "pre_p02_i": "number_1dp_comma_decimal",
+    "pre_hco3": "number_1dp_comma_decimal", "pre_hco3_i": "number_1dp_comma_decimal",
+    "pre_be": "number_1dp_comma_decimal", "pre_be_i": "number_1dp_comma_decimal",
+    "pre_sa02": "number_1dp_comma_decimal", "pre_sa02_i": "number_1dp_comma_decimal",
+    "pre_k": "number_1dp_comma_decimal", "pre_k_i": "number_1dp_comma_decimal",
+    "pre_svo2": "number_1dp_comma_decimal", "pre_svo2_i": "number_1dp_comma_decimal",
+    "pre_wbc": "number_1dp_comma_decimal", "pre_wbc_i": "number_1dp_comma_decimal",
+    "pre_hb": "number_1dp_comma_decimal", "pre_hb_i": "number_1dp_comma_decimal",
+    "pre_hct": "number_1dp_comma_decimal", "pre_hct_i": "number_1dp_comma_decimal",
+    "pre_ptt": "number_1dp_comma_decimal", "pre_ptt_i": "number_1dp_comma_decimal",
+    "pre_inr": "number_1dp_comma_decimal", "pre_inr_i": "number_1dp_comma_decimal",
+    "pre_alb": "number_1dp_comma_decimal", "pre_alb_i": "number_1dp_comma_decimal",
+    "pre_crp": "number_1dp_comma_decimal", "pre_crp_i": "number_1dp_comma_decimal",
+    "pre_fhb": "number_1dp_comma_decimal", "pre_fhb_i": "number_1dp_comma_decimal",
+    "pre_hapto": "number_1dp_comma_decimal", "pre_hapto_i": "number_1dp_comma_decimal",
+    "pre_crea": "number_1dp_comma_decimal", "pre_crea_i": "number_1dp_comma_decimal",
+    "pre_urea": "number_1dp_comma_decimal", "pre_urea_i": "number_1dp_comma_decimal",
+    "pre_ph": "number_2dp_comma_decimal", "pre_ph_i": "number_2dp_comma_decimal",
+    "pre_pct": "number_2dp_comma_decimal", "pre_pct_i": "number_2dp_comma_decimal",
+    "pre_bili": "number_2dp_comma_decimal", "pre_bili_i": "number_2dp_comma_decimal",
+    "pre_cc": "number_2dp_comma_decimal", "pre_cc_i": "number_2dp_comma_decimal",
+    "pre_hr": "number", "pre_hr_i": "number",
+    "pre_sys_bp": "number", "pre_sys_bp_i": "number",
+    "pre_dia_bp": "number", "pre_dia_bp_i": "number",
+    "pre_mean_bp": "number", "pre_mean_bp_i": "number",
+    "pre_cvd": "number", "pre_cvd_i": "number",
+    "pre_sp02": "number", "pre_sp02_i": "number",
+    "pre_temp": "number", "pre_temp_i": "number",
+    "pre_pcwp": "number", "pre_pcwp_i": "number",
+    "pre_sys_pap": "number", "pre_sys_pap_i": "number",
+    "pre_dia_pap": "number", "pre_dia_pap_i": "number",
+    "pre_mean_pap": "number", "pre_mean_pap_i": "number",
+    "pre_ci": "number_1dp_comma_decimal", "pre_ci_i": "number_1dp_comma_decimal",
+    "pre_dobutamine": "number_2dp_comma_decimal", "pre_dobutamine_i": "number_2dp_comma_decimal",
+    "pre_epinephrine": "number_2dp_comma_decimal", "pre_epinephrine_i": "number_2dp_comma_decimal",
+    "pre_norepinephrine": "number_2dp_comma_decimal", "pre_norepinephrine_i": "number_2dp_comma_decimal",
+    "pre_vasopressin": "number_2dp_comma_decimal", "pre_vasopressin_i": "number_2dp_comma_decimal",
+    "pre_milrinone": "number_2dp_comma_decimal", "pre_milrinone_i": "number_2dp_comma_decimal",
+    "pre_gcs": "number", "pre_gcs_i": "number",
+    "pre_ck": "number", "pre_ck_i": "number",
+    "pre_got": "number", "pre_got_i": "number",
+    "pre_ldh": "number", "pre_ldh_i": "number",
+    "pre_alat": "number", "pre_alat_i": "number",
 }
 
 # Verfügbare Instrumente mit Labels
 AVAILABLE_INSTRUMENTS = {
     "labor": {
-        "label": "🧪 Labor",
+        "label": "Labor",
         "events": ["ecls_arm_2", "impella_arm_2"],
         "aggregator": "LabAggregator",
     },
     "hemodynamics_ventilation_medication": {
-        "label": "💓 Hämodynamik / Beatmung",
+        "label": "Hämodynamik / Beatmung",
         "events": ["ecls_arm_2", "impella_arm_2"],
         "aggregator": "HemodynamicsAggregator",
     },
     "pump": {
-        "label": "🔄 ECMO / Pump",
+        "label": "ECMO / Pump",
         "events": ["ecls_arm_2"],
         "aggregator": "PumpAggregator",
     },
     "impellaassessment_and_complications": {
-        "label": "❤️ Impella Assessment",
+        "label": "Impella Assessment",
         "events": ["impella_arm_2"],
         "aggregator": "ImpellaAggregator",
+    },
+    "pre_impella": {
+        "label": "Pre-Impella Assessment",
+        "events": ["impella_arm_2"],
+        "aggregator": "PreImpellaAggregator",
+        "is_pre": True
+    },
+    "pre_vaecls": {
+        "label": "Pre-ECLS Assessment",
+        "events": ["ecls_arm_2"],
+        "aggregator": "PreVAECLSAggregator",
+        "is_pre": True
     },
 }
 
@@ -160,8 +219,8 @@ AVAILABLE_INSTRUMENTS = {
 def render_export_builder():
     """Hauptfunktion für den Export Builder."""
     
-    st.header("🔨 Export Builder")
-    st.write("Erstelle Export-Daten für REDCap. Wähle Instrumente und Events aus.")
+    st.header("Export Builder")
+    st.write("Erstellen Sie Export-Daten für REDCap. Wählen Sie Instrumente und Events aus.")
     
     if not has_data():
         st.warning("Keine Daten geladen.")
@@ -186,7 +245,7 @@ def render_export_builder():
 def _render_instrument_selection():
     """Rendert die Instrument-Auswahl mit Checkboxen."""
     
-    st.subheader("📦 Instrumente auswählen")
+    st.subheader("Instrumente auswählen")
     
     # Session State für Auswahl initialisieren
     if "export_instruments" not in st.session_state:
@@ -212,8 +271,8 @@ def _render_instrument_selection():
                 event_label = "ECLS" if event == "ecls_arm_2" else "Impella"
                 key = f"{instr_key}_{event}"
                 
-                # Default: Labor + verfügbare Events aktiviert
-                default = (instr_key == "labor")
+                # Default: Alle Instrumente standardmäßig aktiviert
+                default = True
                 
                 checked = st.checkbox(
                     f"{instr_info['label']} ({event_label})",
@@ -233,9 +292,9 @@ def _render_settings():
     with col1:
         # Record ID anzeigen (wird in Sidebar bearbeitet)
         if state.record_id:
-            st.info(f"🏷️ Record ID: **{state.record_id}**")
+            st.info(f"Record ID: **{state.record_id}**")
         else:
-            st.warning("⚠️ Keine Record ID gesetzt (Sidebar)")
+            st.warning("Keine Record ID gesetzt (Sidebar)")
         
         # Value Strategy
         strategies = ["nearest", "median", "mean", "first", "last"]
@@ -271,9 +330,9 @@ def _render_time_range_selector():
         start, end = state.selected_time_range
         start_str = start.strftime("%d.%m.%Y") if isinstance(start, datetime) else str(start)
         end_str = end.strftime("%d.%m.%Y") if isinstance(end, datetime) else str(end)
-        st.info(f"📅 Zeitraum: **{start_str}** bis **{end_str}**")
+        st.info(f"Zeitraum: **{start_str}** bis **{end_str}**")
     else:
-        st.warning("⚠️ Kein Zeitraum ausgewählt")
+        st.warning("Kein Zeitraum ausgewählt")
     
     # MCS-Zeitraum Button
     ecmo_range = get_device_time_range("ecmo")
@@ -290,7 +349,7 @@ def _render_time_range_selector():
         if hasattr(mcs_end, 'to_pydatetime'):
             mcs_end = mcs_end.to_pydatetime()
         
-        if st.button("🎯 Auf MCS-Zeitraum setzen", key="builder_mcs_range"):
+        if st.button("Zeitraum auf MCS setzen", key="builder_mcs_range"):
             update_state(selected_time_range=(mcs_start, mcs_end))
             st.rerun()
 
@@ -332,17 +391,17 @@ def _render_build_section():
     
     # Validierung
     if not state.record_id:
-        st.warning("⚠️ Bitte Record ID eingeben.")
+        st.warning("Bitte Record ID eingeben.")
         return
     
     if not state.selected_time_range:
-        st.warning("⚠️ Kein Zeitraum ausgewählt.")
+        st.warning("Kein Zeitraum ausgewählt.")
         return
     
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("🔨 Daten erstellen", use_container_width=True, type="primary"):
+        if st.button("Daten erstellen", use_container_width=True, type="primary"):
             _build_multi_instrument_data()
     
     # Download wenn Daten vorhanden
@@ -351,14 +410,14 @@ def _render_build_section():
         with col2:
             csv_data = _export_multi_csv(all_forms)
             st.download_button(
-                "📥 CSV herunterladen",
+                "CSV herunterladen",
                 data=csv_data,
                 file_name="redcap_export.csv",
                 mime="text/csv",
                 use_container_width=True
             )
         
-        st.success(f"✅ {len(all_forms)} Einträge erstellt.")
+        st.success(f"{len(all_forms)} Einträge erstellt.")
         
         # Zusammenfassung nach Instrument
         instrument_counts = {}
@@ -367,10 +426,10 @@ def _render_build_section():
             instrument_counts[instr] = instrument_counts.get(instr, 0) + 1
         
         summary = ", ".join([f"{k}: {v}" for k, v in instrument_counts.items()])
-        st.info(f"📊 {summary}")
+        st.info(f"Zusammenfassung: {summary}")
         
         # Vorschau
-        with st.expander("📋 Vorschau"):
+        with st.expander("Vorschau"):
             preview_data = [entry.model_dump() for entry in all_forms]
             st.dataframe(pd.DataFrame(preview_data), hide_index=True)
 
@@ -393,9 +452,9 @@ def _build_multi_instrument_data():
     
     # Datumsliste erstellen
     dates = _get_date_range()
+    # Hinweis: Leere Datumsliste verhindert NICHT mehr die Erstellung von Pre-Assessments.
     if not dates:
-        st.error("Keine Tage im ausgewählten Zeitraum.")
-        return
+        st.info("Keine Tage im ausgewählten Zeitraum – es werden (falls ausgewählt) nur Pre-Assessments erzeugt.")
     
     # Export-Forms zurücksetzen
     new_export_forms: Dict[str, List[Any]] = {}
@@ -427,6 +486,46 @@ def _build_multi_instrument_data():
         if ref_df.empty:
             continue
         
+        # Pre-Assessment (einmalig)
+        if AVAILABLE_INSTRUMENTS.get(instr_name, {}).get("is_pre"):
+            # Bestimme Ankerzeitpunkt
+            if event_name == "ecls_arm_2":
+                earliest = get_data("ecmo")["timestamp"].min()
+            else:
+                earliest = get_data("impella")["timestamp"].min()
+            
+            if pd.isna(earliest):
+                continue
+                
+            # Wir erstellen die Einträge für die Pre-Instrumente
+            # Da Pre-Instrumente oft mehrere REDCap Instrumente bedienen, 
+            # müssen wir hier flexibel sein.
+            
+            agg_class = globals().get(AVAILABLE_INSTRUMENTS[instr_name]["aggregator"])
+            if not agg_class:
+                continue
+                
+            aggregator = agg_class(
+                anchor_datetime=earliest,
+                record_id=state.record_id,
+                data=state.data
+            )
+            
+            entries = []
+            if instr_name == "pre_impella":
+                entries.append(aggregator.create_hv_lab_entry())
+                entries.append(aggregator.create_medication_entry())
+            elif instr_name == "pre_vaecls":
+                entries.append(aggregator.create_hv_lab_entry())
+                entries.append(aggregator.create_medication_entry())
+            
+            for entry in entries:
+                # In export_forms speichern
+                form_key = f"{entry.get_instrument_name()}_{event_name}"
+                new_export_forms[form_key] = [entry]
+            
+            continue
+
         # Einträge für jeden Tag erstellen
         entries = []
         instance = 1

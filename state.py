@@ -72,7 +72,6 @@ class AppState:
     
     # Patientenspezifische Daten (manuell eingegeben falls nicht im Datensatz)
     patient_weight: Optional[float] = None  # in kg - NÖTIG für Katecholaminberechnung
-    patient_height: Optional[float] = None  # in cm - optional
     
     # Export-Daten: Generisches Dict für alle Instrumente
     # Key = instrument_name (z.B. "labor", "echocardiography")
