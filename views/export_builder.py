@@ -26,6 +26,7 @@ from services.aggregators import (
     ImpellaAggregator,
     PreImpellaAggregator,
     PreVAECLSAggregator,
+    DemographyAggregator,
 )
 
 
@@ -213,6 +214,11 @@ AVAILABLE_INSTRUMENTS = {
         "aggregator": "PreVAECLSAggregator",
         "is_pre": True
     },
+    "demography": {
+        "label": "Demographie",
+        "events": ["baseline_arm_2"],
+        "aggregator": "DemographyAggregator",
+    },
 }
 
 
@@ -254,6 +260,7 @@ def _render_instrument_selection():
     # Prüfe welche Datenquellen verfügbar sind
     has_ecmo = not get_data("ecmo").empty
     has_impella = not get_data("impella").empty
+    has_patientinfo = not get_data("PatientInfo").empty
     
     # Instrument-Checkboxen in Spalten
     cols = st.columns(2)
@@ -267,8 +274,13 @@ def _render_instrument_selection():
                     continue
                 if event == "impella_arm_2" and not has_impella:
                     continue
+                if event == "baseline_arm_2" and not has_patientinfo:
+                    continue
                 
-                event_label = "ECLS" if event == "ecls_arm_2" else "Impella"
+                if event == "baseline_arm_2":
+                    event_label = "Baseline"
+                else:
+                    event_label = "ECLS" if event == "ecls_arm_2" else "Impella"
                 key = f"{instr_key}_{event}"
                 
                 # Default: Alle Instrumente standardmäßig aktiviert
@@ -472,6 +484,9 @@ def _build_multi_instrument_data():
         elif key.endswith("_impella_arm_2"):
             event_name = "impella_arm_2"
             instr_name = key[:-len("_impella_arm_2")]
+        elif key.endswith("_baseline_arm_2"):
+            event_name = "baseline_arm_2"
+            instr_name = key[:-len("_baseline_arm_2")]
         else:
             continue
         
@@ -479,9 +494,12 @@ def _build_multi_instrument_data():
         if event_name == "ecls_arm_2":
             ref_time = state.nearest_ecls_time
             ref_df = get_data("ecmo")
-        else:
+        elif event_name == "impella_arm_2":
             ref_time = state.nearest_impella_time
             ref_df = get_data("impella")
+        else:  # baseline_arm_2
+            ref_time = None
+            ref_df = get_data("PatientInfo")
         
         if ref_df.empty:
             continue
@@ -524,6 +542,19 @@ def _build_multi_instrument_data():
                 form_key = f"{entry.get_instrument_name()}_{event_name}"
                 new_export_forms[form_key] = [entry]
             
+            continue
+
+        # Demography (einmalig)
+        if instr_name == "demography":
+            aggregator = DemographyAggregator(
+                date=dates[0] if dates else date.today(),
+                record_id=state.record_id,
+                redcap_event_name=event_name,
+                data=state.data
+            )
+            entry = aggregator.create_entry()
+            form_key = f"{entry.get_instrument_name()}_{event_name}"
+            new_export_forms[form_key] = [entry]
             continue
 
         # Einträge für jeden Tag erstellen
@@ -633,6 +664,16 @@ def _create_instrument_entry(
             redcap_repeat_instance=instance,
             value_strategy=value_strategy,
             nearest_time=nearest_time
+        )
+        return aggregator.create_entry()
+    
+    elif instrument == "demography":
+        aggregator = DemographyAggregator(
+            date=day,
+            record_id=record_id,
+            redcap_event_name=event_name,
+            redcap_repeat_instance=instance,
+            data=get_state().data
         )
         return aggregator.create_entry()
     

@@ -8,6 +8,7 @@ from .impella_aggregator import ImpellaAggregator
 from .lab_aggregator import LabAggregator
 from .pump_aggregator import PumpAggregator
 from .pre_aggregator import PreImpellaAggregator, PreVAECLSAggregator
+from .demography_aggregator import DemographyAggregator
 
 __all__ = [
     "BaseAggregator",
@@ -17,4 +18,5 @@ __all__ = [
     "PumpAggregator",
     "PreImpellaAggregator",
     "PreVAECLSAggregator",
+    "DemographyAggregator"
 ]

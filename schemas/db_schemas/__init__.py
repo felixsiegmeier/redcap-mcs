@@ -5,6 +5,7 @@ Alle Pydantic Models für REDCap-Instrumente werden hier exportiert.
 """
 
 from .base import BaseExportModel, TimedExportModel
+from .demography import DemographyModel
 from .lab import LabModel, WithdrawalSite
 from .hemodynamics import HemodynamicsModel, VentilationMode, VentilationType, RenalReplacement, FluidBalance
 from .pump import PumpModel
@@ -20,6 +21,8 @@ __all__ = [
     # Base
     "BaseExportModel",
     "TimedExportModel",
+    # Demography
+    "DemographyModel",
     # Labor
     "LabModel",
     "WithdrawalSite",

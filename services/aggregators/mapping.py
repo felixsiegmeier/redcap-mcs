@@ -250,3 +250,12 @@ IMPELLA_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
     "imp_purge_flow": ("Impella", ".*", r"Purgefluß|Purgefluss|Purge.*ml/h"),
     "imp_purge_pressure": ("Impella", ".*", r"Purgedruck"),
 }
+
+# =============================================================================
+# DEMOGRAPHICS MAPPING (DemographicsAggregator)
+# =============================================================================
+DEMOGRAPHY_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
+    "birthdate": ("PatientInfo", ".*", r"^Geburtsdatum"),
+    "weight": ("PatientInfo", ".*", r"^Gewicht"),
+    "height": ("PatientInfo", ".*", r"^Grö(?:ss|ß)e"),
+}

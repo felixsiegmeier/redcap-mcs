@@ -99,10 +99,15 @@ class BaseAggregator(ABC):
             return None
         if not s:
             return None
+        
+        # Spezialfall Datum: Wenn es wie ein Datum aussieht (DD.MM.YYYY), NICHT zu float konvertieren
+        import re
+        if re.match(r"^\d{1,2}[\./]\d{1,2}[\./]\d{2,4}$", s):
+            return None
+
         # Komma als Dezimalpunkt interpretieren
         s_norm = s.replace(",", ".")
         # Erste Zahl (mit optionalem Vorzeichen/Dezimalteil) extrahieren
-        import re
         m = re.search(r"[-+]?\d+(?:\.\d+)?", s_norm)
         if not m:
             return None
@@ -111,6 +116,49 @@ class BaseAggregator(ABC):
         except Exception:
             return None
     
+    def get_string_value(
+        self,
+        df: pd.DataFrame,
+        category_pattern: str,
+        param_pattern: str
+    ) -> Optional[str]:
+        """
+        Holt einen String-Wert aus dem DataFrame.
+        
+        Args:
+            df: Quelldaten
+            category_pattern: Regex-Pattern für Kategorie
+            param_pattern: Regex-Pattern für Parameter
+            
+        Returns:
+            Erster gefundener String-Wert oder None
+        """
+        if df.empty:
+            return None
+        
+        # Parameter-Filter
+        param_mask = df["parameter"].str.contains(param_pattern, case=False, na=False, regex=True)
+        
+        # Category-Filter
+        if "category" in df.columns and category_pattern != ".*":
+            cat_mask = df["category"].str.contains(category_pattern, case=False, na=False, regex=True)
+            mask = param_mask & cat_mask
+        else:
+            mask = param_mask
+        
+        filtered = df[mask]
+        
+        if filtered.empty:
+            return None
+        
+        # Ersten nicht-leeren String-Wert zurückgeben
+        for val in filtered["value"].dropna():
+            str_val = str(val).strip()
+            if str_val:
+                return str_val
+        
+        return None
+
     def get_source_data(self, source: str) -> pd.DataFrame:
         """
         Holt Daten aus einer Quelle (Lab, Vitals, etc.).
