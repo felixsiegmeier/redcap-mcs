@@ -1,0 +1,1068 @@
+   1 # Blutung v.a. noch aus der PE links- im Verlauf aber weniger werdend // Gerinnungsoptimierung
+   1 # ECMO BF 3,5l + GF2l // FiO2 100% - Oxytest? <ANONYM> norm
+   1 # cave Rachenabstrich Klebsielle Pip/Taz R somit Umstellung ABx auf Mero
+   1 # unter <ANONYM> gesteigerte Diurese und Negativbilanzierung möglich > Ziel Negativbilanzierung
+   1 # wach, asprechbar aber zunehmend Angst präop > Start niedrig dosiert Propofol
+   1 # weiterhin hohe <ANONYM> // Versuch Reduktion Pinsp so dass deltaP < 14mbar
+   1 (1 defektes EK (319345452) zurück ins Labor)
+   1 (nach best PEEP Trail) darunter MV 7,9/8l FiO2 60%, FdO2 100% kompr. GAT ausged. PLE bds. li>re -> PlD
+   1 * <ANONYM> bei postoperativer Nachblutung > 1,5L, z.n. bMKE, MCS Ecmella-Therapie
+   1 * bMKE und ECMELLA <KONTAKT>)              Operateur: Bauer
+   1 *<ANONYM> P4 2,5 L/min
+   1 *<ANONYM>, 1,5L/min
+   1 *ECMO V-A 5L/min, ScvO2 65%, 4500rpm
+   1 *Nachträgliche Dokumentation:
+   1 *PLT 70k --> Gabe von 2 TKs, 2000 PPSB
+   1 *V-A ECMO 4,2 L/min
+   1 -  PLD links keine Fistelung
+   1 - 01.01.2026 Meropenem (Pneumonie, Klebsiella) 10.01.2026
+   1 - 09.01.2026 ECMO <ANONYM>
+   1 - 1 Mediadrainage entfernen
+   1 - 1 weiteres EK
+   1 - 1 x Im Schicht PCWP messen und dokumentieren.
+   1 - 1000 PPSB
+   1 - 11.01.2026 <ANONYM> Explantation
+   1 - 11.01.2026 TEE LVEF 45%, MKE regelrecht
+   1 - 12-Kanal EKG
+   1 - 12.01.2026 Meropenem & Vancomycin —
+   1 - 1EK
+   1 - 1x Alt-Blut im Stuhl. PPI 2x Täglich, Hb engmäschig beobachten
+   2 - 1xPD re: <ANONYM> unauffällig
+   1 - 1xRedon sternal: +50 ml seit Aufnahme
+   1 - 1xRedon sternal: Förderrate unauffälig
+   1 - 1xRedon sternal: unauffälig im Dienst
+   1 - 2 EKs
+   1 - 2 g Fibrinogen
+   1 - 2000 IE PPSB
+   1 - 26.12.2025 Cefazolin (perioperativ) —
+   1 - 26.12.2025 RCA-Stenting (auswärtig)
+   1 - 26.12.2025 VA-ECMO & Impella 5.5 Implantation
+   1 - 28.12.2025 Pip/Taz (Pneumonie) 01.01.2026
+   1 - 2g Fibrinogen
+   1 - 2xPD li: +100 ml im Dienst
+   1 - 2xPD li: +200 seit Aufnahme
+   1 - 2xPD li: unauffällig im Dienst
+   1 - 2xPD re: unauffällig im Dienst
+   1 - 3 TK
+   1 - 3xMD: +300 ml hell blutig
+   1 - 3xMD: +300 ml seit Aufnahme
+   1 - 3xMD: +700 ml hell blutig, nicht Hb relevant im Dienst
+   1 - 7 EK
+   1 - <ANONYM> (Hämatothorax)
+   1 - <ANONYM> Schock bei STEMI (Hinterwandinfarkt)
+   1 - <ANONYM> unter leichtem NA. im SR.
+   1 - <ANONYM> wegen CMPE. und Therapie?
+   1 - <ANONYM>.
+   1 - <KONTAKT> MiBi Klebsiella aerogenes (Trachealsekret)
+   1 - <KONTAKT> Re-Re-Rethorakotomie (Hämatothorax)
+   1 - <KONTAKT> Rethorakotomie (Blutstillung)
+   1 - <KONTAKT> bMKE, ECMELLA
+   2 - Abgehen von der HLM unter 0,15 ug Epi, Vaso 4, NA 0,3ug (doppelter Ansatz).
+   1 - Akutes Nierenversagen (CVVHDF)
+   1 - Anruf. MiBi: aktuell noch nicht näher zu spezifizierendes Bakterium in den Blutkulturen, Ausdifferenzierung folgt. PipTaz bereits laufend.
+   1 - Arterieller Hypertonus
+   1 - BK 27.12.: """"In der Gramfärbung nicht eindeutig klassifizierbare Bakterien oder Pilze gesehen.
+   1 - BSK erneut.
+   1 - Beginn <ANONYM>.
+   1 - Bei <ANONYM> Abfall unter 75k Bitte Transfundieren.
+   1 - Bei Ansaugen Impella 2 FFPs komplikationslos transfundiert
+   1 - Bei Lungenödem intra-OP unter freier MI heute keine Extubation. RxTx mit rückläufigem Stauungsaspekt, GAT unter FiO2 0,35 suffizient, <ANONYM>. neurol. unauffällig + w/a
+   1 - Bitte <ANONYM> Konsil neuerstellen und anrufen.
+   1 - Bitte <ANONYM> nach OP ex. Umstellung auf Dexdor.
+   1 - Bitte Anti Xa Kontrollen bei MCS.
+   1 - Blutung
+   1 - CK-/CK-MB-Kontrolle
+   1 - CK/CK-MB-verlaufskontrolle
+   1 - CRP 95 (185) leuk 17 (12)
+   1 - CRP/PCT heute kontrollieren.
+   1 - CRP/PCT kontrollieren.
+   1 - CRRT Beginnen mit Volumenentzug.
+   1 - CRRT bitte erneute anschließen zur neg. Bilanz.
+   1 - CVVHDF weiter
+   1 - CVVHDF weiter, vorher Dialysekatheter neu (bisheriger Katheter in der Nacht disloziert)
+   1 - Ca2+ 0,98 -> Substitution
+   1 - Cave: Gewebeoxygenierung
+   1 - Clopidogrel bei Z.n. DES
+   1 - Dexdor abgesetzt.
+   1 - Dexdor reduziert. bitte nicht mehr erhöhen.
+   1 - Diurese deutlich abnehmend trotz normalen RP. Heute Beginn CRRT.
+   4 - Drainagen im Blick
+   1 - ECLS bis auf 2 L/<ANONYM> reduziert
+   1 - ECMO Reduziert auf 3,5lpm. darunter Impella auf 2,5-3lpm.
+   1 - ECMO VA fem/fem rechts: 2295 rpm 1,6 lpm lpm Fdo2 0,7 SG 1 lpm
+   1 - ECMO VA fem/fem rechts: 3830 rpm 4,18 lpm Fdo2 1 SG 1 lpm
+   1 - ECMO heute ex.
+   1 - Echo morgen.
+   1 - Echokardiographisch linksventrikuläre Funktion eingeschränkt
+   1 - EcmO heute reduziert.
+   1 - Ehemann über aktuelle Situation telefonisch informiert
+   1 - Epinephrin weaning, Lactat im Blick
+   2 - Ernährung eskaliert.
+   1 - Falls unter Elektrolyten und Volumengabe nicht in SR umspringt, dann bitte heute noch eKV.
+   1 - Furosemid-Perfusor Start mit 20mg/h
+   1 - GAT besser.
+   1 - Gabe 3 FFPs
+   2 - Gabe von insgesamt 4 EKs und 2 TKs
+   1 - Gerinnung Optimierung nach ROTEM: 3 EKs, 4 FFPs, Fibrinogen 1g
+   1 - Gerinnung angepasst
+   1 - Gerinnungskontrolle: Faktor XIII, Fibrinogen Rotem
+   1 - Gerinnungstherapie
+   1 - HS und Krea dezent steigend
+   1 - Hb 10,2
+   1 - Hb 11
+   1 - Hb 7,6 -> 2 EK -> 8,6
+   1 - Hb engmaschig kontrollieren, Teerstuhl
+   1 - Hb im Blick, 2 EK bitte bestellen
+   1 - Heparin start um 17 Uhr
+   1 - Heparinperfusor Start um 12 Uhr 0,5 ml/h
+   1 - Heute Blutkulturen + Trachealsekret.
+   1 - Heute Meropenem abgesetzt
+   1 - Heute Teerstuhl . PPI 2x Täglich, Hb engmäschig beobachten
+   1 - Hydrocortison reduzieren.
+   1 - Hypertonie vermeiden.
+   1 - Impella korrigiert 4,1cm im LV.
+   1 - Impella: P4 2,0 lpm PF 11,7 ml/h PD 483 mmHg
+   1 - Impella: P6 3,6 lpm PF 11,7 ml/h PD 520 mmHg
+   1 - Impellalage regelrecht, Abstand AK > Inl. 4,2 cm
+   4 - Infektkontrolle
+   1 - Keine Hinweise auf <ANONYM>. leichtes Hämatothorax li. <ANONYM>.
+   1 - Keine Hinweise auf Blutung aus der Tracheotomiewunde.
+   1 - Kreislaufstabil im SR. Urapidil
+   1 - Kreislaufstabil. Heute in VHF umgesprungen.
+   1 - Kreislaufstabil. Im SR. VP frei.
+   1 - Kreislaufstabil. im SR. VP frei. <ANONYM> weiter.
+   1 - Kreislaufstabil. im SR. VP niedrigdosiert.
+   1 - LV wirkt sonographisch entlastet
+   1 - LVEF ca. 45%, RV normal
+   1 - LVEF: 25-30%
+   1 - Lac 17
+   1 - Lac 18 (20)
+   1 - Lac im FD 82 auf 43 reduziert
+   2 - Lungenödem mit oxigenierungsstörung an VA Ecmo
+   1 - Magensonde
+   1 - Meropenem am 10.10. ex.
+   1 - Mittwoch: Bitte bei Fr. Dr. <ANONYM> anrufen, <ANONYM>. in onkologischer Behandlung und bekommt Ropeginterferon.. Tel: <KONTAKT>. Grund dafür abklären.
+   1 - Montag , Bitte bei Fr. Dr. <ANONYM> anrufen, <ANONYM>. in onkologischer Behandlung und bekommt Ropeginterferon.. Tel: <KONTAKT>. Grund dafür abklären.
+   1 - NA 0,14 Lactat idem, 1EK transfundiert
+   1 - Nach STEMI mit DES-Implantation DAPT-Indikation bzw. Clopidogrel + thUFH (Clopidogrel auf RS)
+   1 - Neg. Bilanz weiter.
+   1 - Negativ Bilanz wenn <ANONYM> gebessert wird
+   1 - Neuro-Fenster
+   2 - Norepinephrin reduzieren
+   1 - Normaldruckglaukom
+   1 - PAK danach.
+   1 - PDT Aufklärung heute.
+   1 - PDT Aufklärung?
+   1 - PDT aufklären.
+   1 - PDT morgen.
+   1 - PEEP hoch, Ventavis verdoppelt, iNO
+   1 - PKH Verlegung.
+   1 - PLT -> suff. Anstieg auf 122 nach Gabe 1 TK durch den ND -> bei aktuellem Mangel an TKs für die OP zwei """"Vorbestellt/Reserviert
+   1 - Papillarmuskelabriss mit hochgradiger Mitralinsuffizienz
+   1 - Pat. <ANONYM>. Beginn Urapidil und Nitro.
+   1 - Perspektivisch <ANONYM> + Dialyse zur <ANONYM>
+   1 - Pip/Taz begonnen
+   1 - Plavix wieder begonnen.
+   1 - Pneumonie (Klebsiella aerogenes)
+   1 - Polycythaemia vera
+   1 - Postoperative Nachblutung / <ANONYM>
+   1 - Prof. <ANONYM> bettseitig 19:00 Uhr: VA-ECMO auf 2,5 lpm reduziert, Impella auf P5 3 lpm. Ziel: Morgen ECMO ex
+   1 - Propofol möglichst nciht verwenden. wenn nicht möglich, dann weiter Propofol. ggf. Lormetazepam.
+   1 - ROTEM im Blick (Optimierung Gerinnung)
+   1 - RTX erfolgt: LuÖdem bei MI III°
+   1 - RVEF: 35%
+   1 - RVOT VTI 9.9cm
+   1 - Rtx Befund würdigen
+   1 - Rö-Thorax
+   1 - SR (zuletzt), Z.n. passagerem Schrittmacher / AA
+   1 - Sedierung Ziel-RASS 0/-1 bei Agitation
+   1 - Shaldon Anlage zur forc. neg. Bilanz
+   1 - TBS & BKs ad MiBi
+   1 - TBS 28.12.: """"Hinweis auf entzündliche Aktivität.
+   1 - TEE
+   1 - TEE Pumpenreduktionsecho erfolgt -> Impella Explantation geplant
+   2 - TEE präprozedural: gute LVEF, mittelgradig reduzierte RVEF, hochgradige MI bei Papillarmuskelausriss, Impella in loco typico, großer PLE links, kleines PFO. Sonstige Klappen soweit beurteilbar unauffällig.
+   1 - TEE: Gute lage der impella. leicht dilatierter RV (unter ECMO 3lpm). VTI 9cm.
+   1 - TTE
+   1 - Telefonat mit dem Ehemann des Patieten
+   1 - Thoraxdrainag rechts: problemlose Anlage 32Fr. Drainage, es entleert sich reichlich seröses Sekret über die Drainage und daran vorbei. 2x Naht zum Schluss des Schnitts. U-Naht + Mädchenfänger. Kein Anhalt auf Pneu
+   1 - VTI RVOT 11cm. VTI LVOT 9cm.
+   1 - Vanco angepasst.
+   1 - Weaning beginnen. Pat. toleriert CPAP. Bitte CPAP Zeit verlängern.
+   1 - Weaning nach Plan, paralell Tracheotomie aufklären
+   1 - Weaning weiter.
+   1 - Weaning.
+   1 - Weiter Entlastung durch ECMELLA
+   1 - Weiter PEEP 10, vorerst bei Lungenödem nicht extubieren
+   1 - Weiter erhlolen lassen.
+   1 - Weiteres ECMO Weaning. ggf. Freitag abbau.
+   1 - Wenn ECMO Ex. dann Bitte PAK anlegen.
+   1 - Z.n. Reanimation (15 min)
+   1 - bei Anämie und Katecholaminpflichtigelit -> Transfusion 2 Erythrozytenkonzentrate
+   1 - cave CRP steigend auf 106, Lc konstant hoch aktuell 31, ZVK Tag 15, Shaldon Tag 9
+   1 - erhöhte Drainageförderrate -> Transfusion von Blut und Blutprodukten
+   1 - fHb 4,2, kein Anhalt für Hämolyse
+   1 - geringere aber nach wie vor hohe Fördermenge Blutig über die li PLD, rechts Blutung um die Drainage Durchtrittsstelle, trotz übernaht des Hautschnitts nur geringfügige Besserung
+   1 - ggf. Kardioversion bei pers. VHF?
+   2 - ggf. Weaning
+   1 - großer PLE/Pleurahämatom links
+   1 - häm. Stabilisierung
+   2 - hämod. Stabilisierung, Hydrocortison reduzieren
+   1 - intraoperativ 7 EK, 3 TK, 2000 PPSB, 2g Fibronogen
+   1 - intraoperativ diffuse Blutung ohne eindeutige Blutungsquelle, SM neu angelegt
+   1 - invasive Beatmung
+   1 - kl. PE dorsal (0,3 cm)
+   1 - kontinuierliche Fallbesprechung OÄ Bockbreder im FD
+   1 - meanPG 2.6 mmHg
+   1 - minimale paravalvuläre Insuffizienz
+   1 - morgen Blutkulturen + Trachealsekret.
+   1 - noch mal 5 EKs gekreuzt
+   1 - problematik bei  Dienstübergabe ND->FD mit Kollegin Mimose, Nagel besprochen
+   1 - ptt 52, INR 1,3
+   1 - pulmonale Einschränkung: BSK erfolgt, viel Sekretlast
+   1 - sysPAP 16mmHg + ZVD
+   1 - tel. RS mit chir. Kollegen aus dem OP, Kurze Schilderung der Blutungsproblematik, Bitte um Begutachtung und wenn möglich Blutstillung
+   1 - therapeutisch (PTT Ziel 60) / UFH
+   1 - unter Analgosedierung Vasopresssorbedarf steigend
+   1 - weitere EKs (insg. 10 auch in Hinblick auf angedachte OP morgen) eingekreuzt
+   2 - weitere neg. Bilanz.
+   1 - weiterhin Blutung via li PLD (über nacht 1000ml), nach wie vor Transfusionsbedarf -> soll heute in der OP mit begutachtet werden
+   1 - weiterhin Transfusionspflichtig
+   1 - wenn zurück von OP dann <ANONYM> ex. Umstellung auf Dexdor.
+   1 - ÖGD
+   1 - ÖGD und Kolo
+   1 ------------> CVVHDF ntzug erhöht bis -350ml/h, Ziel Negativbilanzierung
+   1 ------------> ECMO-Reduktion weiterhin: 3L/min, ScvO2 65%, 3000rpm
+   1 ------------> HSM DDD>AAI 92/min, V-V synchron
+   1 ----> TEE: LV Pumpfunktion visuell verbessert im Vergleich zu Gestern, VTI 11
+   1 --> 1 Ek transfundiert (6 Eks nachgekreuzt) 2763025597894501. Kein adäquater Anstieg somit noch ein 1 EK angefordert
+   1 --> Anhaltende Blutung über die MD > 1300ml in 2h. Steigender Katecholaminbedarf
+   1 --> Bei INR 2,2, Verlangerter CT im EXTEM und Blutung über die Drainagen 1500 PPSB (P100862862200[CR]
+   1 --> Heparinperfusor pausiert um 12:30 Uhr
+   1 --> Heute ECMO Explantation geplant
+   1 --> MD 1 und Redon ex
+   2 --> Neuro-Fenster: Augen auf, keine Fixierung, bewegt 4/4 spontan
+   1 --> PLD links entfernt → nach ca. 2 Min bis SpO₂ Abfall 80 %
+   2 --> Rö-Thorax: progrediente Transparenzminderung links pulmonal <ANONYM>, konstant rechts. Geringer Erguss bds.
+   1 --> Röntgen: links eher """"aufgelockerter"""" im Vergleich zum Vorbefund. Rechts basal tendenziel Zeichnungsvermehrung zunehmend.
+   1 --> Sono: kein größerer Erguss anzugrenzen.
+   1 --> TEE: Befund erfolgt
+   1 --> Versuch auf ECMO-Reduktion 5L>3L/min, ScvO2 65%, 3000rpm, <ANONYM>, 1,5L/min
+   1 --> ZVK + Shaldon Anlage VJI links, 3 Paare BK abgenommen, start antimikrobielle Therapie
+   1 --> wiedersediert bei Asynchronie mit Beatmungsgerät, Impella-Alarm
+   1 -> AB-Therapie weiter, Reevaluation im Verlauf
+   1 -> AB-Therpie weiter, Reevaluation, wenn MIBI-Befunde vollständig vorliegen
+   1 -> Antibiotikatherapie weiter
+   1 -> Bronchoskopie
+   1 -> CA2+ trotz Subst kein Adäquater Anstieg -> erneut 2g
+   1 -> Info Dr. <ANONYM>: <ANONYM> -> Hausdienst informieren/Revision
+   1 -> Info HTG-Hausdienst erfolgt
+   1 -> Lac in BGA nicht bestimmt
+   1 -> Leukos Angestiegen 25,4 (20,6)
+   1 -> Rethoraktomie
+   1 -> TTE heute (bei steigendem Vasopressorbedarf telefonisch und schriftlich angemeldet)
+   1 -> Vanco an Spiegel angepasst
+   1 -> bei FiO2 0,3 -> PEEP auf 10 mbar (dann nicht weiter reduzieren)
+   1 -> morgen <ANONYM>
+   1 -> morgen Urin
+   1 -> morgen Verlaufskonrolle Inflammationsparameter
+   1 -> postoperativ flächige Transparenzminderung links
+   1 -> ÖGD erfolgt: kein Anhalt auf aktive Blutung, keine Indikation für Kolo, bei weiterhin HB Verlauf bzw. Anzeichen einer Blutung Empfehlung zur CTA
+   1 ->* s. Nachtrag
+   1 -Furosemid Dosis reduziert ( Ödeme deutlich regredient , pulmonale Stauung auch regredient)
+   1 -PPI in der Therapie vorhanden
+   1 -Resp. zeigt sich instabiler und danebenzischender Cuff, mehrfaches Nachblocken sowie absaugen erfolgt, keine Besserung auch nach mehrmaligem AbsaugenInhalieren und nachblocken -> AVD informiert, Kanüle leicht repositioniert durch AVD, in Folge Besserung
+   1 -Spironolacton angesetzt
+   1 -wenn keine  Verbesserung Diamox Gabe
+   1 . kein adäquater Anstieg des Hb unter 3 EK (7,4 -> 8,4)
+   1 09.01 ECMO <ANONYM>
+   1 1 PD links (200ml bei Übernahme)
+   1 1 PD rechts (600ml bei übernahme)
+   1 1,4l/min) PM mit DDD 100 (hierunter junktionaler Ersatzrhythmus mit 55/min) NA 0,08. Epi 0,03
+   1 1. Propofol aus
+   1 1. Schilderung der alktuellen Situation mit erneuter Rethorakotomie in der Nacht.
+   1 1/21: KM: Polycythaemia vera, keine Fibrose
+   1 12.01. Impella Explantation
+   1 12/20Nachweis JAK2-V617F
+   1 13. POT RE-Re-RE Thorakotomie bei postoperativer Nachblutung und SM Neuanlage Op-Datum: 03.01.2026
+   1 1xPD re: Förderrate unauffällig, <ANONYM>: Hb 8,5, Laktat 18, PLT 80k, PTT 38
+   1 2 Eks in Bereitschaft
+   1 2 MD (bei Übernahme 250ml)
+   1 2 TKs + 2 GFP bestellt, 12 EKs grekreutz
+   1 2. Sufenta reduzueren
+   1 2/21: Beginn Ropeginterferon alfa-2b 100 µg q2w s.c. (Besremi)
+   1 2763025587928605[CR])
+   1 2766042527750409[CR]
+   1 2766042556513203[CR]), 2 EK (2767022546719402[CR]
+   1 2EKs bei Hb 8,6 und schwerer Oxygenierungsstörung transfundiert.
+   1 2TKs in SD erhalten, adäquat angestiegen. Drainagen FM viel weniger als gestern
+   1 2x Laborentnahme (erweiterter Gerinnung + Rotem + kl.BB + Leberenzyme) intraop
+   1 38,1°C, ITW steigend
+   1 4 Ampullen Desmopressin als KI bei V.a. Thrombozytendysfunktion bei MCS (erworbene Von Willenbrand Faktor Mangel) bei zwar mäßiger, aber persistierender Blutung aus dem MD (800ml in 12h)
+   1 4 Uhr PTT bei 40, seit mehreren Tagen kein Heparin. Aktuell klinisch oder laborchemisch keine Blutung, INR norm> Start Heparin LowDose auf 250 IE/Std.
+   1 4. POT Impella Explantation       Op-Datum 12.01.2026
+   1 5 EKs in Blutbank für OP morgen, Thrombos 87 (im Hinblick auf OP + ECMELLA+Blutung) 1 TK
+   1 500IE PPSB (P100877428[CR])
+   1 6 Uhr BGA unter 85% o2 an der Beatmung und 100% an der ECMO+2l Gasfluss und 5,0l Blutfluss> FIO2 180, CO2 norm. kein Lactat, Hb stabil
+   1 6/25: Dosissteigerung auf 150 µg q2w s.c.
+   1 7. POT ECMO Explantation          Op-Datum 09.01.2026
+   1 75 ml/h
+   2 80%/GF 2L
+   1 89/60 (71) mmHg
+   1 99665300 nicht erreichbar
+   1 <ANONYM>
+   1 <ANONYM> Pkt
+   1 <ANONYM> TEE:
+   1 <ANONYM> ex.
+   1 <ANONYM> über links mit Spitzen posteroapikal.
+   1 <ANONYM>. Chronischer Infarkt rechts zerebellär. Leukenzephalopathie.
+   1 <ANONYM>: 17/15
+   1 <ANONYM>: 2 EKs
+   1 <KONTAKT>: Re-Thorakotomie bei Hämatothorax und <ANONYM> links                        Operateur: Dr. Montagner
+   1 == >Versuch Kontakt zum Hämatoteam <ANONYM> erfolglos:Dienstarzt für <ANONYM> heute: 99665257 nicht erreichbar
+   1 == Antikoagulation ==
+   1 == Antimikrobielle Therapie ==
+   1 == Befunde ==
+   1 == Behandlungsdiagnosen ==
+   1 == Kardiale Funktion ==
+   1 == Operationen & Prozeduren ==
+   1 == Relevante Nebendiagnosen ==
+   1 => biventrikulär erholt Pumpfunktion (LVEF 45%, RVEF visuell normal), keine relevante Änderung der Hämodynamik unter
+   1 > BiPAP via ET
+   1 > Bisher keine Ernährung
+   1 > Diurese abnehmend, RTW konstant
+   1 > Ernährung via NGS Start
+   1 > H/d stabil unter ECMELLA (VA-ECMO 4,6l + <ANONYM> 2,5l), Start <ANONYM> zur RV-Rekompensation
+   1 > H/d unter ECMELLA (Impella P6 + <ANONYM> 2l) + Supra 0,05 stabil
+   1 > HB von 7.4 2 EKs bestellt
+   1 > Lungenödem im RTX regredient, BiPAP via ET
+   1 > Patient mit diffuser Blutung im Bereich der linken Flanke, sowie des rechten und linken Armes, hier sonographisch Einblutung in die Muskulatur (Bestimmung Fibrinogen, Faktor 13 und Rotem) > Optimierung der Gerinnung
+   1 > RS Potapov: ECMO-Explantation + <ANONYM> geplant
+   1 > Rö, kein Anhalt auf Hämathotorax
+   1 > Shaldon nicht angenäht, akzidentell gezogen (Dialyse Auslassversuch, bei aktueller Gerinnungssituation derzeit keine Neuanlage möglich)
+   1 > Sofortige Evaluation zusammen mit OÄ Dr. Perz, im Röntgen großflächige Verschattung links etwas hyperdenser mit wenig pulmonale Gefäßaufzeichnung, links unauffällig. in BGA Hb 2 Punkte in 2h abgefallen
+   1 > TTE
+   1 > Thrombusaspiration + 2x DES-Implantation
+   1 > Volumnagabe
+   1 > erneut Teerstuhl abgesetzt, Indikation zur ÖGD und Kolo (heute), RS bereits erfolgt, Gabe von Erythromycin vorarb
+   1 >> Supra mit 0,1y, darunter RV  Pumpfunktion leicht gebessert, LV nicht leer, kommp pulsatilität am art Kurve, Supra auf 0,7y reduziert
+   1 >ECMO Fluss von 4,4 auf 5,0 + FIO2 auf die ECMO auf 100% erhöht, um das Shunt-Phänomen durch den Lungenkreislauf sowie ein evtl. Harlequin-Phänomen zu minimieren und die kranke Lunge zu bypassen. Höher als 5,0 saugt es sofort an.
+   1 >Zeitnahes Neurofenster.
+   2 A. gebläht, thympaner KS,
+   2 A. weich, schlank
+   2 A: Peristaltik ubi, weich, in Domo noch kein SG
+   1 A: Rege Peristaltik, Bauchdecke weich, keine DD, minimal gebläht
+   1 A: gebläht , keine Resistenzen, EE
+   1 A: gebläht, keine Resistenzen, Peristaltik spärlich, kein Reflux, Stuhlgang 09.01
+   1 A: klinisch unauffällig
+   2 A: weich, Peristaltik reduziert
+   1 A: weich, Peristaltik reduziert, enter. Ernährung gut vertragen
+   1 A: weich, Peristaltik reduziert, enter. Ernährung start
+   1 A: weich, Teerstuhl merhmals seit gestern, Pantoprazol erhöht
+   1 A: weich, kein DS, <ANONYM>. äußert keine Schmerzen beim Palpation, SG heute blutig!!
+   1 A: weich, laute Übergabe mehrdach Teerstuhl gestern (heute bisher kein Stuhlgang) bei HB 8.4 (7.9)
+   1 A: weich, laute Übergabe mehrfach Teerstuhl (ÖGD bereits angemeldet), Lac 12
+   1 ABX: Vanco 15.9 > Laufrate erhöht
+   1 ABs : MERO+VANCO
+  15 ACT
+   1 ACT 152 Sek
+   1 AK/TAH: thUFH
+   1 AK:
+   1 AK: PTT 56.2
+   1 AK: PTT 62, UFH LR belassen
+   1 AK: th. UFH, PTT 38 > LR angepasst
+   1 AK: th. UFH, PTT 45 > LR angepasst
+   1 AMT: Cefazolin perioperativ
+   1 ASSIST: Zeiterfassung für aufwendige Verbände in Minuten
+   1 AV: trikuspide, zart, gute Öffnungsbewegung bei jeder Herzaktion, Impella, leichtgradige Insuffizienz
+   1 A_: gebläht, keine Resistenzen, Peristaltik spärlich, kein Reflux , SG 03.01
+   1 AbX: Cefazolin perioperativ
+   1 AbX: Pip/Taz
+   3 Abbruchkriterien:   pCO2 > 50 mmHg, AF > 30
+ 121 Abdomen
+   1 Abdomen:
+   1 Abdomen: BD weich, DG+, SG ausstehend
+   1 Abdomen: weich, keine Druckschmerzen, keine Abwehrspannung.
+   2 Abdomen: weich, spärliche Darmgeräusche
+   1 Abgehen von der HLM unter 0,15 ug Epi, Vaso 4, NA 0,3ug (doppelter Ansatz).
+   1 Absaugen der Drainagen
+   4 Aktivitäten Beatmung
+   1 Amiodaron + Magnesium bei 1x Vorhofflimmern + VTs
+   6 Anamnese
+   4 Angehörigenfreundliche Intensivstation
+   1 Anhaltende Oxygenierungsstörung (FiO2 100% an der Beatmung, Oxygenator ECMO 90%, hierunter paO2 70) .
+   1 Anlage MAC Schleuse sono-gestützt, unter streng sterilen Kautelen, via VJID, venöse Druckverhältnisse, alle Schenkeln aspirabel.
+  89 Anleitung von Patienten und Angehörigen
+   1 Annaht
+  51 Anordnung (Freitext)
+ 178 Anordnung nach ärztl. Rücksprache
+   6 Anordnung: CVVHD Citrat
+   1 Anpassung/Empfehlung: Fio2: 70%, Gas: 1,5l
+   1 Anästhesiepflege
+  17 Anästhesieübergabe
+   1 Aortenklappe trikuspid, zart, öffnet regelmäßig
+   4 Aortenklemmzeit Dauer
+  15 Aqua Flasche gewechselt
+   1 Art. li. Leiste
+ 113 Arterieller Zugang A. femoralis links
+ 112 Arterieller Zugang A. radialis rechts
+ 138 Arzt Verlauf
+  49 Arztnotizen
+   4 Atemmechanik/Hämodynamik/Sedierung
+ 231 Atmung /Tubuslage/-größe)
+   9 Atmungstherapie
+  17 Atmungstherapie (AT)-Behandlungsbericht
+ 153 Augen
+   8 Augenschutz
+  85 Axillarisnaht rechts
+   1 BB und Gerinnung für 13:30 angesetzt
+   1 BGA: pO₂ 71 mmHg => BIPAP 100%
+   1 BS links:
+   1 BS links: geschwollene, atrophe Schleimhaut, tlw. kleine Blutbeläge, im Unterlappen ein kleiner Bronchus mit etwas Blut verlegt -> Spülung und erfolgreiche Absaugung
+   1 BS rechts:
+   2 Beatmungsentwöhnungspotential
+   4 Beatmungsprotokoll manuell
+  16 Bedside Test
+   2 Befund:
+   1 Beginn enterale Ernährung
+   1 Behandlungsergebnisse/akt. Situation
+ 223 Behavioral Pain Scale (BPS)
+   1 Bereits an der HLM hochkatecholaminpflichtig, Hinzunahme von Vasopressin.
+  17 Bereitstellung
+  57 Berufsgruppe
+  11 Beschreibung der DS
+   1 Bewegungsapparat:
+   3 BiLEVEL(PCV):      2h
+   1 Bio-MKE regelrecht (TEE 11.01.2026)
+   1 Bisher neurologisch noch keine Reaktion unter Propofol 1,0mg/Kg/std, bei sehr instabiler Oxygenierung eher langsame Sedierungsreaktion. Letztes Neurofenster am Samstag nach der 1. Rethorakotomie, hierbei wach, Augen auf, bewegte 4/4.
+  17 Blutgas man
+   1 Blutige Sekret aus linker PD (150ml/h) -> 2 FFP, 2EK -> Info an D1
+   1 Blutstillung
+   1 Blutung aus rechte PD-Stelle übernäht, weiterhin geringe Sekretion neben Drainage, 4x Verbandswechsel davor
+ 284 Bronchialtoilette
+   7 Bronchoskopie
+   1 Bronchoskopie zum Ausschluß einer endobronchialen Verlegung
+   1 Bronchoskopie über die Kanüle: keine Blutung.
+   1 C/HD: Unter Epi 0,05 MAD 60
+   1 C/HD: Unter NA 0,05 Epi 0,08 MAD 60
+   1 C: SR 91/min, MAD 65, keine KAT, interm. Urapidil Bedarf bei Hypertonie
+   1 C: SR 91/min, MAD 76
+   1 C: SR 97/min, MAD 72, keine KAT
+   1 C: VFH 90
+   1 C: VHF 90 (AM auf VVI 40 umgestellt), MAD 84 mmHg, katecholaminfrei , Urapidil  4 ml/h, Hydrocortison 0,6ml/h
+   1 C: VHF 90 (VVI 40), MAD 70 mmHg, katecholaminfrei
+   1 C: VHF, katecholaminfrei, keine Laktatazidose, Hb stabil, kein Teerstuhl in FD
+   1 C: nfVFH 90-100bpm
+   1 CAVE: Hb
+   2 CPAP-ASB (PSV):  4h
+   1 CRP zuletzt 32,3 am 26.12.
+  57 Check Intensivstation
+  45 Compartement Kontrolle Arm rechts
+  36 Compartement Kontrolle femoralis rechts
+   2 Compliance
+   1 Cor: brSR mit HF ~ 50, MAD 62 unter Impella/VA-ECMO + NA
+   1 CrP/PCT Bestimmung
+   1 DK
+   1 Daher <ANONYM> auf AAI umgestellt.
+  64 Darm
+  54 Dekubitus Ohr links
+  36 Dekubitus Sakralbereich
+   2 Diagnosen
+   1 Die Tracheostomie wurde inspiziert
+   1 Dienstag:
+   1 Dilatation der DS
+   1 Dilatation und Einbringen des Shaldon Kat
+   1 Diurese im Blick
+   1 Diurese in der früh-morgen nachgelassen, watch/ggf. CVVHD
+   2 Drain: keine
+   1 Drainage : MD -50 ml  + PLD links 100 ml  dunkel blutig
+   1 Drainagen im Verlauf der Nacht wenig gefördert.
+   4 Drainagen:
+   1 Drainagen: 3xMD: ca. 100 ml/h blutig seit 7 Uhr
+   1 Drainagen: Redon
+   1 Drainagen: bereits bei Übernahme Blutung über die Drainagen (in Sammelbehälter 100ml), Redon 120ml
+   8 Durchführung Spontanatemversuch
+   1 Durchführung der CT-Untersuchung.Oxygenierungsstörung, Abfall der SPO2 auf auf minimal 80% unter oben genannten Massnahmen.
+   1 Dx: Diffuse Blutung aus dem Sternum bei Gerinnungsstörung
+   2 E: periphere Ödeme bds
+   2 E: warm, kein Anhalt für Kompartment, schlank
+   1 E: warm, keine US Ödeme
+   1 E: warm, rosig, Pulse alls. tastbar, dezente OE und UE Ödeme
+   1 E: warm, Ödeme OE/UE bd, Hämatom im Bereich der linken Flanke sowie die rechten und linken Oberarmes
+   3 E: warm, Ödeme OE/UE bds
+   1 ECMELLA 1,0 (4,4L) bisher kein H.a. Harlequin-Phänomen, rechter Arm rosig und klinisch gut perfundiert.
+ 559 ECMO
+   2 ECMO 2L
+   1 ECMO 4,0l/min (FiO2 90), P4 2,0ml/h, kein Laktat, Hb wieder fallend -> 1 EK, NA 0,2, Milrinon 0,25, fHB 5
+   1 ECMO 4,2 l/min
+   1 ECMO Explantation           09.01.2026
+   1 ECMO rezid. Ansaugen → Volumengabe.
+   1 ECMO: PostOxy: pO2: 284 mmHg
+   1 EKG
+   1 EKG: Junktionaler Rhythmus 55/min, Keine sig. ST Strecken veränderung
+   1 Echo
+   3 Echo-TEE
+   1 Echo:
+   1 Echo: leichtgradig reduzierte LVEF: 45%. <ANONYM>. Keine Klappeninsuffizienz.
+   1 Einbringen des Drahtes lagekontrolle via Sonografie
+  23 Einlungenventilation rechts
+ 571 Einschätzung
+   1 Empfehlung der HNO: Kompressionsverband bis morgen früh belassen, anschließend erneute Reevaluation.
+  43 Epikardiale SM-Kabel
+  48 Ereignis
+  74 Erfassung der Beatmungszeit
+   3 Ergebnis Spontanatmungsversuch
+   1 Es entlerren sich nach Anschluss des Drainagekasten 100ml blutiger Erguss. Im Verlauf des restlichen FD insgesamt ca. 200ml im Drainagekasten
+   1 Ex: Moderate periphere Ödeme, pD intakt
+   4 Extr. massiv eingelagert, warm rosig trocken
+   1 Extr.: warm rosig trocken eingelagert
+   1 Extremitäte: kühl (symetrisch)
+   1 Extremitäten warm, Ödeme zunehmend
+   1 Extremitäten: warm, Ödeme
+   1 FIO2 an der ECMO auf 1.0 erhöht -im Verlauf am Resp red am Morgen noch 0.7
+   1 FdO2 70%
+   1 Flexiseal
+   1 Flexiseal förder, Stuhl dunkel, weniger blutig als gestern
+ 120 FluidBalance
+   1 Fremdmaterial:
+   1 FuroP pausiert, nahezu ausgeglichen gestern
+   1 Furosemid 4x 40mg wieder angesetzt, Furo-Perfusor morgens ex, Negativbilanz wird erreicht
+   1 G: Anti Xa 0,1 -> UFH angepasst
+   1 G: PPT 85, Anti Xa 0,13, PLT 107
+   1 GAT suff., Ventilator FiO2 40
+ 219 GCS (Jugendliche und Erwachsene)
+   1 GUT FÜHRBAR
+   1 Gabe von 3 EKs vor HLM Beginn.
+ 120 Genitalien
+   1 Gerinnung
+   1 Gerinnung: Heparin PTT 46 s.
+   1 Gerinnung: PTT im Zielbereich, PLT 248, Heparin 750 U/h
+   1 Gerinnung: PTT im Zielbereich, PLT 313, Heparin 250 U/h
+ 493 Gerätecheck
+  32 Gesaess
+  14 Glasgow Coma Score
+   1 HB 8,4 (vor 4. EK im FD)
+   1 HD ok, kein Lactat, NA 0,06
+   1 HD: DDD 100/min (ER Junktionaler Rythmus 50/min), NA 0,05 mcg/kg/min, <ANONYM> abgestzt, <ANONYM> 1 IE/h, Extremitäten warm und rosig, Ödeme OE
+   1 HD: HSM DDD 100/min (ER: Junktionaler Rythmus 40/min), MAD 65 ohne KAT, Extremitäten rösig, perfundiert
+   1 HD: HSM DDD 100/min (ER: Junktionaler Rythmus 40/min), MAD 65 unter NA 0,02-0,05 mcg/kg/min, Extremitäten rösig, perfundiert
+   1 HD: MAD 70, SR 67/min, ECMO 4,1l, GF 2,5l
+   1 HD: MAD 77mmHg, SR 99/min, ZVD 10
+   1 HD: MAD 78mmHg, SR 65/min, ZVD 9
+   1 HD: MAD 86mmHg, SR 105/min, ZVD 15, ECMO uner 3,5 Liter GF 2l FdO2 100% Impella P4 - ca. 1,3l -> GAT grenzw. niedrig -> Ehöhung der ECMO auf 4l -Kontroll BGA 11:15
+   1 HD: NA 0,17, Milrinon 0,25, Laktat minimal steigend, Impella nur P4 möglich (2,9l/min), ECMO-Fluss 3,5l/min
+   1 HD: Supra 0,05, NA 0,05 -> ex, Impella P4 -> P5 (D1), ECMO 4,37l/min, fHb 4,2, Laktat norm, Start Mirinon
+   1 HIT Schnelltest am Morgen -Negativ
+   5 HLM Dauer
+   1 HNO Konsil angemeldet zur weiteren Abklärung der Blutungsquelle.
+   1 HNO-Ärztin am Bett:
+  39 Haare
+ 154 Hautinspektion
+   1 Hautschnitt  unter streng sterilen Kautelen
+   1 Hb 7,4 g/dL -> Gabe von 2 weiteren EKs
+   1 Hb 9,2 g/dl
+   1 Hb minimal gefallen. PD links fördert nicht relevant. Media-Drainagen insgesamt 450ml im ND.
+   1 Hb: 10 ---> Magnesium + Sterofundin i.v. ggf. Kardioversion
+   1 Hb= 8.9
+   1 Hep. Perfusor proph. + Clopidogrel
+  48 Herzrhythmus/ SM-Rhythmus
+ 114 Hilfsmittel
+   1 Hochnahme der ECMO Flusses bei kompromit. GAT -> darunter deutliche Beserung
+ 112 Hygiene
+   1 Hypenaträmie 152 -> Wasser über die Magensonde
+   1 Hämodynamik: ECMELLA (VA-ECMO femoral: 36030rpm, 4,08lpm, mit Beinperfusion
+   1 Hämodynamik: NA 0,08, Impella P4 mit 1,8l, ECMO: 3800rpm, 4,2l
+   6 Hämofilter Heizung Temperatur
+ 139 Hämofilter V. femoralis links
+  41 Hämofilter V. femoralis rechts
+   1 I:   kein Fieber, CRP fallend,     Tracheobronchialsekret : Klebsiella aerogenes
+   1 I: 37,6 Grad, WBC mit 19,4 rückläufig, CRP steigend mit 89,2
+   1 I: kein Fieber, WBC 2,5k, CRP 96 fallend
+   1 IP: WBC 23,9 fallend CRP zuletzt 32,3 am 26.12.
+   1 IP: WBC 31,7
+   1 Im Kontroll BB suff. Anstieg der PLT (109)
+   1 Im Rö Stauung bds mit Verschattung basal rechts, TTE>PLE. Sono-Kontrolle aktuell PLE rechts 2cm ugf. 300ml mit schlechtem Punktionsfenster (flottierende Atelektase 1cm vor der Thoraxwand), deshalb aktuell von einer Punktion abgesehen. Kontrolle im Verlauf
+   1 Im Verlauf FIO2 auf 85% reduziert an der Beatmung, Sättigung immer noch bei 100%
+   1 Im Verlauf Ropeginterferon alfa-2b 250µg s.c. 1x alle 2 Wochen bei Polycythaemia vera klären
+   1 Im Verlauf kam es zu einem relevanten Hb-Abfall, weshalb der Patient 2 EK erhalten hat.
+   1 Impella 2 L , Hb= 7.8 g/dl Laktat 12
+   1 Impella 2 L , Hb= 7.9 g/dl,  CK 301 steigend , CK-MB 20
+   1 Impella 5.5.: P4
+ 367 Impella A. axilliaris rechts
+   1 Impella Explantation       12.01.2026
+   1 Impella P3 2.2L
+   1 Impella P3, 1,9 lpm, MAD 90 mmHg, PAP 44/24/31 mmHg, CO 6 l/min, CI 3 l/min/m²
+   1 Impella P4 2,2 l
+   1 Impella P4 3.8L
+   1 Impella P4 mit 2,5 l/min (Ansaugen bei Steigerung)
+   1 Impella aktuell nur zum Venting P4, freies Hb steht noch aus, Extremitäten unauffällig
+   1 Impella-Lage 4.9cm
+   1 Impella: <ANONYM>: kaum pulsatil bei freier MI
+   1 Impellalage regelhaft. biventrikulär entlastet.
+   1 In BB Hb 5,2 zeitgleich in BGA 8,8 a.e. Vedünnt, NOchmals EDTA-Blut zur Kontrolle in Labor. Nach ROTEM 3 TK geplant, aktuell Engpass, daher nur2 TK, und nochmal 2 g Fib
+   7 Indikation Hb<9g/dl und Hinweise auf anäm. Hypoxie
+   1 Indikation:  Blutung
+   1 Indikation:  Sekretmanagement,  Blutung (?) frischblutig über tubus abzusaugen, Wiederstand, Koagel?!
+   1 Infektiologie: laufende Antibiotikatherapie mit Vancomycin und Meropenem (Talspiegel ca. 19,7 im Zielbereich). Entzündungsparameter rückläufig (CRP 89 → 73 mg/l, Leukozyten 19 → 14 G/l).
+  13 Inhalationsarten
+   1 Inkl. der Information des erheblich eingeschränkten pulmonalen Gasaustausches unter VA-ECMO und invaisver Beatmung und der im Verlauf wieder erheblich zunehmenden Drainageförderrate
+   1 Insuffizienz
+ 150 Intensive Care Delirium Screening
+   1 Intraoperativ:
+   1 Jedoch anhaltender Volumenbedarf → Ringer + Plasmen verabreicht.
+   1 KAT: NA 0.04 Epi 0.02 -> Im FD Verlauf KAT ex und start Urapidil bei Hypertonie
+   1 Kabelfixierung
+   3 Kardiotechnik (Notizen)
+   1 Katecholamine auf c.a. 0,3 µg/kg/min reduktabel.
+   2 Kein Anhalt für Hämolyse
+   1 Kein Hinweis für Thromben im LAA
+   2 Kein Perikarderguss
+   1 Kein SBT
+   1 Keine relevante Trikuspidalklappeninsuffizienz
+   1 Kepsielle piptaz resistent
+   1 Komplikationsloses Einführen der lubrifizierten, entriegelten Sonde
+   1 Konsil: Infektiologie
+   3 Kontaktperson
+   3 Kontrollabstrich 4MRGN
+   5 Kontrolle
+   1 Kreislauf: Sinusrhythmus 92/min. Blutdruck 105/61 mmHg (MAP 77) unter Noradrenalin 0,12 µg/kg/min. Laktat 10 mg/dl. CK/CK-MB im Normbereich.
+ 272 Körper
+   1 LR
+   1 LV: - korrekte Impella-Lage, AV-Tip 5,1 cm- normal weit, inferobasal wohl aneurysmatische Aufweitung, wegen des Schallschattens der Mitralklappenprothese aber
+   1 LVEF ca. 45%, SV ca. 60 ml
+10894 Lab
+   1 Lab: HB 7.4, CRP 78.6
+  14 Labor
+   5 Labor Elyte
+   1 Labor: Hb 10 stabil, Laktat 19, CK/CK-MB 600/44 stabil
+   1 Labor: Hb 8,5>7,5 ---> 1EK, kein Laktat, CK/CK-MB 249/19 fallend
+   1 Labor: Hb 9 stabil, Laktat 19, CK/CK-MB 600/44 leicht fallend
+   1 Lactat steigend auf 60, Periferie kalt
+   1 Lage der Durchtrittsstelle
+   1 Lage: ok, Purgefluss: 11,1
+   3 Lagerung des Patienten im OP
+   1 Laktat 12
+   1 Lebensbedrohlicher Zustand.
+   1 Leiste re.: Verband blande, morgen VW
+ 108 Lippen
+   1 Lungenödem
+  44 MAC-Katheter V. jugularis interna rechts
+   1 MAD 65 mmHg  NA 0.07
+   1 MAD Abfall nach Kumulativ 2mg Midazolam iV -> NA und Supra aus der Hand als Boli deutlich bessere reaktion auf Supra (Druckanstieg wieder Auswurf)
+   1 MD 1 gestern 150
+   1 MD 2 gestern 150
+   1 MD 3 gestern 250
+   1 MD rechts und PD links gezogen
+   1 MV: biologische Prothese mit regelrechter Funktion, dpmean 4 mmHg, kein Anhalt für PVL, allenfalls geringe valvuläre
+  77 Magen
+  43 Magen-/Duodenalsonde nasal links
+ 133 Magen-/Duodenalsonde nasal rechts
+   1 Magensonde
+  92 Maßnahmen Bewegungstherapie
+ 198 Maßnahmen Mobilisation
+ 328 Maßnahmen Positionierung
+   1 Media links
+   1 Media rechts
+  92 Mediastinaldrainage Mitte
+ 192 Mediastinaldrainage links
+ 132 Mediastinaldrainage rechts
+1902 Medication
+   1 Medikation:  Laufende Sedierung
+   1 Medikation:  laufende Sedierung
+   7 Meilensteine
+   1 Meronem nach neuem Antibiogramm
+   1 MiBi:
+   1 MiBi: in Domo noch keine patholog. Befunden
+   1 Milrinon 0,3 -> 0,4, Impella P7 3,8l/min -> P9 4,4l/min, ECMO 4,3l/min -> 3l/min
+   9 Mobilisation und spezielle Physiotherapie (Ärztl. Anordnung)
+   3 Mobilisation,Bewegungstherapie SAP AP
+  91 Mobilität und Bewegung
+  28 Motorik
+  39 Multiprofessionelle Visite Magnet
+ 174 Mund- und Rachenraum
+   1 N: +300 ml Bilanz, Diurese ca. 100 ml/h, Urin klar
+   1 N: -2 L Bilanz, eigene Diurese 400, CVVHDF mit 200 ml Entzug
+   1 N: -540 mL Bilanz, eigene Diurese gestern 1355ml, CVVHDF mit 200 ml Entzug
+   1 N: CVVHDF, Crea 0,7, HST 77 fallend
+   1 N: DK
+   2 N: DK klar suff. Mengen
+   1 N: DK klar suff. Mengen, unter forc. Diurese
+   1 N: DK klar suff. Mengen, unter forc. Diurese, nach wie vor positiv Bilanziert (im SD FuroPerfusor dieser bei hämodynamische instabilität und hohem KAT Bedarf im ND beendet)
+   1 N: Diurese 70-80/ml, Urin klar
+   1 N: Pat erweckbar auf Manipulation, Pupillen eng isokor, Sufenta bei 0.5ml/h
+   1 N: Pat wach, Pupillen eng isokor, Pat. bewegt UE bds auf Aufforderung, OE bds keine Bewegung
+   1 N: Pat wach, Pupillen eng isokor, Pat. bewegt UE bds auf Aufforderung, drückt Hände auf Aufforderung
+   1 N: Pupillen isokor LR
+   1 N: RAAS -2 heute morgen kaum Reaktion auf Ansprache, augen öffnen auf mech Reiz, dann wieder stark agitiert veg. entgleist, Hypertensiv und Tachykard, verneint Schmerzen äußert Angst Bewegt 4/4 teilw. panisch -> 0,5mg Sedalam als KI -> deutliche beruhigung der situation
+   1 N: RAAS -5,
+   1 N: RAAS 0 am Tubus kontaktierbar wirkt adäquat bewegt 4/4
+   1 N: RAAS 1-2 am Tubus kontaktierbar, adäquat bewegt 4/4, äußert Angst, innere Unruhe, Besorgninss bez. Gesamtsituation -> klärendes, beruhigendes Gespräch tortzdem veg. Entgleisung (Tachykardie bis 150/min und Hypertension) -> 0,5mg Sedalam als KI (30min)
+   1 N: RASS -2 unter Propofol und <ANONYM>, offene Augen, nickt auf Ansprache. Bei Absetzten der Sedierung erwckbar, bewegt 4/4 auf Aufforderung.
+   1 N: RASS – 4, Pupillen isokor, LR
+   1 N: RASS – 5, Pupillen isokor, LR
+   2 N: RASS-2 unter <ANONYM>, Propofol und Sufentanil, Pupillen isokor, bds. lichtreagibel
+   1 N: RASS-5 unter Propofol und Sufentanil, Pupillen isokor, bds. <ANONYM>: HSM DDD 100/min (ER: Junktionaler Rythmus 40/min), MAD 75 unter NA 0,04 mcg/kg/min, Extremitäten kalt und zyanotisch
+   1 N: analgosediert (Dexdo + Sufenta), Pupillen isokor LR
+   1 N: intraoperative Diurese erhalten, HST 94
+   1 N: sedierung Weaning weiter, Dexdor jetzt auf 4 in reduktion, PAt. antwortet Ja/Nein Fragen mit leichte Kopfbewegung, verneint Schmerzen, Pupillen eng isokor, Pat. bewegt UE bds auf Aufforderung, OE bds keine Bewegung
+   1 N: stundl. Diurese ca. 70ml/h, Bilanzerung +++ unter <ANONYM>, Crea oB, HST leicht erhöht HST 94
+   1 N: suff. Diurese 1l neg. Bilanz
+   1 N: suff. Diurese, Urin leicht konzentriert
+   1 N: unter niedrig dosiert Dexmedetomidine RASS 0/-1, folgt Aufforderungen, bewegt suff. 4/4, PERRL
+   1 N: unter niedrig dosiert Dexmedetomidine folgt Aufforderungen, jedoch eher agitiert --> Dexdor erhöht, bewegt suff. 4/4, PERRL
+   1 NA 0.08
+   1 NA senkend von 0,15 auf 0,07y
+   1 NIRS 4/4 regelhaft.
+  15 NIRS Messung Kinder
+ 106 NRS (Numerische Rating Skala)
+   1 Na+ weiter steigend: Spirnolacton, freies Wasser
+   1 Nach kurzer  Re-Stabilisierung der Oxygenierungsstörungen  → BiPAP, FiO₂ 30 %, SpO₂ 97 %, paO₂ 91
+  22 Nagelpflege
+  86 Nase
+   1 Negativbilanz -1l/24h
+  39 NeuroScore CVK/Pat. sediert
+  60 NeuroScore CVK/Pat. wach
+   1 Neurologie:
+   1 Neurologie: Sediert, RAAS-5
+   1 Neurologisch: wach, ansprechbar
+   1 Nicht dilatierter LV mit hochgradig eingeschränkter Pumpfunktion
+   1 Nicht dilatierter RV mit hochgradig eingeschränkter Pumpfunktion
+   1 Niere/Diurese: Diurese 50–70 ml/h. Harnstoff rückläufig 85 → 76 mg/dl, Kreatinin normwertig.
+   1 Niere: Urin konzentriert, eingeschränkte Stundendiurese
+   1 Nieren: DK, Diurese suffizient
+   1 Normaldruckglaukom DD Papillenanomalie
+   3 O2 Gabe
+   1 OP (Dr.Bauer/<ANONYM>): MKE
+   1 OP: Re-Re-Rethorakotomie bei Hämatothorax li + Pneumothorax re
+   1 OP: Rethorakotomie, Blutstillung
+   1 Olympus BF-1T40 (SN 2603949)
+   1 Olympus BF-1T40 (SN TBS 438)
+   1 Olympus BF-1T60 (SN 2901614)
+   1 Olympus BF-P40 (SN 1930616)
+   1 Olympus BF-XT40 (SN 1420492)
+   1 Olympus BF-XT40 (SN 1920102)
+   1 Operateur: <ANONYM>
+   6 Operation/Datum/Operateur
+  28 Operationsdauer
+   1 Optimale Punktion unter Sicht (Dr. Mohsen).Dilatation und Einbringen der Trachealkanüle.
+   1 Oxygenierung über die Lunge suffizient. PaO2 200, FdO2 über die VA ECMO auf 0,9 zurückgenommen, FiO2 0,5 -> 0,4
+   1 Oxygenierungsstörung: Pleuraergüsse bds li > re ohne sicheres Punktionsfenster -> RS D1: Bronchoskopie bei deutlichen Atelektasen -> zähes, gelblich-blutiges Sekret -> ad Mibi, Röntgen Thorax
+ 149 P-RISK Score
+   1 P100862862195[CR]
+   1 P100862862196[CR]) 3 FFP (2766042537351200[CR]
+   1 P: BILEVEL 30%, PEEP 14
+   1 P: BILEVEL 80%, 30/15 PEEP
+   1 P: BIPAP 12/29 FiO2 100% VA ECMO 4,5l 4000upm, darunter deutlich kompr. GAT SpO2 92 paO2 83
+   1 P: BIPAP 12/29 FiO2 30%, SpO2 92% FdO2 70%
+   1 P: Bilevel 30%, PEEP 10, bds. belüftet, pO2 148, pCO2 40.2
+   2 P: Bilevel 30%, PEEP 12, Pinsp 14, bds belüftet
+   1 P: Bilevel 30%, interm. CPAP abgebrochen da Pat. zu tachypnoeisch, bds belüftet
+   1 P: Bilevel FiO2 100>85%, GAT ausreichend
+   1 P: Bilevel FiO2 100>90%, GAT suffizient
+   1 P: Bilevel FiO2 80%, GAT adäquat
+   1 P: CPAP 30%, tachypnoisch, wirkt gestresst ->Sufenta wieder gestartet
+   1 P: Oxygenierung besser (ECMO FiO2 100, Ventilator FiO2 80)
+   1 P: Oxygenierunsstörung, FiO2 80-90% bei Beatmungsgeräte + ECMO, GAT suff.
+   1 P: Tracheotomiert, PEEP 8, FiO2 30%, VAG allseits, SpO2: 100%
+   1 P: VAG bds, GAT suff
+   1 P: VAG bds, GAT suff BiPAP PEEP 10 FiO2 30
+   1 P: deutlich bessere Oxygenierung, Fi02 ECMO 70, FiO2 Ventilator 30
+   1 P: hohe Beatmungsdrücke Pinsp
+   1 P: hohe Beatmungsdrücke Pinsp 28/12
+   1 P: suff. GAT, SpO2 99%
+   1 PAK eingeschwemmt
+   1 PCWP 11 unter <ANONYM> P4 2,6lpm.
+   1 PCWP 13 unter <ANONYM> P2 2,0lpm.
+   1 PD li: blutig, FR seit gestern: 0ml ---> ex
+   1 PD links gestern 150
+   1 PD links mit rückläufiger Fördermenge im Vergleich zum Frühdienst
+   1 PD rechts gestern 50
+   1 PLD re fördert Blutig < serös, li Blutig geringere Mengen seit Übernahme des Dienstes, ROTEM unauffällig
+   1 PLS rechts : serös 100 ml. keine Fistelung
+   1 PLT 120k
+  19 PSI/NIRS/ICP
+   1 PTT Ziel 60
+   1 Patient analgo-sediert belassen.
+   4 PatientInfo
+ 614 Patientencheck
+   2 Patientenwille
+ 368 Pflege
+  33 Pflegenotizen
+   1 Pharynx:
+   1 Plan
+   7 Plan:
+ 238 Pleuradrainage links
+ 144 Pleuradrainage links (2)
+ 213 Pleuradrainage rechts
+   1 Polycythaemia vera
+   1 Problemlose <ANONYM> am Bett.
+   1 Problemlose Einführung einer entriegelten lubrizierten TEE-Sonde.
+   1 Problemloses Einführung lubrifizierter TEE-Sonde: AK verschlossen imponiert mit echoreichem Lumen distal der AK über STJ in Ao Ascendens (Sludge?), LV wirft SV retrograd über MK aus, Auswurfgenerierung auf Ansage Operateur mittels Supra, Platzierung Impella dann problemlos, Lage verifiziert: korrekte Lage Richtung Apex, Tiefe 5,2 cm, anschl. nochmals minimal zurückgezogen durch Operateur.
+   1 Proc.:
+   4 Proc:
+   2 Proc: s. Eintrag Dr. Mohsen
+  10 Procedere:
+   1 Procedere: Absaugen, keine Blutungsquelle auffindbar
+   4 Prognose Erkrankung
+ 314 Prophylaxen
+   1 Prozedere (siehe auch Visiteneintrag in RS Dr. C. Thomas):
+   1 Prozedere:
+   1 Pulmo: BIPAP FiO2 80%, PEEP 10
+   1 Pulmo: ET, BiPAP (PEEP 7, FiO2 80), GA suffizient
+   1 Pulmo: VAG beidseits, BIPAP FiO2 80%, PEEP 8
+   3 Pulmonal/reHerz führendes Problem
+   1 Pulmonales weaning->  auf CPAP umgestellt 40%, ECMO 60%
+ 269 Pupillen
+   1 R: CVVHDF 130ml/min, Entzug 200
+   1 R: CVVHDF 130ml/min, Entzug 200 -> auf 70 reduziert, ausreichend negativbilanz in den letzten Tagen
+   1 R: CVVHDF, Ka 3.4, HST 62.2, Krea 0.44
+   1 R: Dialyse Auslassversuch, HSt 58.2, Krea, 0.58, Ka 3.9, unter Furo 50ml Stundenportionen
+   1 R: Diurese ca 50ml/h
+   1 R: Diurese ca 60ml/h
+   1 R: Negativbilanz -1,3l durch stimulierte ED
+   1 RE-Re-RE Thorakotomie bei postoperativer Nachblutung und SM Neuanlage  03.01.2026
+   9 RESP-Status
+   1 ROTEM unauffällig, Hb stabil, PLT 130
+   1 RS Gastro: bei nicht HB relevanter Blutung und bisher keinem neuen Teerstuhl zunächst zurückhaltendes Procedere, bei erneutem Teerstuhl bzw. HB Verlauf ÖGD planen
+   1 RS SD mit OP Dienst, PAO2 nach BSK etwas besser, daher keine neue Intervention
+   1 RV schlecht beurteilbar bei Protesen-Artefakten: PFO, shunt re>li, VTI 9, IVS-Bewegung re>li bei Systole
+   1 RV: normal weit, normale Pumpfunktion
+   1 Ramipril 2,5mg p.o. 1-0-0
+  14 Readiness to wean
+   1 Redon links gestern 0
+  49 Redondrainage I
+  26 Redondrainage I rechts
+   1 Reduktion Impella auf P1, initial 0,6 lpm, rasche automatische Hochregulation auf 1,3 lpm, MAD minimal 85 mmHg, dann
+   1 Regenerationspotential
+   1 Respiratorisch: tracheotomiert, CPAP mit PEEP 8 cmH₂O, FiO₂ 30 %. Guter Gasaustausch (pO₂ 130 mmHg, pCO₂ normwertig), beidseits belüftet.
+21099 Respiratory
+   1 Restart Sedierung Ziel RASS-1
+ 123 Richmond-Agitation-Sedation
+   1 Ropeginterferon alfa-2b 250µg s.c. 1x alle 2 Wochen
+   1 Rö Thorax zunehmende Stauung bds , eigene Diurese 70-80 ml/h , Urin konzentriertan CVVHDF nach OP anschließen
+   1 Rö Thx Kontrolle, kein Pneu, Erguss Drainiert, sicher intrathorakale Lage der Drainage
+   1 Rö-Th erfolgt
+   2 Röntgen Thorax
+   1 Röntgen Thorax: idem zur Voruntersuchung, Stauung, Ergüsse regredient
+   1 Röntgen-Thorax angefordert.
+   1 Röntgen:
+   1 Rückübernahme aus OP gegen 10 Uhr
+  17 SBT durchführbar
+   1 SK erhöht auf 40ml/h, Dienstag 400 kcal dokumentiert
+   1 SM: /
+   1 SR 89 (VVI 30) katecholaminfrei, Urapidil  auf 6 ml/h , Impella P4 2 L , ECMO 2 L/ 60% , Hb 8.9 g/dl , freies Hb  9,5
+   1 STATUS
+   7 STATUS:
+   1 Schwere Oxygenierungsstörung. PaO2 brachial rechts bei 80% FiO2 65 mmHg.
+  15 Sekretabsaugbeutel
+  44 Shaldon Katheter V. femoralis links
+   9 Shaldon Katheter V. jugularis interna links
+   1 Simultan RS auch mit dem 1. herzchirurgischen OP Dienst, Schilderung der Situation durch OÄ Perz> Indikation zur Notfall CT-Angio zur präop Planung, Fandung der Blutungsquelle (bisher intraoperativ keine eindeutige Quelle) sowie ggf. Embolisierung-Coiling.
+  12 Skin Tears Penis links
+   9 Skin Tears Unterarm rechts
+   9 Snugger A. femoralis rechts
+   1 Sono Darstellung und Punktion unter sicht, verifizierung der venösen lage per BGA -> sicher venös
+   1 Sono-Thorax
+   1 Sonographische Darstellung des geplanten Einlagefensters im """"Triangle of Safety"""", Desinfektion, Lokalanästhesie, Steriles Abdecken und steriles abwaschen.
+   1 Sonst:
+   3 Sonstiges SAP AP
+  89 Soziales Umfeld
+   1 Spontanatnmungversuch
+   9 Status
+   2 Status FD:
+   1 Steigende Entzündugnswerte. <ANONYM>. BKs und Beginn <ANONYM>/Vanco
+  67 Sternotomienaht
+   3 Stopp der Anästhesieüberwachung
+  14 StuhldrainageSystem
+  91 Stuhlgang
+  20 TEE
+   1 TEE präprozedural: gute LVEF, mittelgradig reduzierte RVEF, hochgradige MI bei Papillarmuskelausriss, Impella in loco typico, großer PLE links, kleines PFO. Sonstige Klappen soweit beurteilbar unauffällig.
+   1 TEE: bessere Pumpfunktion bds. als Gestern., RV leicht dilatiert, diastolische Septumshift nach li. PFO mit re-li. Shunt.
+   1 TS an MIBI
+   1 TTE FOCUS: LV leer, RV nicht entlastet, minimale Pumpfunktion diskynetisch
+   1 TTE: Hochgradige Mitralklappeninsuffizienz bei Papillarmuskelabriss
+   1 TV: leichtgradige Insuffizienz
+   8 Tagesziele
+   1 Teerstuhl in ND
+   2 Temperatur 1 (Lokalisation)
+   1 Therapieplanung Folgewoche/Ziele/Sonstiges
+   1 Thorax:
+   1 Thrombos fallend + weitere Blutung (103->90->82) -> 2 TK
+   1 Thrombos steigt
+   1 Thrombozyten fallend 104
+   2 To Dos:
+   1 Trachea: geschwollene, atrophe Schleimhaut, tlw. kleine Blutbeläge
+  19 Trachealkanüle
+   1 Tracheostomie:  keine Blutung mehr
+   1 Transfusion intraop: 2 EK
+   1 Transfusion weiterer 2 EK
+   1 Transfusion/Gerinnungsfaktoren:
+   2 Transfusionseinwilligung
+  14 Transfusionsindikation
+   1 Transport durch eine zunehmende Oxygenierungsstörung trotz FIO2 von 100% an der Beatmung und ECMO mit hohen Beatmungsdrücken erschwert. Hier Nachweis von großes konfluierendes Hämatothorax links mit Thoraxwandhämatom, sowie totale Atelektase li+Pneu rechts
+   1 Trotz Transfusion besteht die Blutung weiterhin.
+   1 Trotz lokaler Kompressionsmaßnahmen hält die Blutung an.
+   1 Tubus: wenig klares Sekret
+   1 Unter <ANONYM>: Brady SR.
+   1 Untersucher*in: GEIGER
+  61 Urin
+   1 Urin klar, aber stark konzentriert
+ 160 Urinkatheter
+   1 VANCO Spiegel.
+   1 VM:
+   1 VW Mediane Sternotomie: trocken, reizlos, adaptiert, keine Krepitastionen
+   1 Vanco-Spiegle bei 17,9 ---> LR angepasst
+  49 Verbal Rate Skala
+   1 Verband über Durchtrittsstelle
+   1 Verschlechterung der Oxygenierung
+   6 Versorgungsstatus/Pflegebedarf
+   1 Versuch <ANONYM> fest
+   1 Versuch Negbilanz
+  83 Visite
+  21 Visite CA-Vertreter
+  22 Visite FAZB
+  18 Vitalparameter (manuell)
+6404 Vitals
+   1 Von transthorakal kein ausreichendes Schallfenster, daher TEE, unkompliziertes Einführen der Sonde
+   1 Von: 01.01.2026 09:49 Bis:01.01.2026 20:50
+   2 Von: 01.01.2026 12:30 Bis:12.01.2026 02:01
+   1 Von: 01.01.2026 13:50 Bis:02.01.2026 23:34
+   2 Von: 02.01.2026 14:30 Bis:12.01.2026 02:06
+   4 Von: 02.01.2026 23:18 Bis:12.01.2026 10:35
+   6 Von: 02.01.2026 23:18 Bis:16.01.2026 09:09
+   2 Von: 03.01.2026 00:16 Bis:03.01.2026 17:00
+   3 Von: 04.01.2026 09:35 Bis:
+   4 Von: 04.01.2026 10:32 Bis:12.01.2026 10:35
+   2 Von: 04.01.2026 10:33 Bis:09.01.2026 11:21
+   3 Von: 04.01.2026 10:33 Bis:09.01.2026 11:32
+   4 Von: 04.01.2026 13:34 Bis:
+   2 Von: 05.01.2026 17:30 Bis:07.01.2026 15:34
+   2 Von: 09.01.2026 05:55 Bis:09.01.2026 17:30
+   1 Von: 09.01.2026 16:01 Bis:
+   2 Von: 09.01.2026 16:02 Bis:
+   1 Von: 09.01.2026 22:04 Bis:
+   3 Von: 10.01.2026 03:24 Bis:13.01.2026 02:34
+   2 Von: 11.01.2026 19:30 Bis:
+   2 Von: 11.01.2026 19:30 Bis:13.01.2026 02:28
+   1 Von: 16.01.2026 00:45 Bis:16.01.2026 09:09
+   5 Von: 26.12.2025 23:27 Bis:
+   4 Von: 26.12.2025 23:28 Bis:12.01.2026 02:06
+   4 Von: 26.12.2025 23:28 Bis:16.01.2026 21:41
+  10 Von: 26.12.2025 23:36 Bis:11.01.2026 21:06
+   1 Von: 27.12.2025 00:39 Bis:27.12.2025 17:45
+   4 Von: 27.12.2025 02:37 Bis:
+   2 Von: 27.12.2025 02:41 Bis:03.01.2026 00:17
+   1 Von: 27.12.2025 03:46 Bis:30.12.2025 10:09
+   2 Von: 27.12.2025 17:48 Bis:04.01.2026 13:38
+   2 Von: 27.12.2025 17:52 Bis:04.01.2026 10:37
+   6 Von: 31.12.2025 09:36 Bis:16.01.2026 10:12
+   6 Von: 31.12.2025 21:20 Bis:14.01.2026 11:00
+   2 Voraussetzungen: pCO2 < 45 mmHg, SpO2 > 90 %, pH > 7,31
+   5 Weaning
+  10 Weaning-Patient
+   7 Weaninganordnung
+   1 Wechsel auf <ANONYM>, abführen
+   1 Wunden:
+   1 Wunden: Verbände trocken
+   1 Wundgeruch
+   2 Wundreinigung
+   1 Wundschmerz
+   6 Wundversorgung
+  44 Wärmemanagement
+   1 Z.n. bioMKE mit regelrechter Funktion und vollständeriger Öffnung
+   1 ZNS: S/i/b, RASS -5
+   1 ZVD 12 mmHg
+  40 ZVK V. jugularis interna links
+  95 ZVK V. jugularis interna rechts
+   1 ZVK li.
+   1 ZVS=80%
+   1 Ziel Weaning an der Beatmung zuerst um Barotrauma und O2-Toxizität zu minimieren
+  16 Ziel: Richmond-Agitation-Sedation
+ 190 Zielplanung
+   1 Zottenprophylaxe
+   1 Zugang:   <ANONYM>
+   1 Zugang:   Endotrachealtubus
+   1 Zugänge:
+   1 Zunächst deutlich eingeschränkte RVEF trotz <ANONYM> Vernebelung und Epi (kein NO Gerät verfügbar). Schließlich Besserung des RVEF. Gabe von <ANONYM> bei ausgeprägter Vasoplegie. Bei sich nicht bessernder Kreislaufsituation Entscheidung zur Umkanülierung
+   1 Zunächst deutlich eingeschränkte RVEF trotz Ventavis Vernebelung und Epi (kein NO Gerät verfügbar). Schließlich Besserung des RVEF. Gabe von Hydrokortison bei ausgeprägter Vasoplegie. Bei sich nicht bessernder Kreislaufsituation Entscheidung zur Umkanülierung
+   1 Zusammenfassende Beurteilung:
+   1 Zusammenfassende Beurteilung: generell rosige Schleimhaut, Blutbelag ohne sichtbare Blutungsquelle  ausgeprägtes blasiges sekret ubiquitär im Sinne eines massiven Lungenödems
+   1 alle schenkel aspirabel und durchspühlbar
+  38 alte Durchtrittsstellen alte ECMO-DS rechts
+  59 alte Durchtrittsstellen alte PD-Durchtrittsstelle links
+   1 anschließend Präperation subcutanes Fettgewebe Dilatation des Gewebe Eindringen über den Rippenoberrand mit """"spitze"""" der stumpfen Schere in die Pleura. Dilatation, es entleert sich ca. 200-400ml blutig seröser ERguss
+   2 auf ECMO.
+   1 befolgt Aufforderungen
+   1 bei ACT 235 > 2800IE Protamin, ACT 170
+   1 bewegt alle 4 E, Sufenta 0,14
+   1 bewegt auf Aufforderung nur die linke Seite
+   1 bisher 2,5 L positiv am Tag
+   1 biventr. eingeschr. syst. Fkt.
+   1 dabie PEEP 12 belassen
+   1 engmaschige Kontrolle Extremität links
+   1 enterale Ernährung bis zur ÖGD stop, dann <ANONYM>.
+   1 erholt auf 90 mmHg
+   1 es erfolgten eine erneute Tamponade, lokale Kompression mit Kompressen sowie eine Tamponade mit Tranexamsäure.
+   6 extrakorporales Calcium
+   1 fHb 20,3
+   1 fHb 5,6
+   3 fachärztliche Behandlungsleitung
+   1 feuchte Nase:      30min
+   1 freies Hb 5,3
+   1 freies Hb 8
+   1 gegen 23 Uhr entleert sich plötzlich 700ml Blut aus dem linken Thoraxdrainage, zunehmende Katecholaminen, respiratorisch zunächst unverändert. Im SD Gerinnungsoptimierung stattgefunden
+   1 gestern Plus 3 L
+   1 ggf.Transfusion EK
+   1 im Frühdienst Thoraxdrainage links mit geringer Fördermenge ~ 250ml seit Anlage
+   1 insbesondere anterior
+   1 intraoperativ:
+   2 kein Hinweis auf Hämolyse
+   1 kein PE
+   1 kein Pneu
+   1 keine Interventionsmöglichkeit. nach RS mit dem OP Dienst Rückfahrt zunächst auf Intensivstation zur Stabilisierung, nach 1h Abruf im OP. Zu diesem Zeitpunkt FM aus der Drainage geringer, GAT hatte sich etwas stabilisiert, kein Lactat
+   1 keine Pleuraergüsse
+   1 keine Tamponade
+   1 kontaktierbar
+   1 mit entsprechender Notwendigkeit von Transfusion/Applikation von Blut und Blutprodukten.
+   1 nicht optimal darstellbar, Hypokinesie auch inferolateral und anterseptal, bei guter Kontraktilität der übrigen Abschnitte,
+   1 pCO2: 50 mmHg unter 90% Fio2 und 1,5 l Gas
+   1 paO2 53 <ANONYM> knapp 90%. Auftransfusion bis Ziel Hb 10 zur Erhöhung Sauerstrofftransportkapazität. NIRS ganze Zeit5 stabil zwischen 56% und 61%
+   6 peripherer Venenzugang Ellenbeuge links
+   7 peripherer Venenzugang Ellenbeuge rechts
+   8 peripherer Venenzugang Unterarm links
+   1 problemloses Einführen der Drainage
+   1 reagiert auf Ansprache mit Augenöffnung. Motorik rechts deutlich stärker als links. Pupillen beidseits isokor.
+   1 simultan Beginn Transfusion z.T. ROTEM gesteuert> Insgesamt vor der Reoperation 1000 PPSB, 2g Fibrinogen, 4EKs, 4TKs 4 FFPs. PTT und INR von vornherein unauffällig, eher Thrombozytendisfunktion und ggf. chirurgische Blutung
+  29 sonstige Wunden Nacken
+   1 sonstiges:
+   1 source_type
+   1 sowie MCS seit 10 Tagen und seitdem diffuse Blutungstendenz und Thrombopenie.
+   1 steriles Abdecken und erneute desinfektin
+   1 telefonische Kontaktaufnahme mit der onkologischen Praxis mehrfach erfolgt (Sprechzeiten 8-12 Uhr), Frau Dr. Strohbach ist wieder am Mi. in der Praxis und ruft dann zurück
+   1 verlust über MD bei 1350ml
+   1 wach
+   3 weitere TeilnehmerInnen
+   1 weiterhin blutige Sekretion über linke PD und blutige Sekretion neben PD re mit geringerer Fördermenge
+   1 Übernommen mit PAO2 70 bei 100% fiO2 an der Machine+ 90% ECMO
+   1 • <ANONYM> rechts:  Seashore-Zeichen vorhanden– links: apikal Barcode-Zeichen Va.Pneu apiklal ventral
+   1 • RS 1. Dienst (am Bett)-> CT Thorax heute geplant
+   1 •Bekannte Rippenfrakturen rechts.
+   1 •Darüber hinaus weitgehend unaufällige Darstellung der parenchymatösen Bauchorgane.
+   1 •Deutlich regredienter <ANONYM> links nach Anlage einer Pleuradrainage links, Erguss aktuell bis 21 mm ohne Nachweis einer aktiven Blutung.
+   1 •Deutlich regredienter Pneumothorax rechts, aktuell mit 10 mm Saumbreite. Kein Pneumothorax links. Luftblase retrosternal DD post-op.
+   1 •ECMO-Kanüle von kaudal mit Spitze in der rechten AIE.
+   1 •Emphysematöse Lungengerüstveränderungen des rechten Lungenapex.
+   1 •Gering regredienter Perikarderguss aktuell bis zum 7 mm.
+   1 •Geringe freie Flüssigkeit perihepatisch sowie perilienal und im kleinen Becken. Keine freie Luft.
+   1 •Kein Nachweis einer abszesssuspekten Verhaltformation.
+   2 •Kein Nachweis einer aktiven Blutung.
+   1 •Kein entzündlicher ossärer Fokus.
+   1 •Magensonde mit Spitze in situ subphrenisch.
+   1 •Mediastinal-/Perikarddrainagen über <ANONYM>.
+   1 •Mittelständiger Interhemisphärenspalt Keine Zeichen erhöhten intrakraniellen Drucks. Keine Herniation. Keine Zeichen einer Liquorzirkulationsstörung.
+   1 •Monkelhämatom links frontoparietal.
+   1 •NNH und Mastoidzellen frei.
+   1 •Rechter Hauptbronchus sekretverlegt. Keine konfluierenden Infiltrate. <ANONYM>.
+   1 •Trachealtubus mit Spitze suprakarinal.
+   1 •Z.n. Sternotomie. Degenerative Wirbelsäulenveränderungen.
+   1 •ZVK über VJI links mit Spitze in der VCS.

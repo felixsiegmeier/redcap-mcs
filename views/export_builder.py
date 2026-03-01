@@ -133,6 +133,11 @@ REDCAP_VALIDATION_TYPES = {
     "ecls_pf": "number_1dp_comma_decimal",
     "ecls_gf": "number_1dp_comma_decimal",
     "ecls_fi02": "number",
+    
+    # Demography
+    "weight": "number",
+    "height": "number",
+    
     # Pre-Assessment (Common formats)
     "pre_pco2": "number_1dp_comma_decimal", "pre_pco2_i": "number_1dp_comma_decimal",
     "pre_p02": "number_1dp_comma_decimal", "pre_p02_i": "number_1dp_comma_decimal",
@@ -364,6 +369,9 @@ def _render_time_range_selector():
         if st.button("Zeitraum auf MCS setzen", key="builder_mcs_range"):
             update_state(selected_time_range=(mcs_start, mcs_end))
             st.rerun()
+            
+    # Hinweis zu Pre-Assessments
+    st.caption("ℹ️ Pre-Assessments werden immer für den Zeitpunkt der Implantation erstellt, unabhängig vom gewählten Zeitraum.")
 
 
 def _render_nearest_time_pickers():
@@ -434,7 +442,8 @@ def _render_build_section():
         # Zusammenfassung nach Instrument
         instrument_counts = {}
         for form in all_forms:
-            instr = getattr(form, 'redcap_repeat_instrument', 'unknown')
+            # Nutze get_instrument_name() statt direktes Attribut, da Pre-Assessments redcap_repeat_instrument=None haben
+            instr = form.get_instrument_name()
             instrument_counts[instr] = instrument_counts.get(instr, 0) + 1
         
         summary = ", ".join([f"{k}: {v}" for k, v in instrument_counts.items()])
@@ -721,9 +730,16 @@ def _format_value(value, validation_type=None):
             return f"{value:.1f}".replace(".", ",")
         elif validation_type == "number_2dp_comma_decimal":
             return f"{value:.2f}".replace(".", ",")
-        elif validation_type in ("number", "integer"):
+        elif validation_type == "number":
+            # Standard REDCap 'number' validation typically expects a dot as decimal separator
+            # Rounding to int (previous behavior) was incorrect for values with decimals
+            if value.is_integer():
+                return int(value)
+            return str(value)
+        elif validation_type == "integer":
             return int(round(value))
         else:
+            # Fallback for unknown types: use comma for this project's locale
             if value.is_integer():
                 return int(value)
             return str(value).replace(".", ",")

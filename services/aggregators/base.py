@@ -41,7 +41,7 @@ class BaseAggregator(ABC):
         date: date,
         record_id: str,
         redcap_event_name: str,
-        redcap_repeat_instance: int,
+        redcap_repeat_instance: Optional[int] = None,
         value_strategy: str = "median",
         nearest_time: Optional[time] = None,
         data: Optional[pd.DataFrame] = None

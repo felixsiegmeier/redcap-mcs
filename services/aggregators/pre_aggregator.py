@@ -48,7 +48,7 @@ class PreDeviceAggregatorBase(BaseAggregator):
             date=anchor_datetime.date(),
             record_id=record_id,
             redcap_event_name="", 
-            redcap_repeat_instance=0,
+            redcap_repeat_instance=None,
             data=data
         )
         self.anchor_datetime = anchor_datetime
@@ -167,7 +167,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "impella_arm_2",
-            "redcap_repeat_instrument": None,
+            "redcap_repeat_instrument": PreImpellaHVLabModel.INSTRUMENT_NAME,
             "redcap_repeat_instance": None,
         }
         
@@ -306,7 +306,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "impella_arm_2",
-            "redcap_repeat_instrument": None,
+            "redcap_repeat_instrument": PreImpellaMedicationModel.INSTRUMENT_NAME,
             "redcap_repeat_instance": None,
         }
         
@@ -398,7 +398,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "ecls_arm_2",
-            "redcap_repeat_instrument": None,
+            "redcap_repeat_instrument": PreVAECLSHVLabModel.INSTRUMENT_NAME,
             "redcap_repeat_instance": None,
         }
         
@@ -524,7 +524,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "ecls_arm_2",
-            "redcap_repeat_instrument": None,
+            "redcap_repeat_instrument": PreVAECLSMedicationModel.INSTRUMENT_NAME,
             "redcap_repeat_instance": None,
         }
         

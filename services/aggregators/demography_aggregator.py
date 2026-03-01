@@ -23,16 +23,16 @@ class DemographyAggregator(BaseAggregator):
         date: date,
         record_id: str,
         redcap_event_name: str = "baseline_arm_2",
-        redcap_repeat_instance: int = 1,
         data: Optional[pd.DataFrame] = None,
         **kwargs
     ):
         # Wir rufen den super-init mit den Standard-REDCap Werten auf
+        # redcap_repeat_instance ist für Demographie None (kein Repeating Instrument)
         super().__init__(
             date=date,
             record_id=record_id,
             redcap_event_name=redcap_event_name,
-            redcap_repeat_instance=redcap_repeat_instance,
+            redcap_repeat_instance=None,
             data=data,
             **kwargs
         )
@@ -83,8 +83,6 @@ class DemographyAggregator(BaseAggregator):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": self.redcap_event_name,
-            "redcap_repeat_instrument": self.INSTRUMENT_NAME,
-            "redcap_repeat_instance": self.redcap_repeat_instance,
         }
 
         # Gefundene Werte hinzufügen
