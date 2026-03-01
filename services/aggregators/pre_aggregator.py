@@ -167,7 +167,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "impella_arm_2",
-            "redcap_repeat_instrument": PreImpellaHVLabModel.INSTRUMENT_NAME,
+            "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
         
@@ -266,7 +266,11 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             payload["pre_neuro_i"] = 0
 
         # 5. Labor (6h mit Fallback auf 24h)
-        lab_fields = ["wbc", "hb", "hct", "plt", "ptt", "quick", "inr", "ck", "got", "ldh", "crea", "urea", "alb", "crp", "pct", "act"]
+        lab_fields = [
+            "wbc", "hb", "hct", "mcv", "mch", "mchc", "ret", "rpi", "rdw", "plt", 
+            "ptt", "quick", "inr", "ck", "ckmb", "got", "ldh", "lipase", 
+            "crea", "urea", "cc", "alb", "crp", "pct", "act", "fhb", "hapto", "bili", "trop"
+        ]
         has_lab = False
         used_24h = False
         
@@ -290,6 +294,13 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
                     if field == "crp": payload["pre_crp_m_i"] = 1
                     if field == "pct": payload["pre_pct_m_i"] = 1
                     if field == "act": payload["pre_act_m_i"] = 1
+                    if field == "trop": payload["pre_trop_m_i"] = 1
+        
+        # Hemolysis logic
+        if any(payload.get(f"pre_{f}_i") is not None for f in ["fhb", "hapto", "bili"]):
+            payload["pre_hemolysis_i"] = 1
+        else:
+            payload["pre_hemolysis_i"] = 0
 
         if has_lab:
             payload["pre_lab_results_i"] = 1
@@ -306,7 +317,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "impella_arm_2",
-            "redcap_repeat_instrument": PreImpellaMedicationModel.INSTRUMENT_NAME,
+            "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
         
@@ -398,7 +409,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "ecls_arm_2",
-            "redcap_repeat_instrument": PreVAECLSHVLabModel.INSTRUMENT_NAME,
+            "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
         
@@ -488,7 +499,11 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
             payload["pre_neuro"] = 0
 
         # 5. Labor (6h mit Fallback auf 24h)
-        lab_fields = ["wbc", "hb", "hct", "plt", "ptt", "quick", "inr", "ck", "got", "ldh", "crea", "urea", "alb", "crp", "pct", "act"]
+        lab_fields = [
+            "wbc", "hb", "hct", "mcv", "mch", "mchc", "ret", "rpi", "rdw", "plt", 
+            "ptt", "quick", "inr", "ck", "ckmb", "got", "ldh", "lipase", 
+            "crea", "urea", "cc", "alb", "crp", "pct", "act", "fhb", "hapto", "bili", "trop"
+        ]
         has_lab = False
         used_24h = False
         
@@ -509,6 +524,13 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
                     if field == "crp": payload["pre_crp_m"] = 1
                     if field == "pct": payload["pre_pct_m"] = 1
                     if field == "act": payload["pre_act_m"] = 1
+                    if field == "trop": payload["pre_trop_m"] = 1
+
+        # Hemolysis logic
+        if any(payload.get(f"pre_{f}") is not None for f in ["fhb", "hapto", "bili"]):
+            payload["pre_hemolysis"] = 1
+        else:
+            payload["pre_hemolysis"] = 0
 
         if has_lab:
             payload["pre_lab_results"] = 1
@@ -524,7 +546,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": "ecls_arm_2",
-            "redcap_repeat_instrument": PreVAECLSMedicationModel.INSTRUMENT_NAME,
+            "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
         

@@ -30,6 +30,12 @@ LAB_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
     "wbc": ("Lab", "Blutbild", r"^WBC"),
     "hb": ("Lab", "Blutbild", r"^HB \(HGB\)|^HB\b"),
     "hct": ("Lab", "Blutbild", r"^HCT"),
+    "mcv": ("Lab", "Blutbild", r"^MCV"),
+    "mch": ("Lab", "Blutbild", r"^MCH"),
+    "mchc": ("Lab", "Blutbild", r"^MCHC"),
+    "rdw": ("Lab", "Blutbild", r"^RDW"),
+    "ret": ("Lab", "Blutbild", r"^RETIKULOZYTEN"),
+    "rpi": ("Lab", "Blutbild", r"^Reti-Produktionsindex"),
     "plt": ("Lab", "Blutbild", r"^PLT"),
     "fhb": ("Lab", "Blutbild|Klinische Chemie", r"^FREIES HB"),
     # Gerinnung
@@ -45,6 +51,7 @@ LAB_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
     "lipase": ("Lab", "Enzyme", r"^LIPASE"),
     "got": ("Lab", "Enzyme", r"^GOT"),
     "alat": ("Lab", "Enzyme", r"^GPT"),
+    "trop": ("Lab", "Enzyme|Klinische Chemie", r"^Troponin|^HS-TROP"),
     # Klinische Chemie
     "pct": ("Lab", "Klinische Chemie|Proteine", r"^PROCALCITONIN"),
     "crp": ("Lab", "Klinische Chemie|Proteine", r"^CRP"),
