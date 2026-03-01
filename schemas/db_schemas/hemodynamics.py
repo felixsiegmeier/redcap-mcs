@@ -328,7 +328,16 @@ class HemodynamicsModel(TimedExportModel):
             self.milrinone,
             self.vasopressin
         ]
-        self.vasoactive_med = 1 if any(v is not None and v > 0 for v in catecholamines) else 0
+        
+        # Prüfe auch Checkboxen (1-17, da 17=Other)
+        vaso_checkboxes = [
+            getattr(self, f"vasoactive_spec___{i}") for i in range(1, 18)
+        ]
+        
+        self.vasoactive_med = 1 if (
+            any(v is not None and v > 0 for v in catecholamines) or 
+            any(v == 1 for v in vaso_checkboxes)
+        ) else 0
 
         # Antikoagulation vorhanden
         self.iv_ac = 1 if self.iv_ac_spec else 0
