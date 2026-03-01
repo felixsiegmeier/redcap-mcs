@@ -11,12 +11,14 @@ WICHTIG: Katecholamine werden von ml/h zu µg/kg/min umgerechnet!
 - Konzentration wird aus dem Perfusor-Namen geparst
 """
 
+import logging
 import re
-from unicodedata import category
 
 import pandas as pd
 from typing import Optional, Dict, Tuple
 from datetime import date, time
+
+logger = logging.getLogger(__name__)
 
 from schemas.db_schemas.hemodynamics import (
     HemodynamicsModel,
@@ -113,7 +115,7 @@ class HemodynamicsAggregator(BaseAggregator):
             elif source == "Respiratory":
                 # vent_spec braucht String-Wert und Mapping zu Integer
                 if field == "vent_spec":
-                    vent_mode_str = self._get_string_value(resp_df, category, parameter)
+                    vent_mode_str = self.get_string_value(resp_df, category, parameter)
                     if vent_mode_str:
                         values[field] = self._map_ventilation_spec(vent_mode_str)
                 else:
@@ -348,8 +350,11 @@ class HemodynamicsAggregator(BaseAggregator):
         weight_kg = self._get_patient_weight()
         if weight_kg is None:
             # Gewicht fehlt → Warnung und None zurückgeben
-            print(f"⚠️ WARNING: Patientengewicht nicht in Daten vorhanden. "
-                  f"Medikamentendosierung '{field_name}' kann nicht berechnet werden (µg/kg/min benötigt Gewicht).")
+            logger.warning(
+                "Patientengewicht nicht in Daten vorhanden. "
+                "Medikamentendosierung '%s' kann nicht berechnet werden (µg/kg/min benötigt Gewicht).",
+                field_name,
+            )
             return None
         
         # Umrechnung: µg/kg/min = (ml/h × µg/ml) / (60 × kg)
@@ -414,8 +419,8 @@ class HemodynamicsAggregator(BaseAggregator):
             state = get_state()
             if state.patient_weight is not None:
                 return state.patient_weight
-        except:
-            pass
+        except (ImportError, RuntimeError, AttributeError):
+            logger.debug("Streamlit state not available for patient_weight lookup")
         
         # Dann in den Daten suchen
         if self._data is None or self._data.empty:
@@ -448,48 +453,6 @@ class HemodynamicsAggregator(BaseAggregator):
         
         return None
 
-    def _get_string_value(
-        self,
-        df: pd.DataFrame,
-        category_pattern: str,
-        param_pattern: str
-    ) -> Optional[str]:
-        """Holt einen String-Wert aus dem DataFrame (für vent_spec, etc.).
-        
-        Args:
-            df: Quelldaten (bereits auf Tag gefiltert)
-            category_pattern: Regex-Pattern für Kategorie
-            param_pattern: Regex-Pattern für Parameter
-            
-        Returns:
-            Erster gefundener String-Wert oder None
-        """
-        if df.empty:
-            return None
-        
-        # Parameter-Filter
-        param_mask = df["parameter"].str.contains(param_pattern, case=False, na=False, regex=True)
-        
-        # Category-Filter nur wenn Spalte existiert und Pattern nicht ".*" ist
-        if "category" in df.columns and category_pattern != ".*":
-            cat_mask = df["category"].str.contains(category_pattern, case=False, na=False, regex=True)
-            mask = param_mask & cat_mask
-        else:
-            mask = param_mask
-        
-        filtered = df[mask]
-        
-        if filtered.empty:
-            return None
-        
-        # Ersten nicht-leeren String-Wert zurückgeben
-        for val in filtered["value"].dropna():
-            str_val = str(val).strip()
-            if str_val:
-                return str_val
-        
-        return None
-
     def _map_ventilation_spec(self, mode_str: str) -> Optional[int]:
         """Mappt Beatmungsmodus-String zu VentilationSpec Integer.
         
@@ -519,18 +482,8 @@ class HemodynamicsAggregator(BaseAggregator):
             pass
         
         # Unbekannter Modus
-        print(f"Warning: Unknown ventilation mode '{mode_str}' (normalized: '{normalized}')")
+        logger.warning("Unknown ventilation mode '%s' (normalized: '%s')", mode_str, normalized)
         return None
-
-    def _check_ecmella(self) -> int:
-        """Prüft ob sowohl ECMO als auch Impella am Tag aktiv sind."""
-        ecmo_df = self.get_source_data("ecmo")
-        impella_df = self.get_source_data("impella")
-        
-        has_ecmo = not ecmo_df.empty
-        has_impella = not impella_df.empty
-        
-        return 1 if (has_ecmo and has_impella) else 0
 
     def _set_transfusion(
         self,

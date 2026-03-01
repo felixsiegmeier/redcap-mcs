@@ -1,3 +1,6 @@
+import logging
+import re
+
 import pandas as pd
 from typing import Optional, Dict, Tuple
 from datetime import date
@@ -5,6 +8,8 @@ from datetime import date
 from .base import BaseAggregator
 from schemas.db_schemas.demography import DemographyModel
 from .mapping import DEMOGRAPHY_FIELD_MAP
+
+logger = logging.getLogger(__name__)
 
 class DemographyAggregator(BaseAggregator):
     """
@@ -97,8 +102,7 @@ class DemographyAggregator(BaseAggregator):
         """Konvertiert Datums-String (DD.MM.YYYY oder YYYY-MM-DD) zu date Objekt."""
         if not date_str:
             return None
-        
-        import re
+
         from datetime import datetime
         
         # DD.MM.YYYY

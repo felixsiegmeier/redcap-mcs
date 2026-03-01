@@ -10,6 +10,9 @@ Aggregiert tägliche Impella-Daten:
 WICHTIG: Nur in impella_arm_2 verfügbar!
 """
 
+import logging
+import re
+
 import pandas as pd
 from typing import Optional, Dict, Tuple
 from datetime import date, time
@@ -17,6 +20,8 @@ from datetime import date, time
 from schemas.db_schemas.impella import ImpellaAssessmentModel
 from .base import BaseAggregator
 from .mapping import IMPELLA_FIELD_MAP
+
+logger = logging.getLogger(__name__)
 
 
 class ImpellaAggregator(BaseAggregator):
@@ -99,7 +104,6 @@ class ImpellaAggregator(BaseAggregator):
             return None
         
         # P-Level extrahieren (z.B. "P8" -> 8)
-        import re
         for value in filtered["value"].dropna():
             match = re.search(r"P(\d+)", str(value), re.IGNORECASE)
             if match:

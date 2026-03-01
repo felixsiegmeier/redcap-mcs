@@ -2,10 +2,14 @@
 Pre-Assessment Aggregator - Basis-Logik für Pre-Implantation Assessments.
 """
 
+import logging
+import re
+
 import pandas as pd
 from typing import Optional, Dict, Tuple, Type, List
 from datetime import date, time, datetime, timedelta
-import re
+
+logger = logging.getLogger(__name__)
 
 from .base import BaseAggregator
 from .mapping import (

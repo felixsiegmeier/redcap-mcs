@@ -13,12 +13,16 @@ Aggregations-Strategien:
 - first/last: Erster/letzter Wert des Tages
 """
 
+import logging
+import re
 from abc import ABC, abstractmethod
 from typing import Optional, List, Dict, Tuple, Type
 from datetime import date, time
 import pandas as pd
 
 from schemas.db_schemas.base import BaseExportModel
+
+logger = logging.getLogger(__name__)
 
 
 class BaseAggregator(ABC):
@@ -101,7 +105,6 @@ class BaseAggregator(ABC):
             return None
         
         # Spezialfall Datum: Wenn es wie ein Datum aussieht (DD.MM.YYYY), NICHT zu float konvertieren
-        import re
         if re.match(r"^\d{1,2}[\./]\d{1,2}[\./]\d{2,4}$", s):
             return None
 
@@ -322,3 +325,9 @@ class BaseAggregator(ABC):
         
         results.sort(key=lambda x: x[1])
         return results
+
+    def _check_ecmella(self) -> int:
+        """Prüft ob sowohl ECMO als auch Impella am Tag aktiv sind."""
+        ecmo_df = self.get_source_data("ecmo")
+        impella_df = self.get_source_data("impella")
+        return 1 if (not ecmo_df.empty and not impella_df.empty) else 0

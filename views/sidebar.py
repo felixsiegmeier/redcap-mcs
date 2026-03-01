@@ -128,7 +128,6 @@ def _render_filter_options():
     # Checkbox für Ausreißer-Filterung
     filter_enabled = st.checkbox(
         "Ausreißer filtern",
-        value=st.session_state.get("filter_outliers_enabled", False),
         key="filter_outliers_enabled",
         help="Filtert Werte außerhalb des 2.5-97.5% Perzentil-Bereichs pro Parameter"
     )

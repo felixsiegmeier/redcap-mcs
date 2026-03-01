@@ -12,6 +12,8 @@ Die FIELD_MAP definiert für jedes REDCap-Feld:
 Unterstützte Aggregations-Strategien: median, mean, nearest, first, last.
 """
 
+import logging
+
 import pandas as pd
 from typing import Optional, Dict
 from datetime import date, time
@@ -19,6 +21,8 @@ from datetime import date, time
 from schemas.db_schemas.lab import LabModel, WithdrawalSite
 from .base import BaseAggregator
 from .mapping import LAB_FIELD_MAP
+
+logger = logging.getLogger(__name__)
 
 
 class LabAggregator(BaseAggregator):
@@ -91,10 +95,3 @@ class LabAggregator(BaseAggregator):
     def create_lab_entry(self) -> LabModel:
         """Alias für create_entry (Rückwärtskompatibilität)."""
         return self.create_entry()
-
-    def _check_ecmella(self) -> int:
-        """Prüft ob sowohl ECMO als auch Impella am Tag aktiv sind."""
-        ecmo_df = self.get_source_data("ecmo")
-        impella_df = self.get_source_data("impella")
-        
-        return 1 if (not ecmo_df.empty and not impella_df.empty) else 0

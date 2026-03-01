@@ -10,6 +10,8 @@ Aggregiert tägliche ECMO-Pumpendaten:
 WICHTIG: Nur in ecls_arm_2 verfügbar!
 """
 
+import logging
+
 import pandas as pd
 from typing import Optional, Dict, Tuple
 from datetime import date, time
@@ -17,6 +19,8 @@ from datetime import date, time
 from schemas.db_schemas.pump import PumpModel
 from .base import BaseAggregator
 from .mapping import PUMP_FIELD_MAP
+
+logger = logging.getLogger(__name__)
 
 
 class PumpAggregator(BaseAggregator):
