@@ -233,26 +233,29 @@ AVAILABLE_INSTRUMENTS = {
 
 def render_export_builder():
     """Hauptfunktion für den Export Builder."""
-    
+
     st.header("Export Builder")
     st.write("Erstellen Sie Export-Daten für REDCap. Wählen Sie Instrumente und Events aus.")
-    
+
     if not has_data():
         st.warning("Keine Daten geladen.")
         return
-    
+
     state = get_state()
-    
+
     # Instrument-Auswahl
     _render_instrument_selection()
-    
+
     st.divider()
-    
+
+    # ECMELLA-Konfiguration (zeitgleiche Implantation)
+    _render_ecmella_config()
+
     # Einstellungen
     _render_settings()
-    
+
     st.divider()
-    
+
     # Build & Export
     _render_build_section()
 
@@ -301,6 +304,63 @@ def _render_instrument_selection():
                     key=f"cb_{key}"
                 )
                 st.session_state.export_instruments[key] = checked
+
+
+def _render_ecmella_config():
+    """Rendert die ECMELLA-Konfigurationsfrage.
+
+    Erscheint nur, wenn sowohl ECMO- als auch Impella-Daten vorhanden sind
+    UND das Pre-Impella Instrument ausgewählt ist. Fragt, ob Impella und ECLS
+    zeitgleich implantiert wurden (ECMELLA 2.0), da in diesem Fall keine
+    Pre-Impella-Parameter erhoben werden (REDCap Branching-Logik).
+    """
+    has_ecmo = not get_data("ecmo").empty
+    has_impella = not get_data("impella").empty
+    pre_impella_selected = st.session_state.get("export_instruments", {}).get(
+        "pre_impella_impella_arm_2", False
+    )
+
+    # Nur relevant wenn beide Devices vorhanden und Pre-Impella ausgewählt
+    if not (has_ecmo and has_impella and pre_impella_selected):
+        return
+
+    state = get_state()
+
+    st.subheader("ECMELLA-Konfiguration")
+
+    # Aktuellen Wert auslesen (None → Nein als sicherer Standard)
+    current_val = state.ecmella_same_session
+    current_idx = 1 if current_val is True else 0
+
+    selected = st.radio(
+        "Wurden Impella und ECLS zeitgleich / in derselben Session implantiert? (ECMELLA 2.0)",
+        options=["Nein – getrennte Implantation", "Ja – gleiche Session (ECMELLA 2.0)"],
+        index=current_idx,
+        horizontal=True,
+        help=(
+            "Bei simultaner Implantation (ECMELLA 2.0) werden die Pre-Impella-Parameter "
+            "nicht erhoben und pre_ecmella_2_0 wird auf 1 gesetzt. "
+            "Bei getrennter Implantation werden alle Pre-Parameter normal befüllt "
+            "(pre_ecmella_2_0 = 0)."
+        ),
+    )
+
+    new_value = selected.startswith("Ja")
+    if new_value != state.ecmella_same_session:
+        update_state(ecmella_same_session=new_value)
+
+    if new_value:
+        st.warning(
+            "⚠️ ECMELLA 2.0: Pre-Impella-Parameter werden **nicht** erhoben "
+            "(pre_ecmella_2_0 = 1, pre_ecmella_2_0_2 = 1)."
+        )
+    else:
+        st.info(
+            "ℹ️ Getrennte Implantation: Pre-Impella-Parameter werden normal erhoben "
+            "(pre_ecmella_2_0 = 0, pre_ecmella_2_0_2 = 0)."
+        )
+
+    st.divider()
 
 
 def _render_settings():
@@ -575,11 +635,20 @@ def _build_multi_instrument_data():
             if not agg_class:
                 continue
 
-            aggregator = agg_class(
-                anchor_datetime=earliest,
-                record_id=state.record_id,
-                data=state.data
-            )
+            # Für Pre-Impella: ECMELLA-Status übergeben (zeitgleiche Implantation)
+            if instr_name == "pre_impella":
+                aggregator = agg_class(
+                    anchor_datetime=earliest,
+                    record_id=state.record_id,
+                    data=state.data,
+                    ecmella_same_session=state.ecmella_same_session or False,
+                )
+            else:
+                aggregator = agg_class(
+                    anchor_datetime=earliest,
+                    record_id=state.record_id,
+                    data=state.data,
+                )
 
             # Erstelle beide Entries und merge sie zu einem Dictionary
             # Da beide non-repeating sind und denselben event haben,

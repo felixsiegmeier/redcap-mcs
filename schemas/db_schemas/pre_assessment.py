@@ -34,13 +34,16 @@ class PreHVLabBaseModel(BaseExportModel):
 
 class PreImpellaHVLabModel(PreHVLabBaseModel):
     """Instrument: preimpella_hemodynamics_ventilation_labor"""
-    
+
     INSTRUMENT_NAME: ClassVar[str] = "preimpella_hemodynamics_ventilation_labor"
     INSTRUMENT_LABEL: ClassVar[str] = "Pre-Impella Hämodynamik/Beatmung/Labor"
-    
+
     redcap_repeat_instrument: Optional[str] = Field(None, alias="redcap_repeat_instrument")
     redcap_repeat_instance: Optional[int] = Field(None, alias="redcap_repeat_instance")
-    
+
+    # ECMELLA-Steuerfeld: 1 = zeitgleich implantiert (Pre-Parameter entfallen), 0 = getrennt
+    pre_ecmella_2_0_2: Optional[int] = Field(None, alias="pre_ecmella_2_0_2")
+
     pre_bga_i: Optional[int] = Field(None, alias="pre_bga_i")
     pre_assess_date_i: Optional[date] = Field(None, alias="pre_assess_date_i")
     pre_assess_time_i: Optional[time] = Field(None, alias="pre_assess_time_i")
@@ -128,13 +131,16 @@ class PreImpellaHVLabModel(PreHVLabBaseModel):
 
 class PreImpellaMedicationModel(BaseExportModel):
     """Instrument: preimpella"""
-    
+
     INSTRUMENT_NAME: ClassVar[str] = "preimpella"
     INSTRUMENT_LABEL: ClassVar[str] = "Pre-Impella"
-    
+
     redcap_repeat_instrument: Optional[str] = Field(None, alias="redcap_repeat_instrument")
     redcap_repeat_instance: Optional[int] = Field(None, alias="redcap_repeat_instance")
-    
+
+    # ECMELLA-Steuerfeld: 1 = zeitgleich implantiert (Pre-Parameter entfallen), 0 = getrennt
+    pre_ecmella_2_0: Optional[int] = Field(None, alias="pre_ecmella_2_0")
+
     pre_med_i___1: Optional[int] = Field(0, alias="pre_med_i___1")
     pre_med_i___2: Optional[int] = Field(0, alias="pre_med_i___2")
     pre_med_i___3: Optional[int] = Field(0, alias="pre_med_i___3")

@@ -161,19 +161,58 @@ class PreDeviceAggregatorBase(BaseAggregator):
 class PreImpellaAggregator(PreDeviceAggregatorBase):
     """Aggregator für Pre-Impella Assessment."""
 
+    def __init__(
+        self,
+        anchor_datetime,
+        record_id: str,
+        data=None,
+        ecmella_same_session: Optional[bool] = None
+    ):
+        """
+        Args:
+            anchor_datetime: Der Implantationszeitpunkt (Anker).
+            record_id: REDCap Record ID.
+            data: Gesamter Daten-DataFrame.
+            ecmella_same_session: True wenn Impella und ECLS zeitgleich / in derselben
+                Session implantiert wurden (ECMELLA 2.0). In diesem Fall werden keine
+                Pre-Impella-Parameter erhoben (pre_ecmella_2_0 = 1).
+        """
+        super().__init__(anchor_datetime=anchor_datetime, record_id=record_id, data=data)
+        self.ecmella_same_session = ecmella_same_session
+
     def create_hv_lab_entry(self) -> PreImpellaHVLabModel:
-        """Erstellt das Pre-Impella HV-Lab Modell."""
-        vitals_df = self.get_source_data("vitals")
-        resp_df = self.get_source_data("respiratory")
-        lab_df = self.get_source_data("lab")
-        gcs_df = self.get_source_data("GCS (Jugendliche und Erwachsene)")
-        
-        payload = {
+        """Erstellt das Pre-Impella HV-Lab Modell.
+
+        Bei zeitgleicher Implantation von Impella und ECLS (ECMELLA 2.0,
+        self.ecmella_same_session=True) werden keine Pre-Parameter erhoben.
+        In diesem Fall wird ein minimales Modell mit pre_ecmella_2_0_2=1
+        zurückgegeben und alle anderen Felder bleiben leer.
+        """
+        base_payload = {
             "record_id": self.record_id,
             "redcap_event_name": "impella_arm_2",
             "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
+
+        if self.ecmella_same_session:
+            # Zeitgleiche Implantation: Pre-Parameter entfallen (REDCap Branching)
+            logger.info(
+                "ECMELLA 2.0 aktiv: Pre-Impella HV-Lab Parameter werden nicht erhoben "
+                "(pre_ecmella_2_0_2=1)."
+            )
+            base_payload["pre_ecmella_2_0_2"] = 1
+            return PreImpellaHVLabModel.model_validate(base_payload)
+
+        # Getrennte Implantation: normale Parameter-Erhebung
+        base_payload["pre_ecmella_2_0_2"] = 0
+
+        vitals_df = self.get_source_data("vitals")
+        resp_df = self.get_source_data("respiratory")
+        lab_df = self.get_source_data("lab")
+        gcs_df = self.get_source_data("GCS (Jugendliche und Erwachsene)")
+
+        payload = base_payload
         
         # 1. BGA & Labor (6h Fenster)
         # Wir sammeln die Zeitpunkte um das assessment_date/time zu setzen
@@ -322,16 +361,35 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
         return PreImpellaHVLabModel.model_validate(payload)
 
     def create_medication_entry(self) -> PreImpellaMedicationModel:
-        """Erstellt das Pre-Impella Medikamenten-Modell."""
-        med_df = self.get_source_data("medication")
-        
-        payload = {
+        """Erstellt das Pre-Impella Medikamenten-Modell.
+
+        Bei zeitgleicher Implantation von Impella und ECLS (ECMELLA 2.0,
+        self.ecmella_same_session=True) werden keine Pre-Parameter erhoben.
+        In diesem Fall wird ein minimales Modell mit pre_ecmella_2_0=1
+        zurückgegeben und alle anderen Felder bleiben leer.
+        """
+        base_payload = {
             "record_id": self.record_id,
             "redcap_event_name": "impella_arm_2",
             "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
-        
+
+        if self.ecmella_same_session:
+            # Zeitgleiche Implantation: Pre-Parameter entfallen (REDCap Branching)
+            logger.info(
+                "ECMELLA 2.0 aktiv: Pre-Impella Medikamenten-Parameter werden nicht erhoben "
+                "(pre_ecmella_2_0=1)."
+            )
+            base_payload["pre_ecmella_2_0"] = 1
+            return PreImpellaMedicationModel.model_validate(base_payload)
+
+        # Getrennte Implantation: normale Parameter-Erhebung
+        base_payload["pre_ecmella_2_0"] = 0
+        med_df = self.get_source_data("medication")
+
+        payload = base_payload
+
         # 1. Spezifische Medikation (24h)
         # Filter nur für IDs 1-8 (da 9=None, 10/11 nicht in Pre-Impella vorhanden)
         med_results = self._get_medication_pre_24h(med_df, {k: v for k, v in MEDICATION_SPEC_MAP.items() if k <= 8})

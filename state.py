@@ -72,6 +72,10 @@ class AppState:
     
     # Patientenspezifische Daten (manuell eingegeben falls nicht im Datensatz)
     patient_weight: Optional[float] = None  # in kg - NÖTIG für Katecholaminberechnung
+
+    # ECMELLA-Konfiguration: True = zeitgleich implantiert (Pre-Impella-Parameter entfallen)
+    # None = noch nicht gesetzt / nicht relevant (kein ECMO vorhanden)
+    ecmella_same_session: Optional[bool] = None
     
     # Export-Daten: Generisches Dict für alle Instrumente
     # Key = instrument_name (z.B. "labor", "echocardiography")
