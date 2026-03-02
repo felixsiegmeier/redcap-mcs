@@ -1,15 +1,5 @@
 """
 Lab Aggregator - Laborwerte zu REDCap-Model.
-
-Aggregiert tägliche Laborwerte (Blutgase, Blutbild, Gerinnung, etc.)
-zu einem LabModel für den REDCap-Export.
-
-Die FIELD_MAP definiert für jedes REDCap-Feld:
-- Source-Type (z.B. "Lab" oder "ACT")
-- Kategorie-Pattern (z.B. "Blutgase arteriell")
-- Parameter-Pattern (z.B. "^PCO2" für pCO2-Werte)
-
-Unterstützte Aggregations-Strategien: median, mean, nearest, first, last.
 """
 
 import logging
@@ -20,7 +10,7 @@ from datetime import date, time
 
 from schemas.db_schemas.lab import LabModel, WithdrawalSite
 from .base import BaseAggregator
-from .mapping import LAB_FIELD_MAP
+from .mapping import LAB_REGISTRY
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +20,6 @@ class LabAggregator(BaseAggregator):
 
     INSTRUMENT_NAME = "labor"
     MODEL_CLASS = LabModel
-    FIELD_MAP = LAB_FIELD_MAP
 
     def __init__(
         self,
@@ -57,19 +46,15 @@ class LabAggregator(BaseAggregator):
     def create_entry(self) -> LabModel:
         """Erstellt ein LabModel mit aggregierten Werten."""
 
-        # Werte aggregieren, Daten pro Source nur einmal ziehen
         values: Dict[str, Optional[float]] = {}
-        data_by_source: Dict[str, pd.DataFrame] = {}
-        for field, (source, category, parameter) in self.FIELD_MAP.items():
-            source_key = source.lower()
-            if source_key not in data_by_source:
-                data_by_source[source_key] = self.get_source_data(source)
-            values[field] = self.aggregate_value(data_by_source[source_key], category, parameter)
+        df_cache: Dict[str, pd.DataFrame] = {}
 
-        # ECMELLA prüfen (ECMO + Impella gleichzeitig)
+        for redcap_key, spec in LAB_REGISTRY.items():
+            df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
+            values[redcap_key] = self.aggregate_value(df, spec.category, spec.pattern)
+
         ecmella = self._check_ecmella()
-        
-        # Payload erstellen
+
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": self.redcap_event_name,
@@ -83,13 +68,11 @@ class LabAggregator(BaseAggregator):
             "na_post_2": 1,
             "ecmella_2": ecmella,
         }
-        
-        # Werte hinzufügen
+
         for field, value in values.items():
             if value is not None:
                 payload[field] = value
-        
-        # Abgeleitete Felder werden automatisch vom Model-Validator gesetzt
+
         return LabModel.model_validate(payload)
 
     def create_lab_entry(self) -> LabModel:

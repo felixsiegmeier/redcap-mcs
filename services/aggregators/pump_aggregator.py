@@ -1,24 +1,17 @@
 """
 Pump (ECMO) Aggregator - ECMO-Parameter zu REDCap-Model.
-
-Aggregiert tägliche ECMO-Pumpendaten:
-- Drehzahl (RPM)
-- Blutfluss (L/min)
-- Gasfluss (L/min)
-- FiO2 (%)
-
 WICHTIG: Nur in ecls_arm_2 verfügbar!
 """
 
 import logging
 
 import pandas as pd
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict
 from datetime import date, time
 
 from schemas.db_schemas.pump import PumpModel
 from .base import BaseAggregator
-from .mapping import PUMP_FIELD_MAP
+from .mapping import PUMP_REGISTRY
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +22,6 @@ class PumpAggregator(BaseAggregator):
     INSTRUMENT_NAME = "pump"
     MODEL_CLASS = PumpModel
 
-    # Mapping: Model-Feld -> (Source, Category-Pattern, Parameter-Pattern)
-    FIELD_MAP = PUMP_FIELD_MAP
-
     def __init__(
         self,
         date: date,
@@ -41,11 +31,10 @@ class PumpAggregator(BaseAggregator):
         nearest_time: Optional[time] = None,
         data: Optional[pd.DataFrame] = None
     ):
-        # Pump ist NUR in ecls_arm_2 verfügbar!
         super().__init__(
             date=date,
             record_id=record_id,
-            redcap_event_name="ecls_arm_2",  # Immer ecls_arm_2!
+            redcap_event_name="ecls_arm_2",
             redcap_repeat_instance=redcap_repeat_instance,
             value_strategy=value_strategy,
             nearest_time=nearest_time,
@@ -54,30 +43,26 @@ class PumpAggregator(BaseAggregator):
 
     def create_entry(self) -> PumpModel:
         """Erstellt ein PumpModel mit aggregierten Werten."""
-        
-        # ECMO-Daten holen (source_type enthält "ECMO")
-        ecmo_df = self.get_source_data("ecmo")
-        
-        # Werte aggregieren
+
         values: Dict[str, Optional[float]] = {}
-        
-        for field, (source, category, parameter) in self.FIELD_MAP.items():
-            values[field] = self.aggregate_value(ecmo_df, category, parameter)
-        
-        # Payload erstellen
+        df_cache: Dict[str, pd.DataFrame] = {}
+
+        for redcap_key, spec in PUMP_REGISTRY.items():
+            df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
+            values[redcap_key] = self.aggregate_value(df, spec.category, spec.pattern)
+
         payload = {
             "record_id": self.record_id,
-            "redcap_event_name": "ecls_arm_2",  # Immer ecls_arm_2!
+            "redcap_event_name": "ecls_arm_2",
             "redcap_repeat_instrument": "pump",
             "redcap_repeat_instance": self.redcap_repeat_instance,
             "ecls_compl_time_point": self.redcap_repeat_instance,
             "ecls_compl_date": self.date,
-            "ecls_compl_na": 1,  # Default: keine Komplikationen
+            "ecls_compl_na": 1,
         }
-        
-        # Werte hinzufügen (nur nicht-None)
+
         for field, value in values.items():
             if value is not None:
                 payload[field] = value
-        
+
         return PumpModel.model_validate(payload)

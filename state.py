@@ -198,22 +198,9 @@ def _update_device_times(state: AppState, df: pd.DataFrame) -> None:
 # Data Query Helpers
 # ============================================================================
 
-# Mapping für benutzerfreundliche Abfragen
-# Für "impella" wird contains-Suche verwendet (s. get_data)
-SOURCE_MAPPING = {
-    "lab": ["Lab"],
-    "vitals": ["Vitals", "Vitalparameter (manuell)"],
-    "medication": ["Medikation", "Medication"],
-    "ecmo": ["ECMO"],
-    "impella": "__CONTAINS__",  # Spezialfall: contains-Suche
-    "crrt": ["HÄMOFILTER", "CRRT"],
-    "respiratory": ["Beatmung", "Respiratory"],
-    "fluidbalance": ["Fluidbalance", "Bilanz"],
-    "nirs": ["NIRS"],
-    "patient_info": ["PatientInfo"],
-    "Richmond-Agitation-Sedation": ["Richmond-Agitation-Sedation"],
-    "GCS (Jugendliche und Erwachsene)": ["GCS (Jugendliche und Erwachsene)"],
-}
+# Mapping verschoben nach services/aggregators/mapping.py
+# Re-Export für Rückwärtskompatibilität
+from services.aggregators.mapping import SOURCE_MAPPING  # noqa: F401
 
 
 def get_data(source: Optional[str] = None) -> pd.DataFrame:

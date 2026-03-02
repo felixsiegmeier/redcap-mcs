@@ -165,19 +165,26 @@ class BaseAggregator(ABC):
     def get_source_data(self, source: str) -> pd.DataFrame:
         """
         Holt Daten aus einer Quelle (Lab, Vitals, etc.).
-        
+
         Args:
             source: Quell-Name (z.B. "lab", "vitals", "ecmo")
-            
+
         Returns:
             DataFrame gefiltert auf den Tag und source_type
         """
         if self._data is not None:
             df = self._data
-            # Wenn Daten direkt übergeben wurden, nach source_type filtern
             if "source_type" in df.columns:
-                # source_type kann verschieden benannt sein - case-insensitive match
-                mask = df["source_type"].str.lower().str.contains(source.lower(), na=False)
+                from services.aggregators.mapping import SOURCE_MAPPING
+                source_lower = source.lower()
+                if source_lower in SOURCE_MAPPING:
+                    target = SOURCE_MAPPING[source_lower]
+                    if target == "__CONTAINS__":
+                        mask = df["source_type"].str.upper().str.contains(source.upper(), na=False)
+                    else:
+                        mask = df["source_type"].isin(target)
+                else:
+                    mask = df["source_type"].str.lower().str.contains(source_lower, na=False)
                 df = df[mask]
         else:
             from state import get_data
