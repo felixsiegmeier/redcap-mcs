@@ -104,7 +104,7 @@ REDCAP_VALIDATION_TYPES = {
     
     # Hemodynamics - Beatmung
     "o2": "number",
-    "fi02": "number",
+    "fi02": "number_1dp_comma_decimal",
     "hfv_rate": "number",
     "conv_vent_rate": "number",
     "vent_map": "number",
@@ -178,6 +178,10 @@ REDCAP_VALIDATION_TYPES = {
     "pre_norepinephrine": "number_2dp_comma_decimal", "pre_norepinephrine_i": "number_2dp_comma_decimal",
     "pre_vasopressin": "number_2dp_comma_decimal", "pre_vasopressin_i": "number_2dp_comma_decimal",
     "pre_milrinone": "number_2dp_comma_decimal", "pre_milrinone_i": "number_2dp_comma_decimal",
+    "pre_fi02": "number_1dp_comma_decimal", "pre_fi02_i": "number_1dp_comma_decimal",
+    "pre_o2": "number", "pre_o2_i": "number",
+    "pre_02l": "number", "pre_02l_i": "number",
+    "pre_sp02": "number", "pre_sp02_i": "number",
     "pre_gcs": "number", "pre_gcs_i": "number",
     "pre_ck": "number", "pre_ck_i": "number",
     "pre_got": "number", "pre_got_i": "number",
