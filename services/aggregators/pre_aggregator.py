@@ -192,7 +192,10 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
                     payload[f"pre_{field}_i"] = val
                     timestamps.append(ts)
                     has_bga = True
-        
+                    # Setze Bedingungsfeld für SvO2
+                    if field == "svo2":
+                        payload["pre_svo2_m_i"] = 1
+
         if has_bga:
             payload["pre_bga_i"] = 1
             # Nimm den Zeitstempel des letzten BGA-Wertes für das Assessment
@@ -201,6 +204,10 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             payload["pre_assess_time_i"] = latest_ts.time()
         else:
             payload["pre_bga_i"] = 0
+
+        # Setze SvO2 measured auf 0 wenn kein Wert vorhanden
+        if payload.get("pre_svo2_i") is None:
+            payload["pre_svo2_m_i"] = 0
 
         # 2. Beatmung (6h Fenster)
         vent_fields = ["fi02", "o2", "vent_peep", "vent_pip", "conv_vent_rate"]
@@ -431,7 +438,10 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
                     payload[f"pre_{field}"] = val
                     timestamps.append(ts)
                     has_bga = True
-        
+                    # Setze Bedingungsfeld für SvO2
+                    if field == "svo2":
+                        payload["pre_svo2_m"] = 1
+
         if has_bga:
             payload["pre_bga"] = 1
             latest_ts = max(timestamps)
@@ -439,6 +449,10 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
             payload["pre_assess_time"] = latest_ts.time()
         else:
             payload["pre_bga"] = 0
+
+        # Setze SvO2 measured auf 0 wenn kein Wert vorhanden
+        if payload.get("pre_svo2") is None:
+            payload["pre_svo2_m"] = 0
 
         # 2. Beatmung (6h Fenster)
         vent_fields = ["fi02", "o2", "vent_peep", "vent_pip", "conv_vent_rate"]

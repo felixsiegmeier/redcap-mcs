@@ -24,8 +24,8 @@ LAB_FIELD_MAP: Dict[str, Tuple[str, str, str]] = {
     "na": ("Lab", "Blutgase arteriell", r"^NATRIUM"),
     "gluc": ("Lab", "Blutgase arteriell", r"^GLUCOSE"),
     "lactate": ("Lab", "Blutgase arteriell", r"^LACTAT"),
-    # Blutgase venös
-    "sv02": ("Lab", "Blutgase venös", r"^O2-SAETTIGUNG"),
+    # Blutgase venös (inkl. gemischt-venös)
+    "sv02": ("Lab", "Blutgase venös|Blutgase gv", r"^O2-SAETTIGUNG"),
     # Hämatologie / Blutbild
     "wbc": ("Lab", "Blutbild", r"^WBC"),
     "hb": ("Lab", "Blutbild", r"^HB \(HGB\)|^HB\b"),
