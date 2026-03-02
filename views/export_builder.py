@@ -443,15 +443,30 @@ def _render_build_section():
         instrument_counts = {}
         for form in all_forms:
             # Nutze get_instrument_name() statt direktes Attribut, da Pre-Assessments redcap_repeat_instrument=None haben
-            instr = form.get_instrument_name()
+            if isinstance(form, dict):
+                # Für gemergete Pre-Assessment Dicts: bestimme Namen aus redcap_event_name
+                event = form.get("redcap_event_name", "")
+                if "ecls" in event:
+                    instr = "pre_vaecls (merged)"
+                elif "impella" in event:
+                    instr = "pre_impella (merged)"
+                else:
+                    instr = "unknown"
+            else:
+                instr = form.get_instrument_name()
             instrument_counts[instr] = instrument_counts.get(instr, 0) + 1
-        
+
         summary = ", ".join([f"{k}: {v}" for k, v in instrument_counts.items()])
         st.info(f"Zusammenfassung: {summary}")
         
         # Vorschau
         with st.expander("Vorschau"):
-            preview_data = [entry.model_dump() for entry in all_forms]
+            preview_data = []
+            for entry in all_forms:
+                if isinstance(entry, dict):
+                    preview_data.append(entry)
+                else:
+                    preview_data.append(entry.model_dump())
             st.dataframe(pd.DataFrame(preview_data), hide_index=True)
 
 
@@ -463,6 +478,34 @@ def _get_all_export_forms() -> List[Any]:
         if forms:
             all_forms.extend(forms)
     return all_forms
+
+
+def _merge_pre_assessment_entries(hv_lab_entry: Any, med_entry: Any) -> Dict[str, Any]:
+    """
+    Merged zwei Pre-Assessment Einträge (HV-Lab und Medication) in ein Dictionary.
+
+    Da beide Instrumente non-repeating sind und denselben redcap_event_name haben,
+    müssen sie in REDCap als eine Zeile importiert werden.
+
+    Returns:
+        Dictionary mit allen Feldern beider Einträge kombiniert.
+    """
+    # Beide Entries zu Dicts konvertieren
+    hv_lab_dict = hv_lab_entry.model_dump()
+    med_dict = med_entry.model_dump()
+
+    # Merge: Medication-Felder zum HV-Lab Dict hinzufügen
+    merged = hv_lab_dict.copy()
+
+    # Übernehme alle Felder vom Medication Entry (außer redundante Basis-Felder)
+    for key, value in med_dict.items():
+        # Überspringe redundante Felder, die bereits im HV-Lab Entry sind
+        if key in ['record_id', 'redcap_event_name', 'redcap_repeat_instrument', 'redcap_repeat_instance']:
+            continue
+        # Füge alle anderen Felder hinzu
+        merged[key] = value
+
+    return merged
 
 
 def _build_multi_instrument_data():
@@ -520,37 +563,32 @@ def _build_multi_instrument_data():
                 earliest = get_data("ecmo")["timestamp"].min()
             else:
                 earliest = get_data("impella")["timestamp"].min()
-            
+
             if pd.isna(earliest):
                 continue
-                
-            # Wir erstellen die Einträge für die Pre-Instrumente
-            # Da Pre-Instrumente oft mehrere REDCap Instrumente bedienen, 
-            # müssen wir hier flexibel sein.
-            
+
             agg_class = globals().get(AVAILABLE_INSTRUMENTS[instr_name]["aggregator"])
             if not agg_class:
                 continue
-                
+
             aggregator = agg_class(
                 anchor_datetime=earliest,
                 record_id=state.record_id,
                 data=state.data
             )
-            
-            entries = []
-            if instr_name == "pre_impella":
-                entries.append(aggregator.create_hv_lab_entry())
-                entries.append(aggregator.create_medication_entry())
-            elif instr_name == "pre_vaecls":
-                entries.append(aggregator.create_hv_lab_entry())
-                entries.append(aggregator.create_medication_entry())
-            
-            for entry in entries:
-                # In export_forms speichern
-                form_key = f"{entry.get_instrument_name()}_{event_name}"
-                new_export_forms[form_key] = [entry]
-            
+
+            # Erstelle beide Entries und merge sie zu einem Dictionary
+            # Da beide non-repeating sind und denselben event haben,
+            # müssen sie in REDCap als eine Zeile importiert werden
+            hv_lab_entry = aggregator.create_hv_lab_entry()
+            med_entry = aggregator.create_medication_entry()
+
+            merged_dict = _merge_pre_assessment_entries(hv_lab_entry, med_entry)
+
+            # Speichere das gemergete Dictionary als eine Zeile
+            form_key = f"{instr_name}_{event_name}"
+            new_export_forms[form_key] = [merged_dict]
+
             continue
 
         # Demography (einmalig)
@@ -691,17 +729,24 @@ def _create_instrument_entry(
 
 def _export_multi_csv(forms: List[Any]) -> str:
     """Exportiert alle Formulare als eine CSV-Datei."""
-    
+
     if not forms:
         return ""
-    
+
     # Alle Formulare zu Dicts konvertieren (exclude=True Felder werden automatisch ausgeschlossen)
-    data = [entry.model_dump() for entry in forms]
+    # Forms können entweder Pydantic Models oder bereits Dicts sein (bei gemergte Pre-Assessments)
+    data = []
+    for entry in forms:
+        if isinstance(entry, dict):
+            data.append(entry)
+        else:
+            data.append(entry.model_dump())
+
     df = pd.DataFrame(data)
-    
+
     # Formatierung
     df = _format_dataframe(df)
-    
+
     return df.to_csv(index=False, sep=",", na_rep="")
 
 
