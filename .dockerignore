@@ -1,0 +1,17 @@
+.claude
+.devcontainer
+.venv
+/tests
+.gitignore
+.python-version
+daten_2.csv
+ECLSDatenbanktest_DataDictionary.csv
+ECMELLA-Patient komplett.xlsx
+full_export.csv
+testbook.ipynb
+
+# noch sinnvoll:
+.git
+__pycache__
+*.pyc
+.env
