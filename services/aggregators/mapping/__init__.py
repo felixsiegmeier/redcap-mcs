@@ -101,6 +101,8 @@ REDCAP_VALIDATION_TYPES.update({
     **{k: "number_2dp_comma_decimal" for k in HEMODYNAMICS_MEDICATION_MAP},
     **{f"pre_{k}":   "number_2dp_comma_decimal" for k in HEMODYNAMICS_MEDICATION_MAP},
     **{f"pre_{k}_i": "number_2dp_comma_decimal" for k in HEMODYNAMICS_MEDICATION_MAP},
+    # Ausnahme: pre_vasopressin_i ist in REDCap 1dp (nicht 2dp)
+    "pre_vasopressin_i": "number_1dp_comma_decimal",
 })
 
 
