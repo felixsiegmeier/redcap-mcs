@@ -22,7 +22,7 @@ HEMODYNAMICS_REGISTRY: Dict[str, FieldDef] = {
     "nirs_right_c": FieldDef("vitals", ".*", r"NIRS Channel 2 RSO2|NIRS.*Channel.*2", "number", "1", "80"),
     "sp02":         FieldDef("vitals", ".*", r"^SpO2\s*\[%\]", "number", "20", "100"),
     # Beatmung (Hamilton + Standard-Geräte)
-    "fi02":          FieldDef("respiratory", ".*", r"^FiO2\s*(\[%\]|in\s*%)", "number", "20", "100"),
+    "fi02":          FieldDef("respiratory", ".*", r"^FiO2\s*(?:\[%\]|in\s*%)", "number", "20", "100"),
     "o2":            FieldDef("o2_supply", ".*", r"^O2\s*l/min", "number", "0", "20"),
     "vent_peep":     FieldDef("respiratory", ".*", r"^s?PEEP\s*\[|^Expirationsdruck\s*\(PEEP\)", "number", "1", "30"),
     "vent_pip":      FieldDef("respiratory", ".*", r"^s?P[Ii][Pp]\s*\[|^Ppeak\s*\[|^s?Pin\s*\[|^insp.*Spitz", "number", "1", "40"),

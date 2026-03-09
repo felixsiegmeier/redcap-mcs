@@ -44,15 +44,9 @@ class ImpellaAggregator(BaseAggregator):
 
     def create_entry(self) -> ImpellaAssessmentModel:
         """Erstellt ein ImpellaAssessmentModel mit aggregierten Werten."""
-
+        values = self._process_registry(IMPELLA_REGISTRY)
+        
         impella_df = self.get_source_data("impella")
-
-        values: Dict[str, Optional[float]] = {}
-        for redcap_key, spec in IMPELLA_REGISTRY.items():
-            val = self.aggregate_value(impella_df, spec.category, spec.pattern)
-            values[redcap_key] = val
-            self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
-
         p_level = self._get_p_level(impella_df)
 
         payload = {

@@ -43,15 +43,7 @@ class PumpAggregator(BaseAggregator):
 
     def create_entry(self) -> PumpModel:
         """Erstellt ein PumpModel mit aggregierten Werten."""
-
-        values: Dict[str, Optional[float]] = {}
-        df_cache: Dict[str, pd.DataFrame] = {}
-
-        for redcap_key, spec in PUMP_REGISTRY.items():
-            df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
-            val = self.aggregate_value(df, spec.category, spec.pattern)
-            values[redcap_key] = val
-            self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
+        values = self._process_registry(PUMP_REGISTRY)
 
         payload = {
             "record_id": self.record_id,

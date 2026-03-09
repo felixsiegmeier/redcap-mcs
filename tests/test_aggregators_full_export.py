@@ -14,7 +14,7 @@ from services.aggregators import (
 )
 
 
-TEST_DATE = date(2026, 1, 2)
+TEST_DATE = date(2026, 2, 12)
 RECORD_ID = "test-001"
 EVENT_NAME = "ecls_arm_2"
 INSTANCE = 1
@@ -106,7 +106,7 @@ def test_lab_aggregator_full_export(full_export_df: pd.DataFrame) -> None:
         full_export_df, TEST_DATE, "Lab", "Blutgase arteriell", r"^LACTAT"
     )
     expected_hb = _median_value(
-        full_export_df, TEST_DATE, "Lab", "Blutbild", r"^HB \(HGB\)|^HB\b"
+        full_export_df, TEST_DATE, "Lab", "Blutbild", r"^HB \(HGB\)|^HB\b|H.moglobin\s*\["
     )
     expected_act = _median_value(full_export_df, TEST_DATE, "ACT", ".*", r"^ACT")
 
@@ -150,7 +150,7 @@ def test_hemodynamics_aggregator_full_export(full_export_df: pd.DataFrame) -> No
         full_export_df, TEST_DATE, "Vitals", ".*", r"^ABPs\s*\[|^ARTs\s*\["
     )
     expected_fi02 = _median_value(
-        full_export_df, TEST_DATE, "Respiratory", ".*", r"^FiO2\s*\[%\]"
+        full_export_df, TEST_DATE, "Respiratory", ".*", r"^FiO2\s*(?:\[%\]|in\s*%)"
     )
 
     assert entry.assess_date_hemo == TEST_DATE

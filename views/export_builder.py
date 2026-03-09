@@ -19,7 +19,7 @@ from datetime import date, datetime, time, timedelta
 from typing import Optional, List, Dict, Any
 
 from state import get_state, update_state, save_state, get_data, has_data
-from services.aggregators.base import revalidate_all_data
+from services.aggregators.base import revalidate_all_data, update_export_entry
 from utils.field_hints import get_day_values, render_field_with_hints, get_form_date, FIELD_LABELS
 from services.aggregators import (
     LabAggregator,
@@ -414,22 +414,9 @@ def _render_build_section():
                                 )
                                 
                                 if new_val != current_val:
-                                    to_save.append((form_key, entry_idx, w['field'], new_val))
+                                    if update_export_entry(form_key, entry_idx, w['field'], new_val):
+                                        st.rerun()
                         st.divider()
-                    
-                    if to_save:
-                        for fk, idx, field, nv in to_save:
-                            entries = state.export_forms[fk]
-                            entry = entries[idx]
-                            if isinstance(entry, dict):
-                                entry[field] = nv
-                            else:
-                                setattr(entry, field, nv)
-                            state.export_forms[fk] = entries
-                        
-                        save_state(state)
-                        revalidate_all_data()
-                        st.rerun()
                 else:
                     w_df = pd.DataFrame(warnings)
                     # Spalten sortieren für bessere Lesbarkeit

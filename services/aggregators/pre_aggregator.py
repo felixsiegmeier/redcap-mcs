@@ -5,7 +5,7 @@ Pre-Assessment Aggregator - Pre-Implantation Assessments für Impella und VA-ECL
 import logging
 
 import pandas as pd
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List, Any
 from datetime import date, time, datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class PreDeviceAggregatorBase(BaseAggregator):
             else:
                 mask = self._data["source_type"].isin(target)
         else:
-            mask = self._data["source_type"].str.lower().str.contains(source_lower, na=False)
+            mask = self._data["source_type"].str.lower().str.contains(source_lower, na=False, regex=False)
         return self._data[mask].copy()
 
     def _get_pre_window_data(self, source_df: pd.DataFrame, max_hours: int = 6) -> pd.DataFrame:
@@ -181,6 +181,25 @@ class PreDeviceAggregatorBase(BaseAggregator):
         )
         return mock_agg._get_medication_rate(row, pattern, field_name)
 
+    def _process_pre_registry(self, registry: Dict[str, Any], max_hours: int = 6) -> Tuple[Dict[str, Any], List[datetime]]:
+        """
+        Prozessiert eine Registry für Pre-Assessment Felder.
+        Nutzt _get_closest_pre_value, validiert die Ranges und sammelt Timestamps.
+        """
+        values = {}
+        timestamps = []
+        df_cache = {}
+        
+        for redcap_key, spec in registry.items():
+            df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
+            val, ts = self._get_closest_pre_value(df, spec.category, spec.pattern, max_hours=max_hours)
+            if val is not None:
+                values[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
+                if ts:
+                    timestamps.append(ts)
+        return values, timestamps
+
     def create_entry(self):
         return self.create_hv_lab_entry()
 
@@ -224,20 +243,16 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             return df_cache.setdefault(source, self.get_source_data(source))
 
         # 1. BGA (6h)
-        timestamps = []
-        has_bga = False
-        for redcap_key, spec in PRE_IMPELLA_BGA_REGISTRY.items():
-            val, ts = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
-            if val is not None:
-                payload[redcap_key] = val
-                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
-                timestamps.append(ts)
-                has_bga = True
-                if redcap_key == "pre_svo2_i":
-                    payload["pre_svo2_m_i"] = 1
+        timestamps: List[datetime] = []
+        bga_vals, bga_ts = self._process_pre_registry(PRE_IMPELLA_BGA_REGISTRY, max_hours=6)
+        payload.update(bga_vals)
+        timestamps.extend(bga_ts)
+        has_bga = bool(bga_vals)
 
         if has_bga:
             payload["pre_bga_i"] = 1
+            if payload.get("pre_svo2_i") is not None:
+                payload["pre_svo2_m_i"] = 1
             latest_ts = max(timestamps)
             payload["pre_assess_date_i"] = latest_ts.date()
             payload["pre_assess_time_i"] = latest_ts.time()
@@ -248,13 +263,9 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             payload["pre_svo2_m_i"] = 0
 
         # 2. Beatmung (6h)
-        has_vent = False
-        for redcap_key, spec in PRE_IMPELLA_VENT_REGISTRY.items():
-            val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
-            if val is not None:
-                payload[redcap_key] = val
-                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
-                has_vent = True
+        vent_vals, _ = self._process_pre_registry(PRE_IMPELLA_VENT_REGISTRY, max_hours=6)
+        payload.update(vent_vals)
+        has_vent = bool(vent_vals)
 
         # Beatmungsmodus (String → Integer)
         for redcap_key, spec in PRE_IMPELLA_VENT_SPEC_REGISTRY.items():
@@ -278,13 +289,9 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             payload["pre_vent_i"] = 0
 
         # 3. Hämodynamik (6h)
-        has_hemo = False
-        for redcap_key, spec in PRE_IMPELLA_HEMO_REGISTRY.items():
-            val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
-            if val is not None:
-                payload[redcap_key] = val
-                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
-                has_hemo = True
+        hemo_vals, _ = self._process_pre_registry(PRE_IMPELLA_HEMO_REGISTRY, max_hours=6)
+        payload.update(hemo_vals)
+        has_hemo = bool(hemo_vals)
 
         if has_hemo:
             payload["pre_hemodynamics_i"] = 1

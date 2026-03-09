@@ -65,21 +65,14 @@ class HemodynamicsAggregator(BaseAggregator):
         med_df = self.get_source_data("medication")
 
         # Registry-Felder aggregieren (Source-DFs werden gecacht)
-        values: Dict[str, Optional[float]] = {}
-        df_cache: Dict[str, pd.DataFrame] = {}
+        values = self._process_registry(HEMODYNAMICS_REGISTRY)
 
-        for redcap_key, spec in HEMODYNAMICS_REGISTRY.items():
-            df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
-
-            if redcap_key == "vent_spec":
-                # String-Wert → Integer via VENT_SPEC_MAP
-                mode_str = self.get_string_value(df, spec.category, spec.pattern)
-                if mode_str:
-                    values["vent_spec"] = self._map_ventilation_spec(mode_str)
-            else:
-                val = self.aggregate_value(df, spec.category, spec.pattern)
-                values[redcap_key] = val
-                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
+        # Sonderbehandlung vent_spec (da String-Mapping erforderlich)
+        vent_spec = HEMODYNAMICS_REGISTRY["vent_spec"]
+        vent_df = self.get_source_data(vent_spec.source)
+        mode_str = self.get_string_value(vent_df, vent_spec.category, vent_spec.pattern)
+        if mode_str:
+            values["vent_spec"] = self._map_ventilation_spec(mode_str)
 
         # Katecholamine (separate Raten-Berechnung)
         for field, pattern in HEMODYNAMICS_MEDICATION_MAP.items():

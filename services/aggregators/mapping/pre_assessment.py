@@ -27,7 +27,7 @@ _PRE_BGA: Dict[str, FieldDef] = {
 }
 
 _PRE_VENT: Dict[str, FieldDef] = {
-    "fi02":          FieldDef("respiratory", ".*", r"^FiO2\s*(\[%\]|in\s*%)",                            "number", "20", "100"),
+    "fi02":          FieldDef("respiratory", ".*", r"^FiO2\s*(?:\[%\]|in\s*%)",                            "number", "20", "100"),
     "vent_peep":     FieldDef("respiratory", ".*", r"^s?PEEP\s*\[|^Expirationsdruck\s*\(PEEP\)",         "number", "1", "30"),
     "vent_pip":      FieldDef("respiratory", ".*", r"^s?P[Ii][Pp]\s*\[|^Ppeak\s*\[|^s?Pin\s*\[|^insp.*Spitz", "number", "1", "40"),
     "conv_vent_rate":FieldDef("respiratory", ".*", r"mand.*Atemfrequenz|mandator.*Atemfrequenz",          "number", "1", "30"),

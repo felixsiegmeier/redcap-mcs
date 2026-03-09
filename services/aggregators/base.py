@@ -23,6 +23,26 @@ import pandas as pd
 from schemas.db_schemas.base import BaseExportModel
 
 
+def _parse_float(v) -> Optional[float]:
+    """Robuste float-Konvertierung für Laborwerte und Validierungsgrenzen."""
+    if v is None:
+        return None
+    if isinstance(v, (int, float)):
+        try:
+            return float(v)
+        except Exception:
+            return None
+    try:
+        s = str(v).strip()
+    except Exception:
+        return None
+    if not s or re.match(r"^\d{1,2}[\./]\d{1,2}[\./]\d{2,4}$", s):
+        return None
+    s_norm = s.replace(",", ".")
+    m = re.search(r"[-+]?\d+(?:\.\d+)?", s_norm)
+    return float(m.group(0)) if m else None
+
+
 def validate_value(
     value: Any,
     min_val_str: Optional[str],
@@ -40,26 +60,12 @@ def validate_value(
     if value is None or (isinstance(value, str) and not value.strip()):
         return None
 
-    # Helper for robust float conversion
-    def _to_float_local(v) -> Optional[float]:
-        if v is None: return None
-        if isinstance(v, (int, float)):
-            try: return float(v)
-            except: return None
-        try: s = str(v).strip()
-        except: return None
-        if not s or re.match(r"^\d{1,2}[\./]\d{1,2}[\./]\d{2,4}$", s):
-            return None
-        s_norm = s.replace(",", ".")
-        m = re.search(r"[-+]?\d+(?:\.\d+)?", s_norm)
-        return float(m.group(0)) if m else None
-
-    float_val = _to_float_local(value)
+    float_val = _parse_float(value)
     if float_val is None:
         return None
 
-    min_val = _to_float_local(min_val_str)
-    max_val = _to_float_local(max_val_str)
+    min_val = _parse_float(min_val_str)
+    max_val = _parse_float(max_val_str)
 
     if min_val is not None and float_val < min_val:
         return {
@@ -142,6 +148,40 @@ def revalidate_all_data():
                             all_warnings.append(warning)
                             
     st.session_state["validation_warnings"] = all_warnings
+
+def update_export_entry(form_key: str, entry_idx: int, field: str, new_value: Any) -> bool:
+    """
+    Aktualisiert einen Eintrag in st.session_state.export_forms und triggert Re-Validierung.
+    Wird sowohl von der Tagesansicht als auch vom Quick Edit im Export Builder genutzt.
+    """
+    import streamlit as st
+    from state import get_state, save_state
+    
+    state = get_state()
+    entries = state.export_forms.get(form_key, [])
+    if entry_idx < len(entries):
+        entry = entries[entry_idx]
+        
+        # Prüfen, ob sich der Wert wirklich geändert hat
+        current_val = getattr(entry, field, None) if not hasattr(entry, "get") else entry.get(field)
+        if current_val == new_value:
+            return False
+            
+        if isinstance(entry, dict):
+            entry[field] = new_value
+        else:
+            setattr(entry, field, new_value)
+            
+        # Zurück in State schreiben
+        entries[entry_idx] = entry
+        state.export_forms[form_key] = entries
+        save_state(state)
+        
+        # Validierung aktualisieren
+        revalidate_all_data()
+        return True
+    return False
+
 
 logger = logging.getLogger(__name__)
 
@@ -232,45 +272,38 @@ class BaseAggregator(ABC):
         """Gibt alle während der Aggregation gesammelten Warnungen zurück."""
         return self._warnings
 
+    def _process_registry(self, registry: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Standard-Prozess für die Aggregation einer Registry (Mapping).
+        Aggregiert alle Felder in der Registry und validiert sie gegen min/max.
+        
+        Args:
+            registry: Dictionary mit FieldDef-Objekten (z.B. LAB_REGISTRY)
+            
+        Returns:
+            Dictionary mit aggregierten Werten für das Model-Payload
+        """
+        values: Dict[str, Any] = {}
+        df_cache: Dict[str, pd.DataFrame] = {}
+
+        for redcap_key, spec in registry.items():
+            df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
+            val = self.aggregate_value(df, spec.category, spec.pattern)
+            values[redcap_key] = val
+            self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
+
+        return values
+
     # ------------------------------------------------------------------
     # Hilfsfunktionen
     # ------------------------------------------------------------------
     def _to_float(self, v) -> Optional[float]:
         """Konvertiert heterogene Laborwerte robust zu float.
-        
+
         Unterstützt u. a. Strings wie ">180", "<0,5", "  46.0 s".
         Nicht numerische Inhalte ("zu wenig Material") werden als None gewertet.
         """
-        if v is None:
-            return None
-        # Direkte Zahlen
-        if isinstance(v, (int, float)):
-            try:
-                return float(v)
-            except Exception:
-                return None
-        # Stringverarbeitung
-        try:
-            s = str(v).strip()
-        except Exception:
-            return None
-        if not s:
-            return None
-        
-        # Spezialfall Datum: Wenn es wie ein Datum aussieht (DD.MM.YYYY), NICHT zu float konvertieren
-        if re.match(r"^\d{1,2}[\./]\d{1,2}[\./]\d{2,4}$", s):
-            return None
-
-        # Komma als Dezimalpunkt interpretieren
-        s_norm = s.replace(",", ".")
-        # Erste Zahl (mit optionalem Vorzeichen/Dezimalteil) extrahieren
-        m = re.search(r"[-+]?\d+(?:\.\d+)?", s_norm)
-        if not m:
-            return None
-        try:
-            return float(m.group(0))
-        except Exception:
-            return None
+        return _parse_float(v)
     
     def get_string_value(
         self,
@@ -337,7 +370,7 @@ class BaseAggregator(ABC):
                     else:
                         mask = df["source_type"].isin(target)
                 else:
-                    mask = df["source_type"].str.lower().str.contains(source_lower, na=False)
+                    mask = df["source_type"].str.lower().str.contains(source_lower, na=False, regex=False)
                 df = df[mask]
         else:
             from state import get_data

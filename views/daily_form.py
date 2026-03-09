@@ -13,7 +13,7 @@ from datetime import date
 from typing import List, Any
 
 from state import get_state, save_state, has_data, EVENT_INSTRUMENTS
-from services.aggregators.base import revalidate_all_data
+from services.aggregators.base import revalidate_all_data, update_export_entry
 from utils.field_hints import FIELD_LABELS, get_day_values, render_field_with_hints, get_form_date
 from schemas.db_schemas.lab import LabModel
 from schemas.db_schemas.hemodynamics import HemodynamicsModel
@@ -277,16 +277,7 @@ def _render_instrument_fields(instr_key: str, entry: Any, form_key: str, entry_i
                 )
                 
                 if new_value != current_value:
-                    setattr(entry, field, new_value)
-                    changed = True
-    
-    if changed:
-        # Zurück in State speichern
-        forms[entry_idx] = entry
-        state.export_forms[form_key] = forms
-        save_state(state)
-        # Validierung aktualisieren
-        revalidate_all_data()
-        st.rerun()
+                    if update_export_entry(form_key, entry_idx, field, new_value):
+                        st.rerun()
 
 

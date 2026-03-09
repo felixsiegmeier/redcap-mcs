@@ -22,7 +22,7 @@ LAB_REGISTRY: Dict[str, FieldDef] = {
     "sv02":    FieldDef("lab", r"Blutgase venös|Blutgase gv", r"^O2-SAETTIGUNG", "number_1dp_comma_decimal", "15,0", "100,0"),
     # Hämatologie / Blutbild
     "wbc":     FieldDef("lab", "Blutbild", r"^WBC", "number_1dp_comma_decimal", "0,1", "30,0"),
-    "hb":      FieldDef("lab", "Blutbild", r"^HB \(HGB\)|^HB\b", "number_1dp_comma_decimal", "4,5", "20,0"),
+    "hb":      FieldDef("lab", "Blutbild", r"^HB \(HGB\)|^HB\b|H.moglobin\s*\[", "number_1dp_comma_decimal", "4,5", "20,0"),
     "hct":     FieldDef("lab", "Blutbild", r"^HCT", "number_1dp_comma_decimal", "20,0", "60,0"),
     "mcv":     FieldDef("lab", "Blutbild", r"^MCV", "number", "", ""),
     "mch":     FieldDef("lab", "Blutbild", r"^MCH", "number", "", ""),
