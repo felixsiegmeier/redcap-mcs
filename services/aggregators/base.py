@@ -16,11 +16,132 @@ Aggregations-Strategien:
 import logging
 import re
 from abc import ABC, abstractmethod
-from typing import Optional, List, Dict, Tuple, Type
+from typing import Optional, List, Dict, Tuple, Type, Any
 from datetime import date, time
 import pandas as pd
 
 from schemas.db_schemas.base import BaseExportModel
+
+
+def validate_value(
+    value: Any,
+    min_val_str: Optional[str],
+    max_val_str: Optional[str],
+    field_name: str,
+    record_id: str,
+    event: str,
+    instance: Optional[int],
+    date_str: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Standalone validation function that can be used outside of aggregators.
+    Returns a warning dict or None.
+    """
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
+
+    # Helper for robust float conversion
+    def _to_float_local(v) -> Optional[float]:
+        if v is None: return None
+        if isinstance(v, (int, float)):
+            try: return float(v)
+            except: return None
+        try: s = str(v).strip()
+        except: return None
+        if not s or re.match(r"^\d{1,2}[\./]\d{1,2}[\./]\d{2,4}$", s):
+            return None
+        s_norm = s.replace(",", ".")
+        m = re.search(r"[-+]?\d+(?:\.\d+)?", s_norm)
+        return float(m.group(0)) if m else None
+
+    float_val = _to_float_local(value)
+    if float_val is None:
+        return None
+
+    min_val = _to_float_local(min_val_str)
+    max_val = _to_float_local(max_val_str)
+
+    if min_val is not None and float_val < min_val:
+        return {
+            "record_id": record_id,
+            "event": event,
+            "instance": instance,
+            "date": date_str,
+            "field": field_name,
+            "value": value,
+            "min": min_val_str,
+            "max": max_val_str,
+            "reason": "below_min"
+        }
+    elif max_val is not None and float_val > max_val:
+        return {
+            "record_id": record_id,
+            "event": event,
+            "instance": instance,
+            "date": date_str,
+            "field": field_name,
+            "value": value,
+            "min": min_val_str,
+            "max": max_val_str,
+            "reason": "above_max"
+        }
+    return None
+
+
+def revalidate_all_data():
+    """
+    Re-validates all export_forms in st.session_state and updates validation_warnings.
+    """
+    import streamlit as st
+    from state import get_state
+    from services.aggregators.mapping import REDCAP_FIELD_DEFS
+    
+    state = get_state()
+    all_warnings = []
+    
+    # Iterate through all forms in state.export_forms
+    for form_key, entries in state.export_forms.items():
+        if not entries:
+            continue
+            
+        for i, entry in enumerate(entries):
+            # entry can be a Pydantic model or a dict
+            if hasattr(entry, "model_dump"):
+                entry_dict = entry.model_dump()
+            else:
+                entry_dict = entry
+            
+            record_id = entry_dict.get("record_id", state.record_id)
+            event = entry_dict.get("redcap_event_name", "")
+            instance = entry_dict.get("redcap_repeat_instance")
+            
+            # Find date field
+            from utils.field_hints import get_form_date
+            entry_date_obj = get_form_date(entry)
+            entry_date_str = str(entry_date_obj) if entry_date_obj else ""
+            
+            # Check all fields that have a definition in REDCAP_FIELD_DEFS
+            for field_name, value in entry_dict.items():
+                if field_name in REDCAP_FIELD_DEFS:
+                    field_def = REDCAP_FIELD_DEFS[field_name]
+                    if field_def.min_val or field_def.max_val:
+                        warning = validate_value(
+                            value,
+                            field_def.min_val,
+                            field_def.max_val,
+                            field_name,
+                            record_id,
+                            event,
+                            instance,
+                            entry_date_str
+                        )
+                        if warning:
+                            # Add some metadata for quick edit
+                            warning["form_key"] = form_key
+                            warning["entry_idx"] = i
+                            all_warnings.append(warning)
+                            
+    st.session_state["validation_warnings"] = all_warnings
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +190,7 @@ class BaseAggregator(ABC):
         self.value_strategy = value_strategy
         self.nearest_time = nearest_time
         self._data = data
+        self._warnings: List[Dict[str, Any]] = []
     
     @abstractmethod
     def create_entry(self) -> BaseExportModel:
@@ -79,6 +201,37 @@ class BaseAggregator(ABC):
         """
         pass
     
+    # ------------------------------------------------------------------
+    # Validierung
+    # ------------------------------------------------------------------
+    def validate_range(
+        self,
+        field_name: str,
+        value: Any,
+        min_val_str: Optional[str],
+        max_val_str: Optional[str]
+    ) -> None:
+        """
+        Prüft, ob ein aggregierter Wert innerhalb der REDCap-Validierungsgrenzen liegt.
+        Falls nicht, wird eine Warnung in self._warnings gespeichert.
+        """
+        warning = validate_value(
+            value,
+            min_val_str,
+            max_val_str,
+            field_name,
+            self.record_id,
+            self.redcap_event_name,
+            self.redcap_repeat_instance,
+            str(self.date)
+        )
+        if warning:
+            self._warnings.append(warning)
+
+    def get_warnings(self) -> List[Dict[str, Any]]:
+        """Gibt alle während der Aggregation gesammelten Warnungen zurück."""
+        return self._warnings
+
     # ------------------------------------------------------------------
     # Hilfsfunktionen
     # ------------------------------------------------------------------

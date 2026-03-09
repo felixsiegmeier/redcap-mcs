@@ -84,6 +84,12 @@ REDCAP_VALIDATION_TYPES: Dict[str, str] = {
     for field, spec in registry.items()
 }
 
+REDCAP_FIELD_DEFS: Dict[str, FieldDef] = {
+    field: spec
+    for registry in _ALL_REGISTRIES
+    for field, spec in registry.items()
+}
+
 # Manuelle Ergänzungen: Felder ohne eigenen Registry-Eintrag
 REDCAP_VALIDATION_TYPES.update({
     # Hämodynamik – nur Formatierung, keine direkte Extraktion
@@ -136,4 +142,5 @@ __all__ = [
     "PRE_VAECLS_LAB_REGISTRY",
     "SOURCE_MAPPING",
     "REDCAP_VALIDATION_TYPES",
+    "REDCAP_FIELD_DEFS",
 ]

@@ -49,7 +49,9 @@ class PumpAggregator(BaseAggregator):
 
         for redcap_key, spec in PUMP_REGISTRY.items():
             df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
-            values[redcap_key] = self.aggregate_value(df, spec.category, spec.pattern)
+            val = self.aggregate_value(df, spec.category, spec.pattern)
+            values[redcap_key] = val
+            self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
 
         payload = {
             "record_id": self.record_id,

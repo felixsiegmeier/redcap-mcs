@@ -49,7 +49,9 @@ class ImpellaAggregator(BaseAggregator):
 
         values: Dict[str, Optional[float]] = {}
         for redcap_key, spec in IMPELLA_REGISTRY.items():
-            values[redcap_key] = self.aggregate_value(impella_df, spec.category, spec.pattern)
+            val = self.aggregate_value(impella_df, spec.category, spec.pattern)
+            values[redcap_key] = val
+            self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
 
         p_level = self._get_p_level(impella_df)
 

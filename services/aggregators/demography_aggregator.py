@@ -57,6 +57,7 @@ class DemographyAggregator(BaseAggregator):
                 val = self.aggregate_value(patientinfo_df, spec.category, spec.pattern)
                 if val is not None:
                     values[redcap_key] = val
+                    self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
 
         # Gewicht: UI-Eingabe hat Vorrang, gefundener Wert wird in State gespiegelt
         try:

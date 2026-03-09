@@ -19,6 +19,8 @@ from datetime import date, datetime, time, timedelta
 from typing import Optional, List, Dict, Any
 
 from state import get_state, update_state, save_state, get_data, has_data
+from services.aggregators.base import revalidate_all_data
+from utils.field_hints import get_day_values, render_field_with_hints, get_form_date, FIELD_LABELS
 from services.aggregators import (
     LabAggregator,
     HemodynamicsAggregator,
@@ -344,6 +346,98 @@ def _render_build_section():
         
         st.success(f"{len(all_forms)} Einträge erstellt.")
         
+        # Validierungswarnungen anzeigen
+        if "validation_warnings" not in st.session_state:
+            revalidate_all_data()
+            
+        warnings = st.session_state.get("validation_warnings", [])
+        if warnings:
+            with st.expander(f"⚠️ {len(warnings)} Validierungs-Warnungen (Werte außerhalb REDCap-Bereich)", expanded=True):
+                st.warning("Die folgenden Werte liegen außerhalb der im REDCap-Datenwörterbuch definierten Grenzen. Bitte prüfen Sie diese vor dem Import.")
+                
+                edit_mode = st.toggle("Quick Edit Modus (Werte direkt hier korrigieren)", value=False, key="export_quick_edit_toggle")
+                
+                if edit_mode:
+                    # Collect changes in a list to avoid session state mutation during iteration
+                    to_save = []
+                    
+                    # Filter warnings that have alternatives available
+                    editable_warnings = []
+                    for w in warnings:
+                        form_key = w.get("form_key")
+                        entry_idx = w.get("entry_idx")
+                        if form_key and entry_idx is not None:
+                            entries = state.export_forms.get(form_key, [])
+                            if entry_idx < len(entries):
+                                entry = entries[entry_idx]
+                                entry_date = get_form_date(entry)
+                                day_values = get_day_values(w['field'], entry_date) if entry_date else []
+                                if day_values:
+                                    editable_warnings.append((w, entry, day_values))
+                    
+                    if not editable_warnings:
+                        st.info("Keine der Warnungen hat alternative Werte in den Rohdaten verfügbar.")
+                    
+                    for i, (w, entry, day_values) in enumerate(editable_warnings):
+                        form_key = w["form_key"]
+                        entry_idx = w["entry_idx"]
+                        with st.container():
+                            cols = st.columns([1.5, 1, 1, 1, 1, 1, 3.5])
+                            with cols[0]:
+                                st.write(f"**{w['field']}**\n{w['date']}")
+                            with cols[1]:
+                                st.caption("WERT")
+                                st.write(f"{w['value']}")
+                            with cols[2]:
+                                st.caption("MIN")
+                                st.write(f"{w['min']}")
+                            with cols[3]:
+                                st.caption("MAX")
+                                st.write(f"{w['max']}")
+                            with cols[4]:
+                                st.caption("FEHLER")
+                                st.write(f"{w['reason']}")
+                            with cols[5]:
+                                st.caption("EVENT")
+                                st.write(f"{w['event']}")
+                            with cols[6]:
+                                current_val = getattr(entry, w['field'], None) if not hasattr(entry, "get") else entry.get(w['field'])
+                                
+                                # Dropdown mit Hints rendern
+                                label = FIELD_LABELS.get(w['field'], w['field'])
+                                new_val = render_field_with_hints(
+                                    label=f"Korrektur {label}",
+                                    current_value=current_val,
+                                    day_values=day_values,
+                                    key_base=f"qe_{form_key}_{entry_idx}_{w['field']}",
+                                    label_visibility="collapsed"
+                                )
+                                
+                                if new_val != current_val:
+                                    to_save.append((form_key, entry_idx, w['field'], new_val))
+                        st.divider()
+                    
+                    if to_save:
+                        for fk, idx, field, nv in to_save:
+                            entries = state.export_forms[fk]
+                            entry = entries[idx]
+                            if isinstance(entry, dict):
+                                entry[field] = nv
+                            else:
+                                setattr(entry, field, nv)
+                            state.export_forms[fk] = entries
+                        
+                        save_state(state)
+                        revalidate_all_data()
+                        st.rerun()
+                else:
+                    w_df = pd.DataFrame(warnings)
+                    # Spalten sortieren für bessere Lesbarkeit
+                    display_cols = ["date", "event", "instance", "field", "value", "min", "max", "reason"]
+                    # Nur vorhandene Spalten nutzen
+                    actual_cols = [c for c in display_cols if c in w_df.columns]
+                    st.dataframe(w_df[actual_cols], hide_index=True, use_container_width=True)
+
         # Zusammenfassung nach Instrument
         instrument_counts = {}
         for form in all_forms:
@@ -421,9 +515,9 @@ def _build_multi_instrument_data():
     
     # Datumsliste erstellen
     dates = _get_date_range()
-    # Hinweis: Leere Datumsliste verhindert NICHT mehr die Erstellung von Pre-Assessments.
-    if not dates:
-        st.info("Keine Tage im ausgewählten Zeitraum – es werden (falls ausgewählt) nur Pre-Assessments erzeugt.")
+    
+    # Reset warnings
+    st.session_state["validation_warnings"] = []
     
     # Export-Forms zurücksetzen
     new_export_forms: Dict[str, List[Any]] = {}
@@ -514,6 +608,7 @@ def _build_multi_instrument_data():
                 data=state.data
             )
             entry = aggregator.create_entry()
+            
             form_key = f"{entry.get_instrument_name()}_{event_name}"
             new_export_forms[form_key] = [entry]
             continue
@@ -548,6 +643,10 @@ def _build_multi_instrument_data():
     # State aktualisieren
     state.export_forms = new_export_forms
     save_state(state)
+    
+    # Neu validieren um Metadaten für Quick Edit zu erhalten
+    revalidate_all_data()
+    
     st.rerun()
 
 
@@ -595,7 +694,8 @@ def _create_instrument_entry(
             value_strategy=value_strategy,
             nearest_time=nearest_time
         )
-        return aggregator.create_entry()
+        entry = aggregator.create_entry()
+        return entry
     
     elif instrument == "hemodynamics_ventilation_medication":
         aggregator = HemodynamicsAggregator(
@@ -606,7 +706,8 @@ def _create_instrument_entry(
             value_strategy=value_strategy,
             nearest_time=nearest_time
         )
-        return aggregator.create_entry()
+        entry = aggregator.create_entry()
+        return entry
     
     elif instrument == "pump":
         aggregator = PumpAggregator(
@@ -616,7 +717,8 @@ def _create_instrument_entry(
             value_strategy=value_strategy,
             nearest_time=nearest_time
         )
-        return aggregator.create_entry()
+        entry = aggregator.create_entry()
+        return entry
     
     elif instrument == "impellaassessment_and_complications":
         aggregator = ImpellaAggregator(
@@ -626,7 +728,8 @@ def _create_instrument_entry(
             value_strategy=value_strategy,
             nearest_time=nearest_time
         )
-        return aggregator.create_entry()
+        entry = aggregator.create_entry()
+        return entry
     
     elif instrument == "demography":
         aggregator = DemographyAggregator(
@@ -636,7 +739,8 @@ def _create_instrument_entry(
             redcap_repeat_instance=instance,
             data=get_state().data
         )
-        return aggregator.create_entry()
+        entry = aggregator.create_entry()
+        return entry
     
     return None
 

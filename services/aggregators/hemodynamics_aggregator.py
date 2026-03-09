@@ -77,7 +77,9 @@ class HemodynamicsAggregator(BaseAggregator):
                 if mode_str:
                     values["vent_spec"] = self._map_ventilation_spec(mode_str)
             else:
-                values[redcap_key] = self.aggregate_value(df, spec.category, spec.pattern)
+                val = self.aggregate_value(df, spec.category, spec.pattern)
+                values[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
 
         # Katecholamine (separate Raten-Berechnung)
         for field, pattern in HEMODYNAMICS_MEDICATION_MAP.items():
@@ -172,7 +174,9 @@ class HemodynamicsAggregator(BaseAggregator):
             if prod_df.empty:
                 continue
             if redcap_key in ("thromb_t", "ery_t", "ffp_t"):
-                setattr(model, redcap_key, len(prod_df))
+                val = len(prod_df)
+                setattr(model, redcap_key, val)
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
 
     def _get_medication_rate(
         self,

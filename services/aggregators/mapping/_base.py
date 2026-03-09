@@ -1,4 +1,4 @@
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 
 class FieldDef(NamedTuple):
@@ -6,3 +6,5 @@ class FieldDef(NamedTuple):
     category:   str            # Regex für category-Spalte (".*" = beliebig)
     pattern:    str            # Regex für parameter-Spalte
     validation: str            # REDCap-Validierungstyp
+    min_val:    Optional[str] = None  # REDCap-Validierung min
+    max_val:    Optional[str] = None  # REDCap-Validierung max

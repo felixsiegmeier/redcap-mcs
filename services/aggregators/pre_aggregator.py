@@ -230,6 +230,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             val, ts = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 timestamps.append(ts)
                 has_bga = True
                 if redcap_key == "pre_svo2_i":
@@ -252,6 +253,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_vent = True
 
         # Beatmungsmodus (String → Integer)
@@ -281,6 +283,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_hemo = True
 
         if has_hemo:
@@ -295,6 +298,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
             val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 payload["pre_neuro_i"] = 1
                 break
         else:
@@ -312,6 +316,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
                     used_24h = True
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_lab = True
                 if redcap_key == "pre_crp_i":   payload["pre_crp_m_i"] = 1
                 if redcap_key == "pre_pct_i":   payload["pre_pct_m_i"] = 1
@@ -392,6 +397,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
             val, ts = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 timestamps.append(ts)
                 has_bga = True
                 if redcap_key == "pre_svo2":
@@ -414,6 +420,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
             val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_vent = True
 
         for redcap_key, spec in PRE_VAECLS_VENT_SPEC_REGISTRY.items():
@@ -442,6 +449,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
             val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_hemo = True
 
         if has_hemo:
@@ -456,6 +464,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
             val, _ = self._get_closest_pre_value(get_df(spec.source), spec.category, spec.pattern, max_hours=6)
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 payload["pre_neuro"] = 1
                 break
         else:
@@ -473,6 +482,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
                     used_24h = True
             if val is not None:
                 payload[redcap_key] = val
+                self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_lab = True
                 if redcap_key == "pre_crp":   payload["pre_crp_m"] = 1
                 if redcap_key == "pre_pct":   payload["pre_pct_m"] = 1

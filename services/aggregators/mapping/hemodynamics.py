@@ -8,29 +8,29 @@ from ._base import FieldDef
 # =============================================================================
 HEMODYNAMICS_REGISTRY: Dict[str, FieldDef] = {
     # Vitals
-    "hr":           FieldDef("vitals", ".*",          r"^HF\s*\[",                                      "number"),
-    "sys_bp":       FieldDef("vitals", ".*",          r"^ABPs\s*\[|^ARTs\s*\[",                         "number"),
-    "dia_bp":       FieldDef("vitals", ".*",          r"^ABPd\s*\[|^ARTd\s*\[",                         "number"),
-    "mean_bp":      FieldDef("vitals", ".*",          r"^ABPm\s*\[|^ARTm\s*\[",                         "number"),
-    "cvp":          FieldDef("vitals", ".*",          r"^ZVDm\s*\[",                                    "number"),
-    "pcwp":         FieldDef("vitals", r"^Online.*",  r"^PCWP\s*\[|^PAWP\s*\[",                        "number"),
-    "sys_pap":      FieldDef("vitals", r"^Online.*",  r"^PAPs\s*\[",                                    "number"),
-    "dia_pap":      FieldDef("vitals", r"^Online.*",  r"^PAPd\s*\[",                                    "number"),
-    "mean_pap":     FieldDef("vitals", r"^Online.*",  r"^PAPm\s*\[",                                    "number"),
-    "ci":           FieldDef("vitals", r"^Online.*",  r"^CCI\s*\[|^HZV",                               "number_1dp_comma_decimal"),
-    "nirs_left_c":  FieldDef("vitals", ".*",          r"NIRS Channel 1 RSO2|NIRS.*Channel.*1",          "number"),
-    "nirs_right_c": FieldDef("vitals", ".*",          r"NIRS Channel 2 RSO2|NIRS.*Channel.*2",          "number"),
-    "sp02":         FieldDef("vitals", ".*",          r"^SpO2\s*\[%\]",                                 "number"),
+    "hr":           FieldDef("vitals", ".*", r"^HF\s*\[", "number", "10", "200"),
+    "sys_bp":       FieldDef("vitals", ".*", r"^ABPs\s*\[|^ARTs\s*\[", "number", "20", "250"),
+    "dia_bp":       FieldDef("vitals", ".*", r"^ABPd\s*\[|^ARTd\s*\[", "number", "20", "200"),
+    "mean_bp":      FieldDef("vitals", ".*", r"^ABPm\s*\[|^ARTm\s*\[", "number", "20", "200"),
+    "cvp":          FieldDef("vitals", ".*", r"^ZVDm\s*\[", "number", "0", "35"),
+    "pcwp":         FieldDef("vitals", r"^Online.*", r"^PCWP\s*\[|^PAWP\s*\[", "number", "0", "25"),
+    "sys_pap":      FieldDef("vitals", r"^Online.*", r"^PAPs\s*\[", "number", "0", "100"),
+    "dia_pap":      FieldDef("vitals", r"^Online.*", r"^PAPd\s*\[", "number", "0", "80"),
+    "mean_pap":     FieldDef("vitals", r"^Online.*", r"^PAPm\s*\[", "number", "0", "80"),
+    "ci":           FieldDef("vitals", r"^Online.*", r"^CCI\s*\[|^HZV", "number_1dp_comma_decimal", "0,1", "7,0"),
+    "nirs_left_c":  FieldDef("vitals", ".*", r"NIRS Channel 1 RSO2|NIRS.*Channel.*1", "number", "1", "80"),
+    "nirs_right_c": FieldDef("vitals", ".*", r"NIRS Channel 2 RSO2|NIRS.*Channel.*2", "number", "1", "80"),
+    "sp02":         FieldDef("vitals", ".*", r"^SpO2\s*\[%\]", "number", "20", "100"),
     # Beatmung (Hamilton + Standard-Geräte)
-    "fi02":          FieldDef("respiratory", ".*", r"^FiO2\s*(\[%\]|in\s*%)",                           "number"),
-    "o2":            FieldDef("o2_supply",   ".*", r"^O2\s*l/min",                                      "number"),
-    "vent_peep":     FieldDef("respiratory", ".*", r"^s?PEEP\s*\[|^Expirationsdruck\s*\(PEEP\)",        "number"),
-    "vent_pip":      FieldDef("respiratory", ".*", r"^s?P[Ii][Pp]\s*\[|^Ppeak\s*\[|^s?Pin\s*\[|^insp.*Spitz", "number"),
-    "conv_vent_rate":FieldDef("respiratory", ".*", r"mand.*Atemfrequenz|mandator.*Atemfrequenz",         "number"),
-    "vent_spec":     FieldDef("respiratory", ".*", r"^Modus$|^Beatmungsform",                           "number"),  # String → _map_ventilation_spec()
+    "fi02":          FieldDef("respiratory", ".*", r"^FiO2\s*(\[%\]|in\s*%)", "number", "20", "100"),
+    "o2":            FieldDef("o2_supply", ".*", r"^O2\s*l/min", "number", "0", "20"),
+    "vent_peep":     FieldDef("respiratory", ".*", r"^s?PEEP\s*\[|^Expirationsdruck\s*\(PEEP\)", "number", "1", "30"),
+    "vent_pip":      FieldDef("respiratory", ".*", r"^s?P[Ii][Pp]\s*\[|^Ppeak\s*\[|^s?Pin\s*\[|^insp.*Spitz", "number", "1", "40"),
+    "conv_vent_rate":FieldDef("respiratory", ".*", r"mand.*Atemfrequenz|mandator.*Atemfrequenz", "number", "1", "30"),
+    "vent_spec":     FieldDef("respiratory", ".*", r"^Modus$|^Beatmungsform", "", "", ""),  # String → _map_ventilation_spec()
     # Neurologie
-    "rass": FieldDef("Richmond-Agitation-Sedation",      ".*", r"^Summe Richmond-Agitation-Sedation",   "number"),
-    "gcs":  FieldDef("GCS (Jugendliche und Erwachsene)", ".*", r"^Summe GCS2",                          "number"),
+    "rass": FieldDef("Richmond-Agitation-Sedation", ".*", r"^Summe Richmond-Agitation-Sedation", "", "", ""),
+    "gcs":  FieldDef("GCS (Jugendliche und Erwachsene)", ".*", r"^Summe GCS2", "number", "3", "15"),
 }
 
 # Katecholamine/Vasopressoren: Raten-Berechnung (ml/h → µg/kg/min)
@@ -48,13 +48,13 @@ HEMODYNAMICS_MEDICATION_MAP: Dict[str, str] = {
 # TRANSFUSION  (Teil von Hämodynamik, zählt Einheiten statt aggregieren)
 # =============================================================================
 TRANSFUSION_REGISTRY: Dict[str, FieldDef] = {
-    "thromb_t": FieldDef("medication", "Blutersatz", r"^TK",                  "number"),
-    "ery_t":    FieldDef("medication", "Blutersatz", r"^EK",                  "number"),
-    "ffp_t":    FieldDef("medication", "Blutersatz", r"^FFP",                 "number"),
-    "ppsb_t":   FieldDef("medication", ".*",         r"Prothromplex|Cofactor","number"),
-    "fib_t":    FieldDef("medication", ".*",         r"Haemocomplettan",      "number"),
-    "at3_t":    FieldDef("medication", ".*",         r"Antithrombin",         "number"),
-    "fxiii_t":  FieldDef("medication", ".*",         r"Faktor XIII",          "number"),
+    "thromb_t": FieldDef("medication", "Blutersatz", r"^TK", "number", "0", "30"),
+    "ery_t":    FieldDef("medication", "Blutersatz", r"^EK", "number", "0", "30"),
+    "ffp_t":    FieldDef("medication", "Blutersatz", r"^FFP", "number", "0", "30"),
+    "ppsb_t":   FieldDef("medication", ".*", r"Prothromplex|Cofactor", "number", "0", "5000"),
+    "fib_t":    FieldDef("medication", ".*", r"Haemocomplettan", "number", "0", "10"),
+    "at3_t":    FieldDef("medication", ".*", r"Antithrombin", "number", "0", "3000"),
+    "fxiii_t":  FieldDef("medication", ".*",         r"Faktor XIII",          "number", "", ""),
 }
 
 
