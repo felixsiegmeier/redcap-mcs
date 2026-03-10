@@ -60,8 +60,8 @@ class ImpellaAssessmentModel(TimedExportModel):
         alias="redcap_repeat_instrument"
     )
     
-    # Dieses Instrument ist NUR in impella_arm_2 verfügbar!
-    redcap_event_name: Optional[str] = Field("impella_arm_2", alias="redcap_event_name")
+    # Event-Name wird dynamisch gesetzt (Arm-abhängig)
+    redcap_event_name: Optional[str] = Field(None, alias="redcap_event_name")
     
     # Zeitpunkt
     imp_compl_time_point: Optional[int] = Field(None, alias="imp_compl_time_point")

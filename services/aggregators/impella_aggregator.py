@@ -28,6 +28,7 @@ class ImpellaAggregator(BaseAggregator):
         date: date,
         record_id: str,
         redcap_repeat_instance: int,
+        redcap_event_name: str = "impella_arm_2",
         value_strategy: str = "median",
         nearest_time: Optional[time] = None,
         data: Optional[pd.DataFrame] = None
@@ -35,7 +36,7 @@ class ImpellaAggregator(BaseAggregator):
         super().__init__(
             date=date,
             record_id=record_id,
-            redcap_event_name="impella_arm_2",
+            redcap_event_name=redcap_event_name,
             redcap_repeat_instance=redcap_repeat_instance,
             value_strategy=value_strategy,
             nearest_time=nearest_time,
@@ -51,7 +52,7 @@ class ImpellaAggregator(BaseAggregator):
 
         payload = {
             "record_id": self.record_id,
-            "redcap_event_name": "impella_arm_2",
+            "redcap_event_name": self.redcap_event_name,
             "redcap_repeat_instrument": "impellaassessment_and_complications",
             "redcap_repeat_instance": self.redcap_repeat_instance,
             "imp_compl_time_point": self.redcap_repeat_instance,

@@ -216,16 +216,18 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
         anchor_datetime: datetime,
         record_id: str,
         data=None,
-        ecmella_same_session: Optional[bool] = None
+        ecmella_same_session: Optional[bool] = None,
+        redcap_event_name: str = "impella_arm_2"
     ):
         super().__init__(anchor_datetime=anchor_datetime, record_id=record_id, data=data)
         self.ecmella_same_session = ecmella_same_session
+        self._event_name = redcap_event_name
 
     def create_hv_lab_entry(self) -> PreImpellaHVLabModel:
         """Erstellt das Pre-Impella HV-Lab Modell."""
         base = {
             "record_id": self.record_id,
-            "redcap_event_name": "impella_arm_2",
+            "redcap_event_name": self._event_name,
             "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
@@ -345,7 +347,7 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
         """Erstellt das Pre-Impella Medikamenten-Modell."""
         base = {
             "record_id": self.record_id,
-            "redcap_event_name": "impella_arm_2",
+            "redcap_event_name": self._event_name,
             "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
@@ -384,11 +386,21 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
 class PreVAECLSAggregator(PreDeviceAggregatorBase):
     """Aggregator für Pre-VA-ECLS Assessment."""
 
+    def __init__(
+        self,
+        anchor_datetime: datetime,
+        record_id: str,
+        data=None,
+        redcap_event_name: str = "ecls_arm_2"
+    ):
+        super().__init__(anchor_datetime=anchor_datetime, record_id=record_id, data=data)
+        self._event_name = redcap_event_name
+
     def create_hv_lab_entry(self) -> PreVAECLSHVLabModel:
         """Erstellt das Pre-ECLS HV-Lab Modell."""
         payload = {
             "record_id": self.record_id,
-            "redcap_event_name": "ecls_arm_2",
+            "redcap_event_name": self._event_name,
             "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }
@@ -511,7 +523,7 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
         """Erstellt das Pre-ECLS Medikamenten-Modell."""
         payload = {
             "record_id": self.record_id,
-            "redcap_event_name": "ecls_arm_2",
+            "redcap_event_name": self._event_name,
             "redcap_repeat_instrument": None,
             "redcap_repeat_instance": None,
         }

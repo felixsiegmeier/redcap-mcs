@@ -12,7 +12,9 @@ import streamlit as st
 from datetime import date
 from typing import List, Any
 
-from state import get_state, save_state, has_data, EVENT_INSTRUMENTS
+import re
+
+from state import get_state, save_state, has_data, get_event_instruments
 from services.aggregators.base import revalidate_all_data, update_export_entry
 from utils.field_hints import FIELD_LABELS, get_day_values, render_field_with_hints, get_form_date
 from schemas.db_schemas.lab import LabModel
@@ -152,36 +154,31 @@ def _get_events_for_day(day: date) -> List[str]:
     """Ermittelt verfügbare Events für einen Tag basierend auf export_forms."""
     state = get_state()
     events = set()
-    
+
     # Aus export_forms ermitteln welche Events für diesen Tag existieren
     for form_key, entries in state.export_forms.items():
-        # form_key ist z.B. "labor_ecls_arm_2" oder "pump_ecls_arm_2"
-        if form_key.endswith("_ecls_arm_2"):
-            event_name = "ecls_arm_2"
-        elif form_key.endswith("_impella_arm_2"):
-            event_name = "impella_arm_2"
-        elif form_key.endswith("_baseline_arm_2"):
-            event_name = "baseline_arm_2"
-        else:
+        m = re.search(r'_((?:ecls|impella|baseline)_arm_\d+)$', form_key)
+        if not m:
             continue
-        
+        event_name = m.group(1)
+
         # Prüfen ob ein Entry für diesen Tag existiert
         for entry in entries:
             entry_date = get_form_date(entry)
             if entry_date == day:
                 events.add(event_name)
                 break
-    
+
     return sorted(events)
 
 
 def _get_event_label(event_name: str) -> str:
-    """Gibt das Label für einen Event-Namen zurück."""
-    labels = {
-        "ecls_arm_2": "ECLS",
-        "impella_arm_2": "Impella",
-    }
-    return labels.get(event_name, event_name)
+    """Gibt das Label für einen Event-Namen zurück (arm-agnostisch)."""
+    if "ecls" in event_name:
+        return "ECLS"
+    if "impella" in event_name:
+        return "Impella"
+    return event_name
 
 
 def _render_day_instruments(day: date, day_number: int, event_name: str, hide_empty: bool = True):
@@ -190,7 +187,7 @@ def _render_day_instruments(day: date, day_number: int, event_name: str, hide_em
     state = get_state()
     
     # Verfügbare Instrumente für diesen Event
-    available_instruments = EVENT_INSTRUMENTS.get(event_name, [])
+    available_instruments = get_event_instruments(get_state().arm).get(event_name, [])
     
     # Expander für jedes Instrument
     for instr_key in available_instruments:

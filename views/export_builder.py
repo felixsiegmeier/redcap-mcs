@@ -32,43 +32,43 @@ from services.aggregators import (
 )
 from services.aggregators.mapping import REDCAP_VALIDATION_TYPES  # noqa: F401
 
-# Verfügbare Instrumente mit Labels
+# Verfügbare Instrumente mit Labels (Events als abstrakte Device-Keys)
 AVAILABLE_INSTRUMENTS = {
     "labor": {
         "label": "Labor",
-        "events": ["ecls_arm_2", "impella_arm_2"],
+        "events": ["ecls", "impella"],
         "aggregator": "LabAggregator",
     },
     "hemodynamics_ventilation_medication": {
         "label": "Hämodynamik / Beatmung",
-        "events": ["ecls_arm_2", "impella_arm_2"],
+        "events": ["ecls", "impella"],
         "aggregator": "HemodynamicsAggregator",
     },
     "pump": {
         "label": "ECMO / Pump",
-        "events": ["ecls_arm_2"],
+        "events": ["ecls"],
         "aggregator": "PumpAggregator",
     },
     "impellaassessment_and_complications": {
         "label": "Impella Assessment",
-        "events": ["impella_arm_2"],
+        "events": ["impella"],
         "aggregator": "ImpellaAggregator",
     },
     "pre_impella": {
         "label": "Pre-Impella Assessment",
-        "events": ["impella_arm_2"],
+        "events": ["impella"],
         "aggregator": "PreImpellaAggregator",
         "is_pre": True
     },
     "pre_vaecls": {
         "label": "Pre-ECLS Assessment",
-        "events": ["ecls_arm_2"],
+        "events": ["ecls"],
         "aggregator": "PreVAECLSAggregator",
         "is_pre": True
     },
     "demography": {
         "label": "Demographie",
-        "events": ["baseline_arm_2"],
+        "events": ["baseline"],
         "aggregator": "DemographyAggregator",
     },
 }
@@ -105,42 +105,44 @@ def render_export_builder():
 
 def _render_instrument_selection():
     """Rendert die Instrument-Auswahl mit Checkboxen."""
-    
+
     st.subheader("Instrumente auswählen")
-    
+
     # Session State für Auswahl initialisieren
     if "export_instruments" not in st.session_state:
         st.session_state.export_instruments = {}
-    
+
     # Prüfe welche Datenquellen verfügbar sind
     has_ecmo = not get_data("ecmo").empty
     has_impella = not get_data("impella").empty
     has_patientinfo = not get_data("PatientInfo").empty
-    
+
+    state = get_state()
+    arm = state.arm
+
     # Instrument-Checkboxen in Spalten
     cols = st.columns(2)
-    
+
     for i, (instr_key, instr_info) in enumerate(AVAILABLE_INSTRUMENTS.items()):
         with cols[i % 2]:
-            # Event-spezifische Checkboxen
-            for event in instr_info["events"]:
+            # Event-spezifische Checkboxen (abstrakte Keys → konkrete Event-Namen)
+            for event_device in instr_info["events"]:
+                event = f"{event_device}_arm_{arm}"
+
                 # Prüfe ob Event-Daten vorhanden sind
-                if event == "ecls_arm_2" and not has_ecmo:
+                if event_device == "ecls" and not has_ecmo:
                     continue
-                if event == "impella_arm_2" and not has_impella:
+                if event_device == "impella" and not has_impella:
                     continue
-                if event == "baseline_arm_2" and not has_patientinfo:
+                if event_device == "baseline" and not has_patientinfo:
                     continue
-                
-                if event == "baseline_arm_2":
-                    event_label = "Baseline"
-                else:
-                    event_label = "ECLS" if event == "ecls_arm_2" else "Impella"
+
+                event_label = {"ecls": "ECLS", "impella": "Impella", "baseline": "Baseline"}.get(event_device, event_device)
                 key = f"{instr_key}_{event}"
-                
+
                 # Default: Alle Instrumente standardmäßig aktiviert
                 default = True
-                
+
                 checked = st.checkbox(
                     f"{instr_info['label']} ({event_label})",
                     value=st.session_state.export_instruments.get(key, default),
@@ -160,7 +162,7 @@ def _render_ecmella_config():
     has_ecmo = not get_data("ecmo").empty
     has_impella = not get_data("impella").empty
     pre_impella_selected = st.session_state.get("export_instruments", {}).get(
-        "pre_impella_impella_arm_2", False
+        f"pre_impella_impella_arm_{get_state().arm}", False
     )
 
     # Nur relevant wenn beide Devices vorhanden und Pre-Impella ausgewählt
@@ -214,6 +216,11 @@ def _render_settings():
     col1, col2 = st.columns(2)
     
     with col1:
+        # Erkannten Arm anzeigen
+        arm = state.arm
+        arm_labels = {1: "Arm 1 – nur ECLS", 2: "Arm 2 – ECLS + Impella", 3: "Arm 3 – nur Impella"}
+        st.info(f"Erkannter REDCap-Arm: **{arm_labels.get(arm, arm)}**")
+
         # Record ID anzeigen (wird in Sidebar bearbeitet)
         if state.record_id:
             st.info(f"Record ID: **{state.record_id}**")
@@ -496,56 +503,55 @@ def _merge_pre_assessment_entries(hv_lab_entry: Any, med_entry: Any) -> Dict[str
 
 def _build_multi_instrument_data():
     """Erstellt Export-Daten für alle ausgewählten Instrumente."""
-    
+    import re
+
     state = get_state()
     selected = st.session_state.get("export_instruments", {})
-    
+
+    arm = state.arm
+    ecls_event     = f"ecls_arm_{arm}"
+    impella_event  = f"impella_arm_{arm}"
+    baseline_event = f"baseline_arm_{arm}"
+
     # Datumsliste erstellen
     dates = _get_date_range()
-    
+
     # Reset warnings
     st.session_state["validation_warnings"] = []
-    
+
     # Export-Forms zurücksetzen
     new_export_forms: Dict[str, List[Any]] = {}
-    
+
     # Pro Instrument + Event aggregieren
     for key, is_selected in selected.items():
         if not is_selected:
             continue
-        
-        # Key aufsplitten: "labor_ecls_arm_2" -> ("labor", "ecls_arm_2")
-        # Events sind immer "ecls_arm_2" oder "impella_arm_2"
-        if key.endswith("_ecls_arm_2"):
-            event_name = "ecls_arm_2"
-            instr_name = key[:-len("_ecls_arm_2")]
-        elif key.endswith("_impella_arm_2"):
-            event_name = "impella_arm_2"
-            instr_name = key[:-len("_impella_arm_2")]
-        elif key.endswith("_baseline_arm_2"):
-            event_name = "baseline_arm_2"
-            instr_name = key[:-len("_baseline_arm_2")]
-        else:
+
+        # Key aufsplitten: "labor_ecls_arm_1" -> instr_name="labor", event_name="ecls_arm_1"
+        m = re.search(r'_((?:ecls|impella|baseline)_arm_\d+)$', key)
+        if not m:
             continue
-        
+        event_name = m.group(1)
+        instr_name = key[: -(len(event_name) + 1)]
+
         # Referenz-Zeit je nach Event
-        if event_name == "ecls_arm_2":
+        if event_name.startswith("ecls"):
             ref_time = state.nearest_ecls_time
             ref_df = get_data("ecmo")
-        elif event_name == "impella_arm_2":
+        elif event_name.startswith("impella"):
             ref_time = state.nearest_impella_time
             ref_df = get_data("impella")
-        else:  # baseline_arm_2
+        else:  # baseline
             ref_time = None
             ref_df = get_data("PatientInfo")
-        
+
         if ref_df.empty:
             continue
-        
+
         # Pre-Assessment (einmalig)
         if AVAILABLE_INSTRUMENTS.get(instr_name, {}).get("is_pre"):
             # Bestimme Ankerzeitpunkt
-            if event_name == "ecls_arm_2":
+            if event_name.startswith("ecls"):
                 earliest = get_data("ecmo")["timestamp"].min()
             else:
                 earliest = get_data("impella")["timestamp"].min()
@@ -564,12 +570,14 @@ def _build_multi_instrument_data():
                     record_id=state.record_id,
                     data=state.data,
                     ecmella_same_session=state.ecmella_same_session or False,
+                    redcap_event_name=impella_event,
                 )
             else:
                 aggregator = agg_class(
                     anchor_datetime=earliest,
                     record_id=state.record_id,
                     data=state.data,
+                    redcap_event_name=ecls_event,
                 )
 
             # Erstelle beide Entries und merge sie zu einem Dictionary
@@ -701,17 +709,19 @@ def _create_instrument_entry(
             date=day,
             record_id=record_id,
             redcap_repeat_instance=instance,
+            redcap_event_name=event_name,
             value_strategy=value_strategy,
             nearest_time=nearest_time
         )
         entry = aggregator.create_entry()
         return entry
-    
+
     elif instrument == "impellaassessment_and_complications":
         aggregator = ImpellaAggregator(
             date=day,
             record_id=record_id,
             redcap_repeat_instance=instance,
+            redcap_event_name=event_name,
             value_strategy=value_strategy,
             nearest_time=nearest_time
         )

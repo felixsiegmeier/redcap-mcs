@@ -42,12 +42,31 @@ INSTRUMENT_REGISTRY: Dict[str, Type[BaseExportModel]] = {
     "impellaassessment_and_complications": ImpellaAssessmentModel,
 }
 
-# Mapping: Event -> verfügbare Instrumente
-EVENT_INSTRUMENTS: Dict[str, list[str]] = {
-    "baseline_arm_2": [],  # Keine täglichen Daten-Instrumente
-    "ecls_arm_2": ["labor", "hemodynamics_ventilation_medication", "pump"],
-    "impella_arm_2": ["labor", "hemodynamics_ventilation_medication", "impellaassessment_and_complications"],
-}
+def get_event_instruments(arm: int) -> dict:
+    """Gibt das Event-Instruments-Mapping für den angegebenen Arm zurück."""
+    ecls_event     = f"ecls_arm_{arm}"
+    impella_event  = f"impella_arm_{arm}"
+    baseline_event = f"baseline_arm_{arm}"
+    if arm == 1:
+        return {
+            baseline_event: [],
+            ecls_event: ["labor", "hemodynamics_ventilation_medication", "pump"],
+        }
+    if arm == 3:
+        return {
+            baseline_event: [],
+            impella_event: ["labor", "hemodynamics_ventilation_medication", "impellaassessment_and_complications"],
+        }
+    # arm == 2 (default)
+    return {
+        baseline_event: [],
+        ecls_event: ["labor", "hemodynamics_ventilation_medication", "pump"],
+        impella_event: ["labor", "hemodynamics_ventilation_medication", "impellaassessment_and_complications"],
+    }
+
+
+# Rückwärtskompatible Konstante
+EVENT_INSTRUMENTS = get_event_instruments(2)
 
 
 @dataclass
@@ -72,6 +91,9 @@ class AppState:
     
     # Patientenspezifische Daten (manuell eingegeben falls nicht im Datensatz)
     patient_weight: Optional[float] = None  # in kg - NÖTIG für Katecholaminberechnung
+
+    # Erkannter REDCap-Arm: 1=ECLS only, 2=ECLS+Impella, 3=Impella only
+    arm: int = 2
 
     # ECMELLA-Konfiguration: True = zeitgleich implantiert (Pre-Impella-Parameter entfallen)
     # None = noch nicht gesetzt / nicht relevant (kein ECMO vorhanden)
@@ -102,6 +124,19 @@ class AppState:
     explorer_selected_categories: List[str] = field(default_factory=list)
     explorer_selected_parameters: List[str] = field(default_factory=list)
     explorer_show_chart: bool = False
+
+
+def detect_arm(df: pd.DataFrame) -> int:
+    """Erkennt den REDCap-Arm anhand der vorhandenen Device-Daten."""
+    has_ecmo = not df[df["source_type"] == "ECMO"].empty
+    has_impella = not df[df["source_type"].str.upper().str.contains("IMPELLA", na=False)].empty
+    if has_ecmo and has_impella:
+        return 2
+    if has_ecmo:
+        return 1
+    if has_impella:
+        return 3
+    return 2  # Default
 
 
 # ============================================================================
@@ -168,7 +203,10 @@ def load_data(df: pd.DataFrame) -> AppState:
     
     # Device-Zeiten für Export ermitteln
     _update_device_times(state, df)
-    
+
+    # Arm erkennen
+    state.arm = detect_arm(df)
+
     state.selected_view = Views.HOMEPAGE
     save_state(state)
     return state

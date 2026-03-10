@@ -27,6 +27,7 @@ class PumpAggregator(BaseAggregator):
         date: date,
         record_id: str,
         redcap_repeat_instance: int,
+        redcap_event_name: str = "ecls_arm_2",
         value_strategy: str = "median",
         nearest_time: Optional[time] = None,
         data: Optional[pd.DataFrame] = None
@@ -34,7 +35,7 @@ class PumpAggregator(BaseAggregator):
         super().__init__(
             date=date,
             record_id=record_id,
-            redcap_event_name="ecls_arm_2",
+            redcap_event_name=redcap_event_name,
             redcap_repeat_instance=redcap_repeat_instance,
             value_strategy=value_strategy,
             nearest_time=nearest_time,
@@ -47,7 +48,7 @@ class PumpAggregator(BaseAggregator):
 
         payload = {
             "record_id": self.record_id,
-            "redcap_event_name": "ecls_arm_2",
+            "redcap_event_name": self.redcap_event_name,
             "redcap_repeat_instrument": "pump",
             "redcap_repeat_instance": self.redcap_repeat_instance,
             "ecls_compl_time_point": self.redcap_repeat_instance,

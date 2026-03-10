@@ -31,8 +31,8 @@ class PumpModel(TimedExportModel):
     # REDCap-Felder mit korrektem Default
     redcap_repeat_instrument: Optional[str] = Field("pump", alias="redcap_repeat_instrument")
     
-    # Dieses Instrument ist NUR in ecls_arm_2 verfügbar!
-    redcap_event_name: Optional[str] = Field("ecls_arm_2", alias="redcap_event_name")
+    # Event-Name wird dynamisch gesetzt (Arm-abhängig)
+    redcap_event_name: Optional[str] = Field(None, alias="redcap_event_name")
     
     # Kontrollfelder
     ecls_compl_na: Optional[int] = Field(1, alias="ecls_compl_na")  # Keine Komplikationen
