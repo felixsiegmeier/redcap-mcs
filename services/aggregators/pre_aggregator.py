@@ -194,6 +194,8 @@ class PreDeviceAggregatorBase(BaseAggregator):
             df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
             val, ts = self._get_closest_pre_value(df, spec.category, spec.pattern, max_hours=max_hours)
             if val is not None:
+                if spec.conversion_factor is not None:
+                    val = round(val * spec.conversion_factor, 4)
                 values[redcap_key] = val
                 self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 if ts:
@@ -324,6 +326,8 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
                 if val is not None:
                     used_24h = True
             if val is not None:
+                if spec.conversion_factor is not None:
+                    val = round(val * spec.conversion_factor, 4)
                 payload[redcap_key] = val
                 self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_lab = True
@@ -500,6 +504,8 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
                 if val is not None:
                     used_24h = True
             if val is not None:
+                if spec.conversion_factor is not None:
+                    val = round(val * spec.conversion_factor, 4)
                 payload[redcap_key] = val
                 self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
                 has_lab = True

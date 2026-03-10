@@ -289,6 +289,8 @@ class BaseAggregator(ABC):
         for redcap_key, spec in registry.items():
             df = df_cache.setdefault(spec.source, self.get_source_data(spec.source))
             val = self.aggregate_value(df, spec.category, spec.pattern)
+            if val is not None and spec.conversion_factor is not None:
+                val = round(val * spec.conversion_factor, 4)
             values[redcap_key] = val
             self.validate_range(redcap_key, val, spec.min_val, spec.max_val)
 

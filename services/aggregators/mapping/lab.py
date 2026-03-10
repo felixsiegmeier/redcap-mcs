@@ -48,11 +48,11 @@ LAB_REGISTRY: Dict[str, FieldDef] = {
     "trop":    FieldDef("lab", r"Enzyme|Klinische Chemie", r"^Troponin|^HS-TROP", "number", "", ""),
     # Klinische Chemie
     "pct":     FieldDef("lab", r"Klinische Chemie|Proteine", r"^PROCALCITONIN", "number_2dp_comma_decimal", "0,00", "10,00"),
-    "crp":     FieldDef("lab", r"Klinische Chemie|Proteine", r"^CRP", "number_1dp_comma_decimal", "1,0", "50,0"),
+    "crp":     FieldDef("lab", r"Klinische Chemie|Proteine", r"^CRP",        "number_1dp_comma_decimal", "1,0",  "50,0",  0.1),    # mg/L → mg/dL
     "bili":    FieldDef("lab", "Klinische Chemie", r"^BILI", "number_2dp_comma_decimal", "0,00", "40,00"),
     "crea":    FieldDef("lab", r"Klinische Chemie|Retention", r"^KREATININ", "number_1dp_comma_decimal", "0,1", "7,0"),
     "urea":    FieldDef("lab", r"Klinische Chemie|Retention", r"^HARNSTOFF", "number_1dp_comma_decimal", "10,0", "300,0"),
     "cc":      FieldDef("lab", r"Klinische Chemie|Retention", r"^GFRKREA", "number_2dp_comma_decimal", "1,00", "150,00"),
-    "albumin": FieldDef("lab", r"Klinische Chemie|Proteine", r"^ALBUMIN", "number_1dp_comma_decimal", "0,1", "6,0"),
-    "hapto":   FieldDef("lab", r"Klinische Chemie|Proteine", r"^HAPTOGLOBIN", "number_1dp_comma_decimal", "8,0", "300,0"),
+    "albumin": FieldDef("lab", r"Klinische Chemie|Proteine", r"^ALBUMIN",    "number_1dp_comma_decimal", "0,1",  "6,0",   0.1),    # g/L → g/dL
+    "hapto":   FieldDef("lab", r"Klinische Chemie|Proteine", r"^HAPTOGLOBIN","number_1dp_comma_decimal", "8,0",  "300,0", 100.0),  # g/L → mg/dL
 }

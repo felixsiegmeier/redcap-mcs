@@ -55,7 +55,8 @@ def test_lab_derived_fields_manual_update():
     # Nachher
     assert model.post_pct == 1
     
-    # Teste Albumin Umrechnung (g/L -> g/dL)
-    model.albumin = 35.0
+    # Albumin-Umrechnung findet jetzt im Aggregator (via conversion_factor) statt,
+    # nicht mehr im Schema — set_derived_fields berührt albumin nicht mehr
+    model.albumin = 3.5
     model.set_derived_fields()
     assert model.albumin == 3.5

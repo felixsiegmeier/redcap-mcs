@@ -79,12 +79,12 @@ _PRE_LAB: Dict[str, FieldDef] = {
     "crea":   FieldDef("lab", r"Klinische Chemie|Retention", r"^KREATININ", "number_1dp_comma_decimal", "0,1", "7,0"),
     "urea":   FieldDef("lab", r"Klinische Chemie|Retention", r"^HARNSTOFF", "number_1dp_comma_decimal", "10,0", "300,0"),
     "cc":     FieldDef("lab", r"Klinische Chemie|Retention", r"^GFRKREA", "number_2dp_comma_decimal", "1,00", "150,00"),
-    "alb":    FieldDef("lab", r"Klinische Chemie|Proteine",  r"^ALBUMIN",            "number_1dp_comma_decimal", "1,0", "10,0"),
-    "crp":    FieldDef("lab", r"Klinische Chemie|Proteine", r"^CRP", "number_1dp_comma_decimal", "1,0", "50,0"),
-    "pct":    FieldDef("lab", r"Klinische Chemie|Proteine", r"^PROCALCITONIN", "number_2dp_comma_decimal", "0,00", "10,00"),
-    "act":    FieldDef("act", ".*", r"^ACT", "number", "90", "800"),
-    "fhb":    FieldDef("lab", r"Blutbild|Klinische Chemie", r"^FREIES HB", "number_2dp_comma_decimal", "0,0", "200,0"),
-    "hapto":  FieldDef("lab", r"Klinische Chemie|Proteine", r"^HAPTOGLOBIN", "number_1dp_comma_decimal", "8,0", "300,0"),
+    "alb":    FieldDef("lab", r"Klinische Chemie|Proteine",  r"^ALBUMIN",     "number_1dp_comma_decimal", "1,0",  "10,0",  0.1),    # g/L → g/dL
+    "crp":    FieldDef("lab", r"Klinische Chemie|Proteine", r"^CRP",          "number_1dp_comma_decimal", "1,0",  "50,0",  0.1),    # mg/L → mg/dL
+    "pct":    FieldDef("lab", r"Klinische Chemie|Proteine", r"^PROCALCITONIN","number_2dp_comma_decimal", "0,00", "10,00"),
+    "act":    FieldDef("act", ".*",                          r"^ACT",          "number",                   "90",   "800"),
+    "fhb":    FieldDef("lab", r"Blutbild|Klinische Chemie", r"^FREIES HB",    "number_2dp_comma_decimal", "0,0",  "200,0"),
+    "hapto":  FieldDef("lab", r"Klinische Chemie|Proteine", r"^HAPTOGLOBIN",  "number_1dp_comma_decimal", "8,0",  "300,0", 100.0),  # g/L → mg/dL
     "bili":   FieldDef("lab", "Klinische Chemie", r"^BILI", "number_1dp_comma_decimal", "0,00", "40,00"),
     "trop":   FieldDef("lab", r"Enzyme|Klinische Chemie",    r"^Troponin|^HS-TROP",  "number", "", ""),
     "alat":   FieldDef("lab", "Enzyme",                      r"^GPT",                "", "", ""),
