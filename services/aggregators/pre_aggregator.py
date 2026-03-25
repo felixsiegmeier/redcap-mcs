@@ -335,6 +335,11 @@ class PreImpellaAggregator(PreDeviceAggregatorBase):
                 if redcap_key == "pre_pct_i":   payload["pre_pct_m_i"] = 1
                 if redcap_key == "pre_act_i":   payload["pre_act_m_i"] = 1
                 if redcap_key == "pre_trop_i":  payload["pre_trop_m_i"] = 1
+            else:
+                if redcap_key == "pre_crp_i":   payload["pre_crp_m_i"] = 0
+                if redcap_key == "pre_pct_i":   payload["pre_pct_m_i"] = 0
+                if redcap_key == "pre_act_i":   payload["pre_act_m_i"] = 0
+                if redcap_key == "pre_trop_i":  payload["pre_trop_m_i"] = 0
 
         hemolysis_fields = ["pre_fhb_i", "pre_hapto_i", "pre_bili_i"]
         payload["pre_hemolysis_i"] = 1 if any(payload.get(f) is not None for f in hemolysis_fields) else 0
@@ -513,6 +518,11 @@ class PreVAECLSAggregator(PreDeviceAggregatorBase):
                 if redcap_key == "pre_pct":   payload["pre_pct_m"] = 1
                 if redcap_key == "pre_act":   payload["pre_act_m"] = 1
                 if redcap_key == "pre_trop":  payload["pre_trop_m"] = 1
+            else:
+                if redcap_key == "pre_crp":   payload["pre_crp_m"] = 0
+                if redcap_key == "pre_pct":   payload["pre_pct_m"] = 0
+                if redcap_key == "pre_act":   payload["pre_act_m"] = 0
+                if redcap_key == "pre_trop":  payload["pre_trop_m"] = 0
 
         hemolysis_fields = ["pre_fhb", "pre_hapto", "pre_bili"]
         payload["pre_hemolysis"] = 1 if any(payload.get(f) is not None for f in hemolysis_fields) else 0
