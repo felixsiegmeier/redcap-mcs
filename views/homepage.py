@@ -151,24 +151,35 @@ def _render_device_info():
         else:
             st.write("Keine Impella-Daten")
     
-    # Button zum Setzen des MCS-Zeitraums
+    # Toggle MCS-Zeitraum / Alle Daten
     ecmo_range = get_device_time_range("ecmo")
     impella_range = get_device_time_range("impella")
-    
+
     if ecmo_range or impella_range:
         ranges = [r for r in [ecmo_range, impella_range] if r]
         mcs_start = min(r[0] for r in ranges)
         mcs_end = max(r[1] for r in ranges)
-        
-        # Konvertiere pd.Timestamp zu datetime für konsistenten Vergleich
         if hasattr(mcs_start, 'to_pydatetime'):
             mcs_start = mcs_start.to_pydatetime()
         if hasattr(mcs_end, 'to_pydatetime'):
             mcs_end = mcs_end.to_pydatetime()
-        
-        if st.button("Zeitraum auf MCS setzen", help="Setzt den ausgewählten Zeitraum auf den MCS-Gerätezeitraum"):
-            # Pending time range setzen - wird in sidebar.py verarbeitet
-            st.session_state["_pending_time_range"] = (mcs_start, mcs_end)
+
+        sel = state.selected_time_range
+        is_mcs = (
+            sel is not None
+            and sel[0].date() == mcs_start.date()
+            and sel[1].date() == mcs_end.date()
+        )
+        choice = st.radio(
+            "Zeitraum",
+            ["MCS-Zeitraum", "Alle Daten"],
+            index=0 if is_mcs else 1,
+            horizontal=True,
+            key="hp_time_toggle",
+        )
+        target = (mcs_start, mcs_end) if choice == "MCS-Zeitraum" else state.time_range
+        if sel is None or target[0].date() != sel[0].date() or target[1].date() != sel[1].date():
+            st.session_state["_pending_time_range"] = target
             st.rerun()
 
 

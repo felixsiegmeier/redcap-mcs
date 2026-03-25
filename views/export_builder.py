@@ -265,25 +265,38 @@ def _render_time_range_selector():
     else:
         st.warning("Kein Zeitraum ausgewählt")
     
-    # MCS-Zeitraum Button
+    # Toggle MCS-Zeitraum / Alle Daten
     ecmo_range = get_device_time_range("ecmo")
     impella_range = get_device_time_range("impella")
-    
+
     if ecmo_range or impella_range:
         ranges = [r for r in [ecmo_range, impella_range] if r]
         mcs_start = min(r[0] for r in ranges)
         mcs_end = max(r[1] for r in ranges)
-        
-        # Konvertiere pd.Timestamp zu datetime
         if hasattr(mcs_start, 'to_pydatetime'):
             mcs_start = mcs_start.to_pydatetime()
         if hasattr(mcs_end, 'to_pydatetime'):
             mcs_end = mcs_end.to_pydatetime()
-        
-        if st.button("Zeitraum auf MCS setzen", key="builder_mcs_range"):
-            update_state(selected_time_range=(mcs_start, mcs_end))
+
+        sel = state.selected_time_range
+        is_mcs = (
+            sel is not None
+            and sel[0].date() == mcs_start.date()
+            and sel[1].date() == mcs_end.date()
+        )
+        choice = st.radio(
+            "Zeitraum",
+            ["MCS-Zeitraum", "Alle Daten"],
+            index=0 if is_mcs else 1,
+            horizontal=True,
+            key="builder_time_toggle",
+        )
+        target = (mcs_start, mcs_end) if choice == "MCS-Zeitraum" else state.time_range
+        if sel is None or target[0].date() != sel[0].date() or target[1].date() != sel[1].date():
+            update_state(selected_time_range=target)
+            st.session_state["_pending_time_range"] = target
             st.rerun()
-            
+
     # Hinweis zu Pre-Assessments
     st.caption("ℹ️ Pre-Assessments werden immer für den Zeitpunkt der Implantation erstellt, unabhängig vom gewählten Zeitraum.")
 
@@ -613,9 +626,11 @@ def _build_multi_instrument_data():
         instance = 1
         
         for day in dates:
-            day_data = ref_df[ref_df["timestamp"].dt.date == day]
-            if day_data.empty:
-                continue
+            # Device-spezifische Instrumente nur für Tage mit Gerätedaten erstellen
+            if instr_name in ("pump", "impellaassessment_and_complications"):
+                day_data = ref_df[ref_df["timestamp"].dt.date == day]
+                if day_data.empty:
+                    continue
             
             entry = _create_instrument_entry(
                 instrument=instr_name,

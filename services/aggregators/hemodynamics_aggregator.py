@@ -17,6 +17,7 @@ from schemas.db_schemas.hemodynamics import (
     HemodynamicsModel,
     VentilationSpec,
     Anticoagulation,
+    RenalReplacement,
 )
 from .base import BaseAggregator
 from .mapping import (
@@ -86,6 +87,10 @@ class HemodynamicsAggregator(BaseAggregator):
 
         ecmella = self._check_ecmella()
 
+        # CRRT: falls Hämofilter-Daten für diesen Tag vorhanden → kontinuierliche Hämofiltration
+        crrt_df = self.get_source_data("crrt")
+        renal_repl = RenalReplacement.CONTINUOUS_HEMOFILTRATION.value if not crrt_df.empty else None
+
         payload = {
             "record_id": self.record_id,
             "redcap_event_name": self.redcap_event_name,
@@ -96,6 +101,7 @@ class HemodynamicsAggregator(BaseAggregator):
             "na_post": 1,
             "ecmella": ecmella,
             "nutrition_spec___1": nutrition_spec___1,
+            **({"renal_repl": renal_repl} if renal_repl is not None else {}),
         }
 
         rass_score = None
@@ -194,12 +200,14 @@ class HemodynamicsAggregator(BaseAggregator):
         if filtered.empty:
             return None
 
-        # Rate in ml/h
+        # Rate in ml/h (0.0 = Perfusor gestoppt/abgelöst → als nicht gegeben werten)
         if "rate" in filtered.columns:
             rates = pd.to_numeric(filtered["rate"], errors="coerce").dropna()
+            rates = rates[rates > 0]
             rate_ml_h = float(rates.median()) if not rates.empty else None
         else:
             values = pd.to_numeric(filtered["value"], errors="coerce").dropna()
+            values = values[values > 0]
             rate_ml_h = float(values.median()) if not values.empty else None
 
         if rate_ml_h is None:

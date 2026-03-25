@@ -199,7 +199,8 @@ def load_data(df: pd.DataFrame) -> AppState:
         ts_clean = df["timestamp"].dropna()
         if not ts_clean.empty:
             state.time_range = (ts_clean.min(), ts_clean.max())
-            state.selected_time_range = state.time_range
+            mcs_range = _compute_mcs_range(df)
+            state.selected_time_range = mcs_range if mcs_range else state.time_range
     
     # Device-Zeiten für Export ermitteln
     _update_device_times(state, df)
@@ -210,6 +211,19 @@ def load_data(df: pd.DataFrame) -> AppState:
     state.selected_view = Views.HOMEPAGE
     save_state(state)
     return state
+
+
+def _compute_mcs_range(df: pd.DataFrame) -> Optional[tuple]:
+    """Gibt den kombinierten Zeitbereich aller MCS-Geräte zurück, oder None."""
+    ecmo_df = df[df["source_type"] == "ECMO"]
+    impella_df = df[df["source_type"].str.upper().str.contains("IMPELLA", na=False)]
+    ranges = []
+    for device_df in [ecmo_df, impella_df]:
+        if not device_df.empty and "timestamp" in device_df.columns:
+            ts = device_df["timestamp"].dropna()
+            if not ts.empty:
+                ranges.append((ts.min(), ts.max()))
+    return (min(r[0] for r in ranges), max(r[1] for r in ranges)) if ranges else None
 
 
 def _update_device_times(state: AppState, df: pd.DataFrame) -> None:
